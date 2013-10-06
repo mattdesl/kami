@@ -44,15 +44,19 @@ module.exports.setup = function(parent) {
 };
 
 module.exports.show = function(callback) {
+	//TODO: use a parent container for convenience...
 	canvas.fadeIn(400, callback);
+	element.fadeOut();
 };
 
 module.exports.hide = function(callback) {
 	canvas.fadeOut(400, callback);
+	element.fadeOut();
 };
 
 module.exports.dispose = function(parent) {
 	canvas.detach();
+	element.detach();
 };
 
 module.exports.resize = function(w, h) {
