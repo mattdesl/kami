@@ -1,0 +1,17 @@
+{
+  "name": "kami-demos",
+  "version": "0.0.0",
+  "description": "Demos for the kami rendering ecosystem.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "Matt DesLauriers",
+  "license": "BSD",
+  "devDependencies": {
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-browserify": "~1.2.8",
+    "browserify": "~2.33.1"
+  }
+}
