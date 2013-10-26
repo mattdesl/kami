@@ -1,0 +1,24 @@
+{
+  "name": "kami",
+  "version": "0.0.0",
+  "description": "WebGL utilities for performant and flexible 2D and 3D rendering.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "gl-matrix": "toji/gl-matrix.git#v2.2.0",
+    "jsOOP": "mattdesl/jsOOP"
+  },
+  "devDependencies": {
+    "requireindex": "~1.0.1",
+    "grunt": "~0.4.1",
+    "browserify": "~2.35.0",
+    "grunt-browserify": "~1.2.9",
+    "grunt-contrib-watch": "~0.5.3",
+    "browserify-shim-util": "git://github.com/mattdesl/browserify-shim-util",
+    "brfs": "0.0.8"
+  }
+}

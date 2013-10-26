@@ -1,0 +1,8 @@
+kami
+	core
+		
+	gl
+		VertexData --> VBO + VAO
+		VertexAttrib
+		ShaderProgram
+		Texture
