@@ -1,1 +1,0 @@
-var ShaderProgram = require('kami/lib/webgl/ShaderProgram');

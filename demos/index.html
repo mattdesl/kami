@@ -8,14 +8,42 @@
 
 	<title>kami examples</title>
 
+	<link rel="stylesheet" href="vendor/normalize.css" type="text/css">
+	<script src="vendor/raf.min.js" type="text/javascript"></script>
+	<script src="vendor/jquery.min.js" type="text/javascript"></script>
+
+	<script id="frag_shader" type="x-shader/x-fragment">
+	precision float mediump;
+
+    void main() {
+		//final color: return opaque red
+		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	}
+	</script>
+
+	<script id="vert_shader" type="x-shader/x-vertex">
+	//incoming Position attribute from our SpriteBatch
+	attribute vec2 Position;
+
+	//the transformation matrix of our SpriteBatch
+	uniform mat4 u_projView;
+	 
+	void main() {
+		//transform our 2D screen space position into 3D world space
+		gl_Position = u_projView * vec4(Position, 0.0, 1.0);
+	}
+	</script>
+
 	<!-- 
 		This shows an example of using browserify to bundle 
 		everything together. 
 	-->
-	<script src="bundle.js" type="text/javascript"></script>
+	<script src="build/bundle.js" type="text/javascript"></script>
+
+	<!-- LiveReload tag injection, to be used with grunt watch-demos -->
+	<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 </head>
 
 <body>
-	
 </body>
-</html>
+</html> 

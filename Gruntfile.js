@@ -9,7 +9,9 @@ module.exports = function(grunt) {
 		dirs: {
 			dist: 'build',
 			src: 'lib',
-			demos: 'demos'
+			demos: 'demos',
+			demo_src: 'demos/src',
+			demo_build: 'demos/build'
 		},
 
 
@@ -26,29 +28,21 @@ module.exports = function(grunt) {
 				}
 			},
 			
-			demo_src: {
-				src: ['<%= dirs.demos %>/src/index.js'],
-				dest: '<%= dirs.demos %>/bundle.js',
+			demos: {
+				src: ['<%= dirs.demo_src %>/index.js'],
+				dest: '<%= dirs.demo_build %>/bundle.js',
 
 				options: {
-					//We alias the paths so the demos can have
-					//the same syntax as if we just NPM installed Kami
-					// aliasMappings: {
-					// 	cwd: 'lib/',
-					// 	src: ['**/*.js'],
-					// 	dest: 'kami/lib'
-					// }					
+					debug: true				
 				}
-			},
-
-
+			}
 		},
 
 		watch: {
 			demos: { 
 				//Watch for changes...
 				files: ['<%= dirs.src %>/**/*.js', 
-						'<%= dirs.demos %>/**/*.js',
+						'<%= dirs.demo_src %>/**/*.js',
 						'<%= dirs.demos %>/**/*.html', 
 						'Gruntfile.js'],
 				tasks: ['browserify:demos'],
