@@ -1,5 +1,5 @@
-var WebGLCanvas = require('kami/lib/WebGLCanvas');
-var ShaderProgram = require('kami/lib/ShaderProgram');
+var WebGLCanvas = require('kami').WebGLCanvas;
+var ShaderProgram = require('kami').ShaderProgram;
 
 $(function() {
 	var mainContainer = $("body").css({
@@ -33,9 +33,8 @@ $(function() {
 	var context = new WebGLCanvas(800, 600, null, {
 		antialias: true	
 	});
-
-
-	var shader = new ShaderProgram($("#vert_shader").html(), $("#frag_shader").html());
+  	
+	var shader = new ShaderProgram(context.gl, $("#vert_shader").html(), $("#frag_shader").html());
 
 	requestAnimationFrame(render);
 
