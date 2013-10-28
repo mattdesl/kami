@@ -1,5 +1,6 @@
 var WebGLCanvas = require('kami').WebGLCanvas;
 var ShaderProgram = require('kami').ShaderProgram;
+var Texture = require('kami').Texture;
 
 $(function() {
 	var mainContainer = $("body").css({
@@ -27,14 +28,29 @@ $(function() {
 
 	canvas.appendTo(mainContainer);
 
-
-	// var renderer = new WebGLRenderer(width, height, canvas[0]);
-	
-	var context = new WebGLCanvas(800, 600, null, {
+	//create our webGL context..
+	var context = new WebGLCanvas(800, 600, canvas[0], {
 		antialias: true	
 	});
-  	
+	
+	//create a basic shader..
 	var shader = new ShaderProgram(context.gl, $("#vert_shader").html(), $("#frag_shader").html());
+
+	//create a texture from Image
+	var tex = new Texture(context.gl);
+
+
+
+
+
+	//async load an image
+	var image = new Image();
+	image.src = "img/bunny.png";
+	image.onload = function() {
+		console.log("image loaded");
+		tex.uploadImage(image);
+		console.log(tex.width, tex.height);
+	}.bind(this);
 
 	requestAnimationFrame(render);
 

@@ -10,7 +10,8 @@
   "license": "MIT",
   "dependencies": {
     "gl-matrix": "toji/gl-matrix.git#v2.2.0",
-    "jsOOP": "mattdesl/jsOOP"
+    "jsOOP": "mattdesl/jsOOP",
+    "requireindex": "~1.0.1"
   },
   "devDependencies": {
     "requireindex": "~1.0.1",
