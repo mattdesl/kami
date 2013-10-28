@@ -1,3 +1,3 @@
 ## kami
 
-Kami is a fast and lightweight WebGL sprite rendering framework for the browser that aims to support modern WebGL features like compressed textures and WebGL 2 extensions. Its modular backend means it can easily be integrated into other frameworks, such as Pixi or Enchant.js.
+Kami is a fast and lightweight WebGL sprite rendering framework. It aims to support modern WebGL features such as compressed textures and WebGL2 extensions. It is modular and reusable, and easy to plug into existing game engines.
