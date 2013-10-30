@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 				dest: '<%= dirs.demo_build %>/bundle.js',
 
 				options: {
-					debug: true				
+					// debug: true				
 				}
 			}
 		},
