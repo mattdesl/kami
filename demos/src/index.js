@@ -37,28 +37,39 @@ $(function() {
 	//this will be added to the context and re-compiled on context restore
 	var shader = new ShaderProgram(context, $("#vert_shader").html(), $("#frag_shader").html());
 
-	console.log(shader.getUniformLocation("u_projView"));
-	console.log(shader.getAttributeLocation("Position"));
+	shader.bind();
+	context.gl.uniform1i(shader.getUniformLocation("tex0"), 0);
+
+	// console.log(shader.getUniformLocation("tex0"));
+	// console.log(shader.getAttributeLocation("TexCoord"));
+	// 
 	//create a texture from Image
 	// var tex = new Texture(context.gl);
 
 	var pixels = new Uint16Array([255, 255, 0, 255]);
 
 	//create texture from Image (async load)
-	// var tex = new Texture(context, "img/bunny.png");
+	var tex = new Texture(context, "img/bunny.png");
 
 	// var tex = new Texture(context, "img/bunny.png", onload);
 
 	var vertices = new Float32Array([
 		-1, -1,
-		0, -1,
 		0, 0,
-		-1, 0
+
+		0, -1,
+		1, 0,
+
+		0, 0,
+		1, 1,
+
+		-1, 0, //xy
+		0, 1 //uv
 	]);
 	
 	var indices = new Uint16Array([
 		0, 1, 2,
-		0, 2, 3
+		0, 2, 3,
 	]);
 
 	// context.gl.disable(context.gl.CULL_FACE)
@@ -68,7 +79,8 @@ $(function() {
 	//numIndices = 6
 	//attribs = just position right now...
 	var vbo = new VertexData(context, true, 4, 6, [
-		new VertexData.Attrib("Position", 2) //this should match our shader
+		new VertexData.Attrib("Position", 2),
+		new VertexData.Attrib("TexCoord", 2)
 	]);
 
 	//these are initialized already, or we can override them like so:
@@ -99,6 +111,7 @@ $(function() {
 		var gl = context.gl;
 
 		vbo.dirty = true;
+		tex.bind();
 		shader.bind();
 
 		vbo.bind(shader);

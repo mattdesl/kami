@@ -15,20 +15,27 @@
 	<script id="frag_shader" type="x-shader/x-fragment">
 	precision mediump float;
 
+	varying vec2 vTexCoord;
+	uniform sampler2D tex0;
+
 	void main() {
 		//final color: return opaque red
-		gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		// gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+		gl_FragColor = texture2D(tex0, vTexCoord);
 	}
 	</script>
 
 	<script id="vert_shader" type="x-shader/x-vertex">
 	//incoming Position attribute from our SpriteBatch
 	attribute vec2 Position;
+	attribute vec2 TexCoord;
 
+	varying vec2 vTexCoord;
 	//the transformation matrix of our SpriteBatch
 	// uniform mat4 u_projView;
 	 
 	void main() {
+		vTexCoord = TexCoord;
 		//transform our 2D screen space position into 3D world space
 		gl_Position = vec4(Position, 0.0, 1.0);
 	}
