@@ -1,4 +1,4 @@
-var WebGLCanvas = require('kami').WebGLCanvas;
+var WebGLContext = require('kami').WebGLContext;
 var ShaderProgram = require('kami').ShaderProgram;
 var Texture = require('kami').Texture;
 
@@ -29,33 +29,44 @@ $(function() {
 	canvas.appendTo(mainContainer);
 
 	//create our webGL context..
-	var context = new WebGLCanvas(800, 600, canvas[0], {
-		antialias: true	
-	});
+	//this will manage viewport and context loss/restore
+	var context = new WebGLContext(800, 600, canvas[0]);
 	
 	//create a basic shader..
-	var shader = new ShaderProgram(context.gl, $("#vert_shader").html(), $("#frag_shader").html());
+	//this will be added to the context and re-compiled on context restore
+	var shader = new ShaderProgram(context, $("#vert_shader").html(), $("#frag_shader").html());
 
 	//create a texture from Image
-	var tex = new Texture(context.gl);
+	// var tex = new Texture(context.gl);
 
+	var pixels = new Uint8Array([255, 255, 0, 255]);
 
+	//create texture from Image (async load)
+	// var tex = new Texture(context, "img/bunny.png");
 
+	var tex = new Texture(context, "img/bunny.png", onload);
 
-
-	//async load an image
-	var image = new Image();
-	image.src = "img/bunny.png";
-	image.onload = function() {
-		console.log("image loaded");
-		tex.uploadImage(image);
-		console.log(tex.width, tex.height);
-	}.bind(this);
 
 	requestAnimationFrame(render);
 
-	function render() {
+	var loseCtx = context.gl.getExtension("WEBGL_lose_context");
+
+	// setTimeout(function() {
+	// 	loseCtx.loseContext();	
 		
+	// }.bind(this), 1000);
+
+	// setTimeout(function() {
+	// 	loseCtx.restoreContext();
+	// }.bind(this), 3200);
+
+	function render() {
 		requestAnimationFrame(render);
+
+		if (!context.valid) {
+			return;
+		} 
+		shader.bind();
+		tex.bind();
 	}
-}); 
+});
