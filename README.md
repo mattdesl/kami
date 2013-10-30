@@ -11,11 +11,11 @@ Kami is a fast and lightweight WebGL sprite rendering framework. It aims to supp
 	- Automatically managed by WebGLContext in context loss
 - **ShaderProgram** - a utility for compiling and managing shaders
 	- Caches uniform and attribute locations
+- **VertexData** - a utility to manage a mesh made up of an interleaved Vertex Buffer Object and an Index Buffer Object. This is tied in with ShaderProgram to make attribute definitions easy to work with.
 
 ## TODO
 
 - **FrameBuffer** - a FBO utility which allows for a depth component 
-- **VertexData**, **VertexAttribute**, **Mesh** - easy to use wrappers for VBOs and IBOs
 - **AbstractBatch** - a base class for custom billboard (quad) batchers to build off of
 - **SimpleBatch** - a fast and efficient sprite batcher that uses a single large buffer
 - **MultitextureBatch** - an even faster sprite batcher that renders up to 4 textures in a single draw call
