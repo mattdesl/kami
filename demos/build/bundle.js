@@ -40,7 +40,7 @@ $(function() {
 
 
 	//create texture from Image (async load)
-	var tex = new Texture(context, "img/bunny.png", onAssetsLoaded);
+	var tex = new Texture(context, "img/bunny.png", onAssetLoaded);
 
 	//make up some vertex data, interleaved with {x, y, u, v}
 	var vertices = new Float32Array([
@@ -79,6 +79,36 @@ $(function() {
 	//this write-only property sets verticesDirty and indicesDirty to true
 	vbo.dirty = true;
 
+	//Called when textures have been loaded to re-start the render loop
+	function onAssetLoaded() {
+		console.log("asset loaded");
+		requestAnimationFrame(render);
+	}
+
+	function render() {
+		//cancel the render frame if context is lost/invalid
+		//on context restore the image will be re-loaded and the 
+		//render frame started again 
+		//(this will be made cleaner with a high-level AssetManager)
+		if (!context.valid) 
+			return;
+
+		requestAnimationFrame(render);
+
+		var gl = context.gl;
+		gl.clearColor(0, 0, 0, 0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		tex.bind();
+		shader.bind();
+		vbo.bind(shader);
+		vbo.draw(gl.TRIANGLES, 6, 0);
+		vbo.unbind(shader);
+	}
+
+
+
+	
 	// TODO: context loss should be tied nicely with an asset manager
 	// //test for simulating context loss
 	// var loseCtx = context.gl.getExtension("WEBGL_lose_context");
@@ -103,25 +133,6 @@ $(function() {
 	// 	}.bind(this))
 	// }
 
-	//Called when textures have been loaded to re-start the render loop
-	var onAssetsLoaded = function() {
-		requestAnimationFrame(render);
-	};
-
-
-	function render() {
-		requestAnimationFrame(render);
-
-		var gl = context.gl;
-		gl.clearColor(0, 0, 0, 0);
-		gl.clear(gl.COLOR_BUFFER_BIT);
-
-		tex.bind();
-		shader.bind();
-		vbo.bind(shader);
-		vbo.draw(gl.TRIANGLES, 6, 0);
-		vbo.unbind(shader);
-	}
 });
 },{"kami":6}],2:[function(require,module,exports){
 var Class = require('jsOOP').Class;
@@ -749,9 +760,9 @@ Texture.DEFAULT_FILTER = Texture.Filter.NEAREST;
  */
 Texture.ImageProvider = function(texture, path, onLoad, onErr, format, type) {
 	var img = new Image();
+
 	img.onload = function() {
 		texture.uploadImage(img, format, type);
-
 		if (onLoad && typeof onLoad === "function")
 			onLoad.call(texture, texture);
 	};
