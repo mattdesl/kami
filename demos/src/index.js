@@ -1,6 +1,7 @@
 var WebGLContext = require('kami').WebGLContext;
 var ShaderProgram = require('kami').ShaderProgram;
 var Texture = require('kami').Texture;
+var VertexData = require('kami').VertexData;
 
 $(function() {
 	var mainContainer = $("body").css({
@@ -36,20 +37,48 @@ $(function() {
 	//this will be added to the context and re-compiled on context restore
 	var shader = new ShaderProgram(context, $("#vert_shader").html(), $("#frag_shader").html());
 
+	console.log(shader.getUniformLocation("u_projView"));
+	console.log(shader.getAttributeLocation("Position"));
 	//create a texture from Image
 	// var tex = new Texture(context.gl);
 
-	var pixels = new Uint8Array([255, 255, 0, 255]);
+	var pixels = new Uint16Array([255, 255, 0, 255]);
 
 	//create texture from Image (async load)
 	// var tex = new Texture(context, "img/bunny.png");
 
-	var tex = new Texture(context, "img/bunny.png", onload);
+	// var tex = new Texture(context, "img/bunny.png", onload);
 
+	var vertices = new Float32Array([
+		-1, -1,
+		0, -1,
+		0, 0,
+		-1, 0
+	]);
+	
+	var indices = new Uint16Array([
+		0, 1, 2,
+		0, 2, 3
+	]);
+
+	// context.gl.disable(context.gl.CULL_FACE)
+
+	//static = true
+	//numVerts = 4
+	//numIndices = 6
+	//attribs = just position right now...
+	var vbo = new VertexData(context, true, 4, 6, [
+		new VertexData.Attrib("Position", 2) //this should match our shader
+	]);
+
+	//these are initialized already, or we can override them like so:
+	vbo.indices = indices;
+	vbo.vertices = vertices;
+	vbo.dirty = true;
 
 	requestAnimationFrame(render);
 
-	var loseCtx = context.gl.getExtension("WEBGL_lose_context");
+	// var loseCtx = context.gl.getExtension("WEBGL_lose_context");
 
 	// setTimeout(function() {
 	// 	loseCtx.loseContext();	
@@ -66,7 +95,14 @@ $(function() {
 		if (!context.valid) {
 			return;
 		} 
+
+		var gl = context.gl;
+
+		vbo.dirty = true;
 		shader.bind();
-		tex.bind();
+
+		vbo.bind(shader);
+		vbo.draw(gl.TRIANGLES, 6, 0);
+		vbo.unbind(shader);
 	}
 });
