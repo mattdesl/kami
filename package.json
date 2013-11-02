@@ -18,8 +18,6 @@
     "grunt": "~0.4.1",
     "browserify": "~2.35.0",
     "grunt-browserify": "~1.2.9",
-    "grunt-contrib-watch": "~0.5.3",
-    "browserify-shim-util": "git://github.com/mattdesl/browserify-shim-util",
-    "brfs": "0.0.8"
+    "grunt-contrib-watch": "~0.5.3"
   }
 }
