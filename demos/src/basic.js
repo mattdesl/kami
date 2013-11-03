@@ -44,6 +44,7 @@ $(function() {
 	//In WebGL, repeat wrapping only works with power-of-two images!
 	tex0.setWrap(Texture.Wrap.REPEAT);
 
+	//Start our render loop
 	requestAnimationFrame(render);
 
 	function render() {
