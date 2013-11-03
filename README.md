@@ -4,8 +4,8 @@ Kami is a fast and lightweight WebGL sprite rendering framework. It can be used 
 
 ## Features
 
-- **WebGLContext**
-
+- **context loss**
+	- Provides a clean interface for dealing with context loss and restore. Buffers, textures, and shaders are re-created. The AssetManager makes it easy to integrate your preloader into context restoration, for re-loading images and other assets.
 
 - **WebGLContext** 
 	- manages textures, shaders, and other GL objects that need to be recreated on context loss

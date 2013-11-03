@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
+                <li><a href="../classes/Texture.html">Texture</a></li>
+            
                 <li><a href="../classes/WebGLContext.html">WebGLContext</a></li>
             
             </ul>
@@ -105,12 +107,12 @@
  */
 
 // Requires....
-var Class 		  = require(&#x27;jsOOP&#x27;).Class;
+var Class         = require(&#x27;jsOOP&#x27;).Class;
 
 var AbstractBatch = require(&#x27;./AbstractBatch&#x27;);
-var Point 		  = require(&#x27;./Point&#x27;);
+var Point         = require(&#x27;./Point&#x27;);
 
-var Mesh 		  = require(&#x27;kami-gl&#x27;).Mesh;
+var Mesh          = require(&#x27;kami-gl&#x27;).Mesh;
 var ShaderProgram = require(&#x27;kami-gl&#x27;).ShaderProgram;
 
 /**
@@ -118,369 +120,386 @@ var ShaderProgram = require(&#x27;kami-gl&#x27;).ShaderProgram;
  * This uses two triangles (quads) with indexed and interleaved
  * vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).
  *
+ * @example
+ *      var SpriteBatch = require(&#x27;kami&#x27;).SpriteBatch;  
+ *      
+ *      //create a new batcher
+ *      var batch = new SpriteBatch(context);
+ *
+ *      function render() {
+ *          batch.begin();
+ *          
+ *          //draw some sprites in between begin and end...
+ *          batch.draw( texture, 0, 0, 25, 32 );
+ *          batch.draw( texture1, 0, 25, 42, 23 );
+ * 
+ *          batch.end();
+ *      }
+ *
  * @class  SpriteBatch
+ * @constructor
  * @param {WebGLContext} context the context for this batch
  * @param {Number} size the max number of sprites to fit in a single batch
  */
 var SpriteBatch = new Class({
 
-	Extends: AbstractBatch,
+    Extends: AbstractBatch,
 
-	/**
-	 * SpriteBatch uploads a vec2 for projection
-	 * transform in the shader. A custom shader might
-	 * use a matrix or some other means of calculating 
-	 * projection; in which case this should be set to false.
-	 * 
-	 * @property useProjectionVector
-	 * @type {Boolean}
-	 * @default  true
-	 */
-	useProjectionVector: true,
+    /**
+     * SpriteBatch uploads a vec2 for projection
+     * transform in the shader. A custom shader might
+     * use a matrix or some other means of calculating 
+     * projection; in which case this should be set to false.
+     * 
+     * @property useProjectionVector
+     * @type {Boolean}
+     * @default  true
+     */
+    useProjectionVector: true,
 
-	/**
-	 * The projection Point which is
-	 * used to avoid some matrix calculations. A 3D 
-	 * batcher might want to replace this and 
-	 * {{#crossLink &quot;SpriteBatch/setProjection:method&quot;}}{{/crossLink}} 
-	 * entirely. 
-	 *
-	 * @property projection
-	 * @type {Point}
-	 */
-	projection: null,
+    /**
+     * The projection Point which is
+     * used to avoid some matrix calculations. A 3D 
+     * batcher might want to replace this and 
+     * {{#crossLink &quot;SpriteBatch/setProjection:method&quot;}}{{/crossLink}} 
+     * entirely. 
+     *
+     * @property projection
+     * @type {Point}
+     */
+    projection: null,
 
-	//Constructor
-	initialize: function(context, size) {
-		this.parent(context, size);
+    //Constructor
+    initialize: function(context, size) {
+        this.parent(context, size);
 
-		//currently bound texture
-		this.texture = null;
+        //currently bound texture
+        this.texture = null;
 
-		//TODO: use a Point or Vector class...
-		this.projection = new Point(0, 0);
-	},
+        //TODO: use a Point or Vector class...
+        this.projection = new Point(0, 0);
+    },
 
-	/**
-	 * The number of floats per vertex for this batcher 
-	 * (Position.xy + Color + TexCoord0.xy).
-	 *
-	 * @method  getVertexSize
-	 * @return {Number} the number of floats per vertex
-	 */
-	getVertexSize: function() {
-		return SpriteBatch.VERTEX_SIZE;
-	},
+    /**
+     * The number of floats per vertex for this batcher 
+     * (Position.xy + Color + TexCoord0.xy).
+     *
+     * @method  getVertexSize
+     * @return {Number} the number of floats per vertex
+     */
+    getVertexSize: function() {
+        return SpriteBatch.VERTEX_SIZE;
+    },
 
-	/**
-	 * Used internally to return the Position, Color, and TexCoord0 attributes.
-	 *
-	 * @method  _createVertexAttribuets
-	 * @protected
-	 * @return {[type]} [description]
-	 */
-	_createVertexAttributes: function() {
-		return [ 
-			new Mesh.Attrib(&quot;Position&quot;, 2),
-			new Mesh.Attrib(&quot;Color&quot;, 1),
-			new Mesh.Attrib(&quot;TexCoord0&quot;, 2)
-		];
-	},
-
-
-	/**
-	 * Sets the projection vector, an x and y
-	 * defining the middle points of your stage.
-	 *
-	 * @method setProjection
-	 * @param {Number} x the x projection value
-	 * @param {Number} y the y projection value
-	 */
-	setProjection: function(x, y) {
-		var oldX = this.projection.x;
-		var oldY = this.projection.y;
-		this.projection.x = x;
-		this.projection.y = y;
-
-		//we need to flush the batch..
-		if (this.drawing &amp;&amp; (x != oldX || y != oldY)) {
-			this.flush();
-			this._updateMatrices();
-		}
-	},
-
-	/**
-	 * Creates a default shader for this batch.
-	 *
-	 * @method  _createShader
-	 * @protected
-	 * @return {ShaderProgram} a new instance of ShaderProgram
-	 */
-	_createShader: function() {
-		var shader = new ShaderProgram(this.context,
-				SpriteBatch.DEFAULT_VERT_SHADER, 
-				SpriteBatch.DEFAULT_FRAG_SHADER);
-		if (shader.log)
-			console.warn(&quot;Shader Log:\n&quot; + shader.log);
-		return shader;
-	},
-
-	/**
-	 * This is called during rendering to update projection/transform
-	 * matrices and upload the new values to the shader. For example,
-	 * if the user calls setProjection mid-draw, the batch will flush
-	 * and this will be called before continuing to add items to the batch.
-	 *
-	 * You generally should not need to call this directly.
-	 * 
-	 * @method  updateMatrices
-	 * @protected
-	 */
-	updateMatrices: function() {
-		//an extension of SpriteBatch might want to support full transform &amp;
-		//projection matrices for 3D billboards. if so, override this method
-		if (this.useProjectionVector)
-			this.shader.setUniformfv(&quot;u_projection&quot;, this.projection.items);
-	},
-
-	/**
-	 * Called before rendering, and binds the current texture.
-	 * 
-	 * @method _preRender
-	 * @protected
-	 */
-	_preRender: function() {
-		if (this.texture)
-			this.texture.bind();
-	},
-
-	/**
-	 * Binds the shader, disables depth writing, 
-	 * enables blending, activates texture unit 0, and sends
-	 * default matrices and sampler2D uniforms to the shader.
-	 *
-	 * @method  begin
-	 */
-	begin: function() {
-		//sprite batch doesn&#x27;t hold a reference to GL since it is volatile
-		var gl = this.context.gl;
-		
-		//just do direct parent call for speed here
-		//This binds the shader and mesh!
-		AbstractBatch.prototype.begin.call(this);
-
-		this.updateMatrices(); //send projection/transform to shader
-
-		//upload the sampler uniform. not necessary every flush so we just
-		//do it here.
-		this.shader.setUniformi(&quot;u_texture0&quot;, 0);
-
-		//disable depth mask
-		gl.depthMask(false);
-
-		//premultiplied alpha
-		if (this._blendEnabled) {
-			gl.enable(gl.BLEND);
-
-			//set either to -1 if you want to call your own 
-			//blendFunc or blendFuncSeparate
-			if (this._blendSrc !== -1 &amp;&amp; this._blendDst !== -1)
-				gl.blendFunc(this._blendSrc, this._blendDst); 
-		}
-	},
-
-	/**
-	 * Ends the sprite batcher and flushes any remaining data to the GPU.
-	 * 
-	 * @method end
-	 */
-	end: function() {
-		//sprite batch doesn&#x27;t hold a reference to GL since it is volatile
-		var gl = this.context.gl;
-		
-		//just do direct parent call for speed here
-		//This binds the shader and mesh!
-		AbstractBatch.prototype.end.call(this);
-
-		gl.depthMask(true);
-
-		if (this._blendEnabled)
-			gl.disable(gl.BLEND);
-	},
-
-	/**
-	 * Flushes the batch to the GPU. This should be called when
-	 * state changes, such as blend functions, depth or stencil states,
-	 * shaders, and so forth.
-	 * 
-	 * @method flush
-	 */
-	flush: function() {
-		//ignore flush if texture is null or our batch is empty
-		if (!this.texture)
-			return;
-		if (this.idx === 0)
-			return;
-		AbstractBatch.prototype.flush.call(this);
-		SpriteBatch.totalRenderCalls++;
-	},
+    /**
+     * Used internally to return the Position, Color, and TexCoord0 attributes.
+     *
+     * @method  _createVertexAttribuets
+     * @protected
+     * @return {[type]} [description]
+     */
+    _createVertexAttributes: function() {
+        return [ 
+            new Mesh.Attrib(&quot;Position&quot;, 2),
+            new Mesh.Attrib(&quot;Color&quot;, 1),
+            new Mesh.Attrib(&quot;TexCoord0&quot;, 2)
+        ];
+    },
 
 
-	/**
-	 * Adds a sprite to this batch. The sprite is drawn in 
-	 * screen-space with the origin at the upper-left corner (y-down).
-	 *
-	 * @method draw
-	 * @param  {Texture} texture the texture for this sprite
-	 * @param  {Number} x       the x position in pixels, defaults to zero
-	 * @param  {Number} y       the y position in pixels, defaults to zero
-	 * @param  {Number} width   the width in pixels, defaults to the texture width
-	 * @param  {Number} height  the height in pixels, defaults to the texture height
-	 * @param  {Number} color   the color float (alpha), default zero
-	 * @param  {Number} u1      the first U coordinate, default zero
-	 * @param  {Number} v1      the first V coordinate, default zero
-	 * @param  {Number} u2      the second U coordinate, default one
-	 * @param  {Number} v2      the second V coordinate, default one
-	 */
-	draw: function(texture, x, y, width, height, color, u1, v1, u2, v2) {
-		if (!this.drawing)
-			throw &quot;Illegal State: trying to draw a batch before begin()&quot;;
-		
-		//don&#x27;t draw anything if GL tex doesn&#x27;t exist..
-		if (!texture)
-			return;
-		
-		if (this.texture === null || this.texture.id !== texture.id) {
-			//new texture.. flush previous data
-			this.flush();
-			this.texture = texture;
-		} else if (this.idx == this.vertices.length) {
-			this.flush(); //we&#x27;ve reached our max, flush before pushing more data
-		}
+    /**
+     * Sets the projection vector, an x and y
+     * defining the middle points of your stage.
+     *
+     * @method setProjection
+     * @param {Number} x the x projection value
+     * @param {Number} y the y projection value
+     */
+    setProjection: function(x, y) {
+        var oldX = this.projection.x;
+        var oldY = this.projection.y;
+        this.projection.x = x;
+        this.projection.y = y;
 
-		width = (width===0) ? width : (width || texture.width);
-		height = (height===0) ? height : (height || texture.height);
-		x = x || 0;
-		y = y || 0;
+        //we need to flush the batch..
+        if (this.drawing &amp;&amp; (x != oldX || y != oldY)) {
+            this.flush();
+            this._updateMatrices();
+        }
+    },
 
-		var x1 = x;
-		var x2 = x + width;
-		var y1 = y;
-		var y2 = y + height;
+    /**
+     * Creates a default shader for this batch.
+     *
+     * @method  _createShader
+     * @protected
+     * @return {ShaderProgram} a new instance of ShaderProgram
+     */
+    _createShader: function() {
+        var shader = new ShaderProgram(this.context,
+                SpriteBatch.DEFAULT_VERT_SHADER, 
+                SpriteBatch.DEFAULT_FRAG_SHADER);
+        if (shader.log)
+            console.warn(&quot;Shader Log:\n&quot; + shader.log);
+        return shader;
+    },
 
-		u1 = u1 || 0;
-		u2 = (u2===0) ? u2 : (u2 || 1);
-		v1 = v1 || 0;
-		v2 = (v2===0) ? v2 : (v2 || 1);
+    /**
+     * This is called during rendering to update projection/transform
+     * matrices and upload the new values to the shader. For example,
+     * if the user calls setProjection mid-draw, the batch will flush
+     * and this will be called before continuing to add items to the batch.
+     *
+     * You generally should not need to call this directly.
+     * 
+     * @method  updateMatrices
+     * @protected
+     */
+    updateMatrices: function() {
+        //an extension of SpriteBatch might want to support full transform &amp;
+        //projection matrices for 3D billboards. if so, override this method
+        if (this.useProjectionVector)
+            this.shader.setUniformfv(&quot;u_projection&quot;, this.projection.items);
+    },
 
-		var c = (color===0) ? color : (color || 1.0);
+    /**
+     * Called before rendering, and binds the current texture.
+     * 
+     * @method _preRender
+     * @protected
+     */
+    _preRender: function() {
+        if (this.texture)
+            this.texture.bind();
+    },
 
-		//xy
-		this.vertices[this.idx++] = x1;
-		this.vertices[this.idx++] = y1;
-		//color
-		this.vertices[this.idx++] = c;
-		//uv
-		this.vertices[this.idx++] = u1;
-		this.vertices[this.idx++] = v1;
-		
-		//xy
-		this.vertices[this.idx++] = x2;
-		this.vertices[this.idx++] = y1;
-		//color
-		this.vertices[this.idx++] = c;
-		//uv
-		this.vertices[this.idx++] = u2;
-		this.vertices[this.idx++] = v1;
+    /**
+     * Binds the shader, disables depth writing, 
+     * enables blending, activates texture unit 0, and sends
+     * default matrices and sampler2D uniforms to the shader.
+     *
+     * @method  begin
+     */
+    begin: function() {
+        //sprite batch doesn&#x27;t hold a reference to GL since it is volatile
+        var gl = this.context.gl;
+        
+        //just do direct parent call for speed here
+        //This binds the shader and mesh!
+        AbstractBatch.prototype.begin.call(this);
 
-		//xy
-		this.vertices[this.idx++] = x2;
-		this.vertices[this.idx++] = y2;
-		//color
-		this.vertices[this.idx++] = c;
-		//uv
-		this.vertices[this.idx++] = u2;
-		this.vertices[this.idx++] = v2;
+        this.updateMatrices(); //send projection/transform to shader
 
-		//xy
-		this.vertices[this.idx++] = x1;
-		this.vertices[this.idx++] = y2;
-		//color
-		this.vertices[this.idx++] = c;
-		//uv
-		this.vertices[this.idx++] = u1;
-		this.vertices[this.idx++] = v2;
-	},
+        //upload the sampler uniform. not necessary every flush so we just
+        //do it here.
+        this.shader.setUniformi(&quot;u_texture0&quot;, 0);
 
-	/**
-	 * Adds a single quad mesh to this sprite batch from the given
-	 * array of vertices. The sprite is drawn in 
-	 * screen-space with the origin at the upper-left corner (y-down).
-	 *
-	 * This reads 20 interleaved floats from the given offset index, in the format
-	 *
-	 * 	{ x, y, color, u, v,
-	 * 		...  }
-	 *
-	 * @method  drawVertices
-	 * @param {Texture} texture the texture we are drawing for this sprite
-	 * @param {Float32Array} verts an array of vertices
-	 * @param {Number} off the offset into the vertices array to read from
-	 */
-	drawVertices: function(texture, verts, off) {
-		if (!this.drawing)
-			throw &quot;Illegal State: trying to draw a batch before begin()&quot;;
-		
-		//don&#x27;t draw anything if GL tex doesn&#x27;t exist..
-		if (!texture)
-			return;
-		
-		if (this.texture != texture) {
-			//new texture.. flush previous data
-			this.flush();
-			this.texture = texture;
-		} else if (this.idx == this.vertices.length) {
-			this.flush(); //we&#x27;ve reached our max, flush before pushing more data
-		}
+        //disable depth mask
+        gl.depthMask(false);
 
-		off = off || 0;
-		//TODO: use a loop here?
-		//xy
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		//color
-		this.vertices[this.idx++] = verts[off++];
-		//uv
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		
-		//xy
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		//color
-		this.vertices[this.idx++] = verts[off++];
-		//uv
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
+        //premultiplied alpha
+        if (this._blendEnabled) {
+            gl.enable(gl.BLEND);
 
-		//xy
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		//color
-		this.vertices[this.idx++] = verts[off++];
-		//uv
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
+            //set either to -1 if you want to call your own 
+            //blendFunc or blendFuncSeparate
+            if (this._blendSrc !== -1 &amp;&amp; this._blendDst !== -1)
+                gl.blendFunc(this._blendSrc, this._blendDst); 
+        }
+    },
 
-		//xy
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		//color
-		this.vertices[this.idx++] = verts[off++];
-		//uv
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-	}
+    /**
+     * Ends the sprite batcher and flushes any remaining data to the GPU.
+     * 
+     * @method end
+     */
+    end: function() {
+        //sprite batch doesn&#x27;t hold a reference to GL since it is volatile
+        var gl = this.context.gl;
+        
+        //just do direct parent call for speed here
+        //This binds the shader and mesh!
+        AbstractBatch.prototype.end.call(this);
+
+        gl.depthMask(true);
+
+        if (this._blendEnabled)
+            gl.disable(gl.BLEND);
+    },
+
+    /**
+     * Flushes the batch to the GPU. This should be called when
+     * state changes, such as blend functions, depth or stencil states,
+     * shaders, and so forth.
+     * 
+     * @method flush
+     */
+    flush: function() {
+        //ignore flush if texture is null or our batch is empty
+        if (!this.texture)
+            return;
+        if (this.idx === 0)
+            return;
+        AbstractBatch.prototype.flush.call(this);
+        SpriteBatch.totalRenderCalls++;
+    },
+
+
+    /**
+     * Adds a sprite to this batch. The sprite is drawn in 
+     * screen-space with the origin at the upper-left corner (y-down).
+     *
+     * @method draw
+     * @param  {Texture} texture the texture for this sprite
+     * @param  {Number} x       the x position in pixels, defaults to zero
+     * @param  {Number} y       the y position in pixels, defaults to zero
+     * @param  {Number} width   the width in pixels, defaults to the texture width
+     * @param  {Number} height  the height in pixels, defaults to the texture height
+     * @param  {Number} color   the color float (alpha), default zero
+     * @param  {Number} u1      the first U coordinate, default zero
+     * @param  {Number} v1      the first V coordinate, default zero
+     * @param  {Number} u2      the second U coordinate, default one
+     * @param  {Number} v2      the second V coordinate, default one
+     */
+    draw: function(texture, x, y, width, height, color, u1, v1, u2, v2) {
+        if (!this.drawing)
+            throw &quot;Illegal State: trying to draw a batch before begin()&quot;;
+        
+        //don&#x27;t draw anything if GL tex doesn&#x27;t exist..
+        if (!texture)
+            return;
+        
+        if (this.texture === null || this.texture.id !== texture.id) {
+            //new texture.. flush previous data
+            this.flush();
+            this.texture = texture;
+        } else if (this.idx == this.vertices.length) {
+            this.flush(); //we&#x27;ve reached our max, flush before pushing more data
+        }
+
+        width = (width===0) ? width : (width || texture.width);
+        height = (height===0) ? height : (height || texture.height);
+        x = x || 0;
+        y = y || 0;
+
+        var x1 = x;
+        var x2 = x + width;
+        var y1 = y;
+        var y2 = y + height;
+
+        u1 = u1 || 0;
+        u2 = (u2===0) ? u2 : (u2 || 1);
+        v1 = v1 || 0;
+        v2 = (v2===0) ? v2 : (v2 || 1);
+
+        var c = (color===0) ? color : (color || 1.0);
+
+        //xy
+        this.vertices[this.idx++] = x1;
+        this.vertices[this.idx++] = y1;
+        //color
+        this.vertices[this.idx++] = c;
+        //uv
+        this.vertices[this.idx++] = u1;
+        this.vertices[this.idx++] = v1;
+        
+        //xy
+        this.vertices[this.idx++] = x2;
+        this.vertices[this.idx++] = y1;
+        //color
+        this.vertices[this.idx++] = c;
+        //uv
+        this.vertices[this.idx++] = u2;
+        this.vertices[this.idx++] = v1;
+
+        //xy
+        this.vertices[this.idx++] = x2;
+        this.vertices[this.idx++] = y2;
+        //color
+        this.vertices[this.idx++] = c;
+        //uv
+        this.vertices[this.idx++] = u2;
+        this.vertices[this.idx++] = v2;
+
+        //xy
+        this.vertices[this.idx++] = x1;
+        this.vertices[this.idx++] = y2;
+        //color
+        this.vertices[this.idx++] = c;
+        //uv
+        this.vertices[this.idx++] = u1;
+        this.vertices[this.idx++] = v2;
+    },
+
+    /**
+     * Adds a single quad mesh to this sprite batch from the given
+     * array of vertices. The sprite is drawn in 
+     * screen-space with the origin at the upper-left corner (y-down).
+     *
+     * This reads 20 interleaved floats from the given offset index, in the format
+     *
+     *  { x, y, color, u, v,
+     *      ...  }
+     *
+     * @method  drawVertices
+     * @param {Texture} texture the texture we are drawing for this sprite
+     * @param {Float32Array} verts an array of vertices
+     * @param {Number} off the offset into the vertices array to read from
+     */
+    drawVertices: function(texture, verts, off) {
+        if (!this.drawing)
+            throw &quot;Illegal State: trying to draw a batch before begin()&quot;;
+        
+        //don&#x27;t draw anything if GL tex doesn&#x27;t exist..
+        if (!texture)
+            return;
+        
+        if (this.texture != texture) {
+            //new texture.. flush previous data
+            this.flush();
+            this.texture = texture;
+        } else if (this.idx == this.vertices.length) {
+            this.flush(); //we&#x27;ve reached our max, flush before pushing more data
+        }
+
+        off = off || 0;
+        //TODO: use a loop here?
+        //xy
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        //color
+        this.vertices[this.idx++] = verts[off++];
+        //uv
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        
+        //xy
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        //color
+        this.vertices[this.idx++] = verts[off++];
+        //uv
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+
+        //xy
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        //color
+        this.vertices[this.idx++] = verts[off++];
+        //uv
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+
+        //xy
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        //color
+        this.vertices[this.idx++] = verts[off++];
+        //uv
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+    }
 
 });
 
@@ -512,30 +531,30 @@ SpriteBatch.VERTEX_SIZE = 5;
 SpriteBatch.totalRenderCalls = 0;
 
 SpriteBatch.DEFAULT_FRAG_SHADER = [
-	&quot;precision mediump float;&quot;,
-	&quot;varying vec2 vTexCoord0;&quot;,
-	&quot;varying float vColor;&quot;,
-	&quot;uniform sampler2D u_texture0;&quot;,
+    &quot;precision mediump float;&quot;,
+    &quot;varying vec2 vTexCoord0;&quot;,
+    &quot;varying float vColor;&quot;,
+    &quot;uniform sampler2D u_texture0;&quot;,
 
-	&quot;void main(void) {&quot;,
-	&quot;	gl_FragColor = texture2D(u_texture0, vTexCoord0) * vColor;&quot;,
-	&quot;}&quot;
+    &quot;void main(void) {&quot;,
+    &quot;   gl_FragColor = texture2D(u_texture0, vTexCoord0) * vColor;&quot;,
+    &quot;}&quot;
 ].join(&#x27;\n&#x27;);
 
 SpriteBatch.DEFAULT_VERT_SHADER = [
-	&quot;attribute vec2 Position;&quot;,
-	&quot;attribute float Color;&quot;,
-	&quot;attribute vec2 TexCoord0;&quot;,
+    &quot;attribute vec2 Position;&quot;,
+    &quot;attribute float Color;&quot;,
+    &quot;attribute vec2 TexCoord0;&quot;,
 
-	&quot;uniform vec2 u_projection;&quot;,
-	&quot;varying vec2 vTexCoord0;&quot;,
-	&quot;varying float vColor;&quot;,
+    &quot;uniform vec2 u_projection;&quot;,
+    &quot;varying vec2 vTexCoord0;&quot;,
+    &quot;varying float vColor;&quot;,
 
-	&quot;void main(void) {&quot;,
-	&quot;	gl_Position = vec4( Position.x / u_projection.x - 1.0, Position.y / -u_projection.y + 1.0 , 0.0, 1.0);&quot;,
-	&quot;	vTexCoord0 = TexCoord0;&quot;,
-	&quot;	vColor = Color;&quot;,
-	&quot;}&quot;
+    &quot;void main(void) {&quot;,
+    &quot;   gl_Position = vec4( Position.x / u_projection.x - 1.0, Position.y / -u_projection.y + 1.0 , 0.0, 1.0);&quot;,
+    &quot;   vTexCoord0 = TexCoord0;&quot;,
+    &quot;   vColor = Color;&quot;,
+    &quot;}&quot;
 ].join(&#x27;\n&#x27;);
 
 module.exports = SpriteBatch;

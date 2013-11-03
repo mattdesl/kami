@@ -6,6 +6,7 @@ YUI.add("yuidoc-meta", function(Y) {
         "AssetManager.ImageLoader",
         "Point",
         "SpriteBatch",
+        "Texture",
         "WebGLContext"
     ],
     "modules": [

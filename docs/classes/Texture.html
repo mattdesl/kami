@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Point - kami</title>
+    <title>Texture - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -98,7 +98,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>Point Class</h1>
+                        <h1>Texture Class</h1>
 <div class="box meta">
     
 
@@ -106,13 +106,13 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/lib_Point.js.html#l11"><code>lib&#x2F;Point.js:11</code></a>
+            Defined in: <a href="../files/kami-gl_lib_Texture.js.html#l67"><code>kami-gl&#x2F;lib&#x2F;Texture.js:67</code></a>
         </div>
     
 
     
         
-            Module: <a href="../modules/kami.html">kami</a>
+            Module: <a href="../modules/kami-gl.html">kami-gl</a>
         
     
 
@@ -122,20 +122,96 @@
 
 
 <div class="box intro">
-    <p>This is a convenience wrapper around <a href="http://glmatrix.net/">gl-matrix</a> &quot;vec2&quot;
-type. It is backed by a Float32Array, and the <code>x</code> and <code>y</code> properties are included
-for convenience.</p>
-<p>For performance, or when performing gl-matrix operations, 
-you should access the <code>items</code> array directly. 
-For convenience and clarity, the <code>x</code> and <code>y</code> properties are encouraged.</p>
+    <p>Creates a new texture with the optional data provider.</p>
+<p>Note that a texture will not be renderable until some data has been uploaded to it.
+To get around this, you can upload a very small null buffer to the uploadData function,
+until your async load is complete. Or you can use a higher level provider that manages
+multiple assets and dispatches a signal once all textures are renderable.</p>
 
 </div>
 
 
-    <div class="constructor">
-        <h2>Constructor</h2>
-        <div id="method_Point" class="method item">
-    <h3 class="name"><code>Point</code></h3>
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+        
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
+        
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+        
+        
+        
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+            
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods">
+                        
+                            <li class="index-item method">
+                                <a href="#method_getNumComponents">getNumComponents</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties">
+                        
+                            <li class="index-item property private">
+                                <a href="#property_"></a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property private">
+                                <a href="#property_"></a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_dirty">dirty</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+
+            
+        </div>
+
+        
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_getNumComponents" class="method item">
+    <h3 class="name"><code>getNumComponents</code></h3>
 
     
         <div class="args">
@@ -143,13 +219,7 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
             
                 <li class="arg">
                     
-                        <code>x</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>y</code>
+                        <code>format</code>
                     
                 </li>
             
@@ -158,13 +228,19 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
     
 
     
-
+        <span class="returns-inline">
+            <span class="type">Number</span>
+        </span>
     
 
     
 
     
 
+    
+
+    
+        <span class="flag static">static</span>
     
 
     
@@ -182,7 +258,7 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
             
         
         
-        <a href="../files/lib_Point.js.html#l11"><code>lib&#x2F;Point.js:11</code></a>
+        <a href="../files/kami-gl_lib_Texture.js.html#l388"><code>kami-gl&#x2F;lib&#x2F;Texture.js:388</code></a>
         
         </p>
 
@@ -193,7 +269,10 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
     </div>
 
     <div class="description">
-        
+        <p>Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.
+Returns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,
+LUMINANCE_ALPHA, RGB, or RGBA.</p>
+
     </div>
 
     
@@ -204,30 +283,14 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
             
                 <li class="param">
                     
-                        <code class="param-name">x</code>
-                        <span class="type">Number</span>
+                        <code class="param-name">format</code>
+                        <span class="type">GLenum</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>the x position</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">y</code>
-                        <span class="type">Number</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the y position</p>
+                        <p>a texture format, i.e. Texture.Format.RGBA</p>
 
                     </div>
 
@@ -239,71 +302,26 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
     
 
     
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Number</span>:
+                    
+                    <p>the number of components for this format</p>
+
+                
+            </div>
+        </div>
+    
 
     
 </div>
 
-    </div>
-
-
-<div id="classdocs" class="tabview">
-    <ul class="api-class-tabs">
-        <li class="api-class-tab index"><a href="#index">Index</a></li>
-
-        
-        
-            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
-        
-        
-            <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
-        
-        
-    </ul>
-
-    <div>
-        <div id="index" class="api-class-tabpanel index">
-            <h2 class="off-left">Item Index</h2>
-
-            
-
-            
-                <div class="index-section properties">
-                    <h3>Properties</h3>
-
-                    <ul class="index-list properties">
-                        
-                            <li class="index-item property">
-                                <a href="#property_items">items</a>
-
-                                
-                                
-                            </li>
-                        
-                    </ul>
-                </div>
-            
-
-            
-                <div class="index-section attrs">
-                    <h3>Attributes</h3>
-
-                    <ul class="index-list attrs">
-                        
-                            <li class="index-item attr">
-                                <a href="#attr_"></a>
-                            </li>
-                        
-                            <li class="index-item attr">
-                                <a href="#attr_"></a>
-                            </li>
-                        
-                    </ul>
-                </div>
-            
-
-            
-        </div>
-
+                
+            </div>
         
 
         
@@ -311,9 +329,105 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
                 <h2 class="off-left">Properties</h2>
 
                 
-                    <div id="property_items" class="property item">
-    <h3 class="name"><code>items</code></h3>
-    <span class="type">Float32Array</span>
+                    <div id="property_" class="property item private">
+    <h3 class="name"><code></code></h3>
+    <span class="type">Unknown</span>
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                    <p>Provided by the <a href="../modules/kami.html">kami</a> module.</p>
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/kami-gl_lib_Mesh.js.html#l22"><code>kami-gl&#x2F;lib&#x2F;Mesh.js:22</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_" class="property item private">
+    <h3 class="name"><code></code></h3>
+    <span class="type">Unknown</span>
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                    <p>Provided by the <a href="../modules/kami.html">kami</a> module.</p>
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/kami-gl_lib_Mesh.js.html#l28"><code>kami-gl&#x2F;lib&#x2F;Mesh.js:28</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_dirty" class="property item">
+    <h3 class="name"><code>dirty</code></h3>
+    <span class="type">Boolean</span>
 
     
 
@@ -327,6 +441,8 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
         
             
                 
+                    <p>Provided by the <a href="../modules/kami.html">kami</a> module.</p>
+                
                 <p>
                 
                 Defined in
@@ -334,7 +450,7 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
             
         
         
-        <a href="../files/lib_Point.js.html#l29"><code>lib&#x2F;Point.js:29</code></a>
+        <a href="../files/kami-gl_lib_Mesh.js.html#l34"><code>kami-gl&#x2F;lib&#x2F;Mesh.js:34</code></a>
         
         </p>
 
@@ -344,8 +460,8 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
     </div>
 
     <div class="description">
-        <p>This is the Float32Array which can be accessed
-directly for better performance or gl-matrix operations.</p>
+        <p>A write-only property which sets both vertices and indices 
+flag to dirty or not.</p>
 
     </div>
 
@@ -360,120 +476,6 @@ directly for better performance or gl-matrix operations.</p>
             </div>
         
 
-        
-            <div id="attrs" class="api-class-tabpanel">
-                <h2 class="off-left">Attributes</h2>
-
-                
-                    <div id="attr_" class="attr item">
-    <a name="config_"></a> 
-    <h3 class="name"><code></code></h3>
-    <span class="type">Number</span>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_Point.js.html#l46"><code>lib&#x2F;Point.js:46</code></a>
-        
-        </p>
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Reads or writes the &quot;x&quot; value in the backing array (the first element).</p>
-
-    </div>
-
-    
-        <p><strong>Default:</strong> 0</p>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="attr_" class="attr item">
-    <a name="config_"></a> 
-    <h3 class="name"><code></code></h3>
-    <span class="type">Number</span>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_Point.js.html#l62"><code>lib&#x2F;Point.js:62</code></a>
-        
-        </p>
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Reads or writes the &quot;y&quot; value in the backing array (the second element).</p>
-
-    </div>
-
-    
-        <p><strong>Default:</strong> 0</p>
-    
-
-    
-
-    
-</div>
-
-                
-            </div>
         
 
         

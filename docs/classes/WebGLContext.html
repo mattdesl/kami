@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
+                <li><a href="../classes/Texture.html">Texture</a></li>
+            
                 <li><a href="../classes/WebGLContext.html">WebGLContext</a></li>
             
             </ul>
@@ -104,7 +106,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/node_modules_kami-gl_lib_WebGLContext.js.html#l8"><code>node_modules&#x2F;kami-gl&#x2F;lib&#x2F;WebGLContext.js:8</code></a>
+            Defined in: <a href="../files/kami-gl_lib_WebGLContext.js.html#l8"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:8</code></a>
         </div>
     
 
@@ -121,7 +123,9 @@
 
 <div class="box intro">
     <p>A thin wrapper around WebGLRenderingContext which handles
-context loss and restore with other Kami rendering objects.</p>
+context loss and restore with various rendering objects (textures,
+shaders and buffers). This also handles general viewport management.</p>
+<p>If the view is not specified, a canvas will be created.</p>
 
 </div>
 
@@ -132,12 +136,12 @@ context loss and restore with other Kami rendering objects.</p>
         <li class="api-class-tab index"><a href="#index">Index</a></li>
 
         
-            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
-        
         
             <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
         
         
+        
+            <li class="api-class-tab events"><a href="#events">Events</a></li>
         
     </ul>
 
@@ -146,23 +150,6 @@ context loss and restore with other Kami rendering objects.</p>
             <h2 class="off-left">Item Index</h2>
 
             
-                <div class="index-section methods">
-                    <h3>Methods</h3>
-
-                    <ul class="index-list methods">
-                        
-                            <li class="index-item method">
-                                <a href="#method_"></a>
-
-                                
-                                    <span class="flag static">static</span>
-                                
-                                
-                            </li>
-                        
-                    </ul>
-                </div>
-            
 
             
                 <div class="index-section properties">
@@ -170,22 +157,50 @@ context loss and restore with other Kami rendering objects.</p>
 
                     <ul class="index-list properties">
                         
-                            <li class="index-item property private">
-                                <a href="#property_"></a>
-
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item property private">
-                                <a href="#property_"></a>
+                            <li class="index-item property">
+                                <a href="#property_contextAttributes">contextAttributes</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item property">
-                                <a href="#property_"></a>
+                                <a href="#property_gl">gl</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_height">height</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_managedObjects">managedObjects</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_valid">valid</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_view">view</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_width">width</a>
 
                                 
                                 
@@ -198,127 +213,30 @@ context loss and restore with other Kami rendering objects.</p>
             
 
             
+                <div class="index-section events">
+                    <h3>Events</h3>
+
+                    <ul class="index-list events">
+                        
+                            <li class="index-item event">
+                                <a href="#event_lost">lost</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item event">
+                                <a href="#event_restored">restored</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
         </div>
 
-        
-            <div id="methods" class="api-class-tabpanel">
-                <h2 class="off-left">Methods</h2>
-
-                
-                    <div id="method_" class="method item">
-    <h3 class="name"><code></code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>format</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-        <span class="returns-inline">
-            <span class="type">Number</span>
-        </span>
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="flag static">static</span>
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                    <p>Provided by the <a href="../modules/kami.html">kami</a> module.</p>
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/node_modules_kami-gl_lib_Texture.js.html#l380"><code>node_modules&#x2F;kami-gl&#x2F;lib&#x2F;Texture.js:380</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.
-Returns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,
-LUMINANCE_ALPHA, RGB, or RGBA.</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">format</code>
-                        <span class="type">GLenum</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>a texture format, i.e. Texture.Format.RGBA</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                
-                    
-                        <span class="type">Number</span>:
-                    
-                    <p>the number of components for this format</p>
-
-                
-            </div>
-        </div>
-    
-
-    
-</div>
-
-                
-            </div>
         
 
         
@@ -326,62 +244,12 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
                 <h2 class="off-left">Properties</h2>
 
                 
-                    <div id="property_" class="property item private">
-    <h3 class="name"><code></code></h3>
-    <span class="type">Unknown</span>
+                    <div id="property_contextAttributes" class="property item">
+    <h3 class="name"><code>contextAttributes</code></h3>
+    <span class="type">Object</span>
 
     
 
-    
-        <span class="flag private">private</span>
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                    <p>Provided by the <a href="../modules/kami.html">kami</a> module.</p>
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/node_modules_kami-gl_lib_Mesh.js.html#l22"><code>node_modules&#x2F;kami-gl&#x2F;lib&#x2F;Mesh.js:22</code></a>
-        
-        </p>
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        
-    </div>
-
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="property_" class="property item private">
-    <h3 class="name"><code></code></h3>
-    <span class="type">Unknown</span>
-
-    
-
-    
-        <span class="flag private">private</span>
     
 
     
@@ -392,8 +260,6 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
         
             
                 
-                    <p>Provided by the <a href="../modules/kami.html">kami</a> module.</p>
-                
                 <p>
                 
                 Defined in
@@ -401,7 +267,7 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
             
         
         
-        <a href="../files/node_modules_kami-gl_lib_Mesh.js.html#l28"><code>node_modules&#x2F;kami-gl&#x2F;lib&#x2F;Mesh.js:28</code></a>
+        <a href="../files/kami-gl_lib_WebGLContext.js.html#l66"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:66</code></a>
         
         </p>
 
@@ -411,7 +277,9 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
     </div>
 
     <div class="description">
-        
+        <p>The context attributes for initializing the GL state. This might include
+anti-aliasing, alpha settings, verison, and so forth.</p>
+
     </div>
 
     
@@ -422,8 +290,149 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
 </div>
 
                 
-                    <div id="property_" class="property item">
-    <h3 class="name"><code></code></h3>
+                    <div id="property_gl" class="property item">
+    <h3 class="name"><code>gl</code></h3>
+    <span class="type">WebGLRenderingContext</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/kami-gl_lib_WebGLContext.js.html#l34"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:34</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The actual GL context. You can use this for
+raw GL calls or to access GLenum constants. This
+will be updated on context restore. While the WebGLContext
+is not <code>valid</code>, you should not try to access GL state.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_height" class="property item">
+    <h3 class="name"><code>height</code></h3>
+    <span class="type">Number</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/kami-gl_lib_WebGLContext.js.html#l53"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:53</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The height of this canvas.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_managedObjects" class="property item">
+    <h3 class="name"><code>managedObjects</code></h3>
+    <span class="type">Array</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/kami-gl_lib_WebGLContext.js.html#l24"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:24</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The list of rendering objects (shaders, VBOs, textures, etc) which are 
+currently being managed. Any object with a &quot;create&quot; method can be added
+to this list. Upon destroying the rendering object, it should be removed.
+See addManagedObject and removeManagedObject.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_valid" class="property item">
+    <h3 class="name"><code>valid</code></h3>
     <span class="type">Boolean</span>
 
     
@@ -438,8 +447,6 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
         
             
                 
-                    <p>Provided by the <a href="../modules/kami.html">kami</a> module.</p>
-                
                 <p>
                 
                 Defined in
@@ -447,7 +454,7 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
             
         
         
-        <a href="../files/node_modules_kami-gl_lib_Mesh.js.html#l34"><code>node_modules&#x2F;kami-gl&#x2F;lib&#x2F;Mesh.js:34</code></a>
+        <a href="../files/kami-gl_lib_WebGLContext.js.html#l74"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:74</code></a>
         
         </p>
 
@@ -457,8 +464,98 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
     </div>
 
     <div class="description">
-        <p>A write-only property which sets both vertices and indices 
-flag to dirty or not.</p>
+        <p>Whether this context is &#39;valid&#39;, i.e. renderable. A context that has been lost
+(and not yet restored) is invalid.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_view" class="property item">
+    <h3 class="name"><code>view</code></h3>
+    <span class="type">Number</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/kami-gl_lib_WebGLContext.js.html#l60"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:60</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The canvas DOM element for this context.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_width" class="property item">
+    <h3 class="name"><code>width</code></h3>
+    <span class="type">Number</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/kami-gl_lib_WebGLContext.js.html#l45"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:45</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The width of this canvas.</p>
 
     </div>
 
@@ -475,6 +572,108 @@ flag to dirty or not.</p>
 
         
 
+        
+            <div id="events" class="api-class-tabpanel">
+                <h2 class="off-left">Events</h2>
+
+                
+                    <div id="event_lost" class="events item">
+    <h3 class="name"><code>lost</code></h3>
+    <span class="type">Signal</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/kami-gl_lib_WebGLContext.js.html#l82"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:82</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A signal dispatched when GL context is lost. </p>
+<p>The first argument passed to the listener is the WebGLContext
+managing the context loss.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_restored" class="events item">
+    <h3 class="name"><code>restored</code></h3>
+    <span class="type">Signal</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/kami-gl_lib_WebGLContext.js.html#l92"><code>kami-gl&#x2F;lib&#x2F;WebGLContext.js:92</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A signal dispatched when GL context is restored, after all the managed
+objects have been recreated.</p>
+<p>The first argument passed to the listener is the WebGLContext
+which managed the restoration.</p>
+<p>This does not gaurentee that all objects will be renderable.
+For example, a Texture with an ImageProvider may still be loading
+asynchronously.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+            </div>
         
     </div>
 </div>

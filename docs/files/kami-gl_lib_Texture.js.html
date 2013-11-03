@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>node_modules/kami-gl/lib/Texture.js - kami</title>
+    <title>kami-gl/lib/Texture.js - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
+                <li><a href="../classes/Texture.html">Texture</a></li>
+            
                 <li><a href="../classes/WebGLContext.html">WebGLContext</a></li>
             
             </ul>
@@ -96,10 +98,14 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: node_modules/kami-gl/lib/Texture.js</h1>
+                        <h1 class="file-heading">File: kami-gl/lib/Texture.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
+/**
+ * @module kami-gl
+ */
+
 var Class = require(&#x27;jsOOP&#x27;).Class;
 var Signal = require(&#x27;signals&#x27;);
 
@@ -112,10 +118,9 @@ var Texture = new Class({
 	wrap: null,
 	filter: null,
 
-	/**
-	 * Creates a new texture with the optional data provider.
-	 *
-	 * A data provider is a function which is called by Texture
+
+	//TODO: Get rid of provider stuff since it is better for AssetManager to handle it.
+	 /** A data provider is a function which is called by Texture
 	 * on intiialization, and subsequently on any context restoration.
 	 * This allows images to be re-loaded without the need to keep
 	 * them hanging around in memory. This also means that procedural
@@ -161,12 +166,17 @@ var Texture = new Class({
 	 *
 	 *     //loads the image asynchronously
 	 *     var tex = new Texture(context, ImageProvider, &quot;myimg.png&quot;);
+	 */
+
+	/**
+	 * Creates a new texture with the optional data provider.
 	 *
 	 * Note that a texture will not be renderable until some data has been uploaded to it.
 	 * To get around this, you can upload a very small null buffer to the uploadData function,
 	 * until your async load is complete. Or you can use a higher level provider that manages
 	 * multiple assets and dispatches a signal once all textures are renderable.
-	 * 
+	 *
+	 * @class  Texture
 	 * @param  {WebGLContext} gl the WebGL context
 	 * @param  {Function} provider [description]
 	 * @param  {[type]} args     [description]
@@ -483,8 +493,8 @@ Texture.ArrayProvider = function(texture, width, height, format, type, data) {
  * Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.
  * Returns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,
  * LUMINANCE_ALPHA, RGB, or RGBA.
- *
- * @method
+ * 
+ * @method getNumComponents
  * @static
  * @param  {GLenum} format a texture format, i.e. Texture.Format.RGBA
  * @return {Number} the number of components for this format

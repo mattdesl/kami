@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>node_modules/kami-gl/lib/WebGLContext.js - kami</title>
+    <title>kami-gl/lib/WebGLContext.js - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -51,6 +51,8 @@
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
+                <li><a href="../classes/Texture.html">Texture</a></li>
+            
                 <li><a href="../classes/WebGLContext.html">WebGLContext</a></li>
             
             </ul>
@@ -96,7 +98,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: node_modules/kami-gl/lib/WebGLContext.js</h1>
+                        <h1 class="file-heading">File: kami-gl/lib/WebGLContext.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
@@ -109,41 +111,90 @@ var Signal = require(&#x27;signals&#x27;);
 
 /**
  * A thin wrapper around WebGLRenderingContext which handles
- * context loss and restore with other Kami rendering objects.
+ * context loss and restore with various rendering objects (textures,
+ * shaders and buffers). This also handles general viewport management.
  *
+ * If the view is not specified, a canvas will be created.
+ * 
  * @class  WebGLContext
+ * @param {Number} width the width of the GL canvas
+ * @param {Number} height the height of the GL canvas
+ * @param {HTMLCanvasElement} view the optional DOM canvas element
+ * @param {Object} contextAttribuets an object containing context attribs which
+ *                                   will be used during GL initialization
  */
 var WebGLContext = new Class({
-	
+		
+	/**
+	 * The list of rendering objects (shaders, VBOs, textures, etc) which are 
+	 * currently being managed. Any object with a &quot;create&quot; method can be added
+	 * to this list. Upon destroying the rendering object, it should be removed.
+	 * See addManagedObject and removeManagedObject.
+	 * 
+	 * @property {Array} managedObjects
+	 */
 	managedObjects: null,
 
+	/**
+	 * The actual GL context. You can use this for
+	 * raw GL calls or to access GLenum constants. This
+	 * will be updated on context restore. While the WebGLContext
+	 * is not &#x60;valid&#x60;, you should not try to access GL state.
+	 * 
+	 * @property gl
+	 * @type {WebGLRenderingContext}
+	 */
 	gl: null,
+
+	/**
+	 * The width of this canvas.
+	 *
+	 * @property width
+	 * @type {Number}
+	 */
 	width: null,
+
+	/**
+	 * The height of this canvas.
+	 * @property height
+	 * @type {Number}
+	 */
 	height: null,
+
+	/**
+	 * The canvas DOM element for this context.
+	 * @property {Number} view
+	 */
 	view: null,
 
+	/**
+	 * The context attributes for initializing the GL state. This might include
+	 * anti-aliasing, alpha settings, verison, and so forth.
+	 * 
+	 * @property {Object} contextAttributes 
+	 */
 	contextAttributes: null,
 	
 	/**
 	 * Whether this context is &#x27;valid&#x27;, i.e. renderable. A context that has been lost
 	 * (and not yet restored) is invalid.
 	 * 
-	 * @type {Boolean}
+	 * @property {Boolean} valid
 	 */
 	valid: false,
 
 	/**
-	 * Called when GL context is lost. 
+	 * A signal dispatched when GL context is lost. 
 	 * 
 	 * The first argument passed to the listener is the WebGLContext
 	 * managing the context loss.
 	 * 
-	 * @type {Signal}
+	 * @event {Signal} lost
 	 */
 	lost: null,
 
 	/**
-	 * Called when GL context is restored, after all the managed
+	 * A signal dispatched when GL context is restored, after all the managed
 	 * objects have been recreated.
 	 *
 	 * The first argument passed to the listener is the WebGLContext
@@ -153,7 +204,7 @@ var WebGLContext = new Class({
 	 * For example, a Texture with an ImageProvider may still be loading
 	 * asynchronously.	 
 	 * 
-	 * @type {Signal}
+	 * @event {Signal} restored
 	 */
 	restored: null,
 
