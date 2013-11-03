@@ -1,0 +1,1761 @@
+{
+    "project": {
+        "name": "kami",
+        "description": "WebGL utilities for performant and flexible 2D and 3D rendering.",
+        "version": "0.0.0",
+        "url": ""
+    },
+    "files": {
+        "lib/AbstractBatch.js": {
+            "name": "lib/AbstractBatch.js",
+            "modules": {
+                "kami": 1
+            },
+            "classes": {
+                "AbstractBatch": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/AssetManager.js": {
+            "name": "lib/AssetManager.js",
+            "modules": {},
+            "classes": {
+                "AssetManager": 1,
+                "AssetManager.ImageLoader": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/Point.js": {
+            "name": "lib/Point.js",
+            "modules": {},
+            "classes": {
+                "Point": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "lib/SpriteBatch.js": {
+            "name": "lib/SpriteBatch.js",
+            "modules": {},
+            "classes": {
+                "SpriteBatch": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/kami-gl/lib/Mesh.js": {
+            "name": "node_modules/kami-gl/lib/Mesh.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/kami-gl/lib/ShaderProgram.js": {
+            "name": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/kami-gl/lib/Texture.js": {
+            "name": "node_modules/kami-gl/lib/Texture.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/kami-gl/lib/WebGLContext.js": {
+            "name": "node_modules/kami-gl/lib/WebGLContext.js",
+            "modules": {
+                "kami-gl": 1
+            },
+            "classes": {
+                "WebGLContext": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "kami": {
+            "name": "kami",
+            "submodules": {},
+            "classes": {
+                "AbstractBatch": 1,
+                "AssetManager": 1,
+                "AssetManager.ImageLoader": 1,
+                "Point": 1,
+                "SpriteBatch": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "lib/SpriteBatch.js",
+            "line": 14,
+            "description": "The core kami module provides basic 2D sprite batching and \nasset management."
+        },
+        "kami-gl": {
+            "name": "kami-gl",
+            "submodules": {},
+            "classes": {
+                "WebGLContext": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "node_modules/kami-gl/lib/WebGLContext.js",
+            "line": 8
+        }
+    },
+    "classes": {
+        "AbstractBatch": {
+            "name": "AbstractBatch",
+            "shortname": "AbstractBatch",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "kami",
+            "namespace": "",
+            "file": "lib/AbstractBatch.js",
+            "line": 11,
+            "description": "An abstract batcher composed of quads (two tris, indexed). \n\nThis is used internally; users should look at \n{{#crossLink \"SpriteBatch\"}}{{/crossLink}} instead.\n\nThe batcher itself is not managed by WebGLContext; however, it makes\nuse of Mesh and Texture which will be managed. For this reason, the batcher\ndoes not hold a direct reference to the GL state.\n\nSubclasses must implement the following:  \n{{#crossLink \"AbstractBatch/_createShader:method\"}}{{/crossLink}}  \n{{#crossLink \"AbstractBatch/_createVertexAttributes:method\"}}{{/crossLink}}  \n{{#crossLink \"AbstractBatch/getVertexSize:method\"}}{{/crossLink}}",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "context",
+                    "description": "the context this batcher belongs to",
+                    "type": "WebGLContext"
+                },
+                {
+                    "name": "size",
+                    "description": "the optional size of this batch, i.e. max number of quads",
+                    "type": "Number"
+                }
+            ],
+            "default": "500"
+        },
+        "AssetManager": {
+            "name": "AssetManager",
+            "shortname": "AssetManager",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "kami",
+            "namespace": "",
+            "file": "lib/AssetManager.js",
+            "line": 9,
+            "description": "This is a utility which makes asset loading cleaner\nand simpler, especially with regard to asynchronous image\nloading and WebGL context loss.\n\n\nBasic usage looks like this:\n\n    //Create an asset manager \n    var assets = new AssetManager(context);\n \n    //image types will return a new Texture\n    var tex0 = assets.load(\"img/grass.png\");\n    var tex1 = assets.load(\"img/scene.png\");\n\n    ... inside game loop ...\n\n        if (assets.update()) {\n            // all assets are loaded, we can render.\n        } else {\n            // not all assets are loaded. we need\n            // to show our preloader.\n        }\n\nCurrently this class only supports image loading,\nalthough in the future others could be added for \ncompressed textures, sprite sheets, and so forth.\n\nCreating a new asset manager will listen for context\nloss events on the given WebGLContext. When this happens,\nall assets will be invalidated and added to the loading queue.\nAs such, update() will return false until the assets have been\nre-loaded.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "context",
+                    "description": "the WebGLContext for this manager",
+                    "type": "WebGLContext"
+                }
+            ]
+        },
+        "AssetManager.ImageLoader": {
+            "name": "AssetManager.ImageLoader",
+            "shortname": "AssetManager.ImageLoader",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "kami",
+            "namespace": "",
+            "file": "lib/AssetManager.js",
+            "line": 456,
+            "description": "This is the default implementation of an image loader plugin for AssetManager.\nThis uses a DOM Image object to upload PNG, GIF and JPG images to a WebGL\ntexture. You will not need to deal with this class directly, unless you want\nto write your own AssetManager loaders.\n\nA `Loader` type for AssetManager is simply an object which defines two (static) methods:\n\n- `loadAsset`: this is the loading function, which handles the asynchronous load.\n- `processArguments`: this is for the user's convenience, handling default arguments\nand giving a meaningful return value."
+        },
+        "Point": {
+            "name": "Point",
+            "shortname": "Point",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "kami",
+            "namespace": "",
+            "file": "lib/Point.js",
+            "line": 11,
+            "description": "This is a convenience wrapper around [gl-matrix](http://glmatrix.net/) \"vec2\"\ntype. It is backed by a Float32Array, and the `x` and `y` properties are included\nfor convenience.\n\nFor performance, or when performing gl-matrix operations, \nyou should access the `items` array directly. \nFor convenience and clarity, the `x` and `y` properties are encouraged.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "x",
+                    "description": "the x position",
+                    "type": "Number"
+                },
+                {
+                    "name": "y",
+                    "description": "the y position",
+                    "type": "Number"
+                }
+            ],
+            "default": "0"
+        },
+        "SpriteBatch": {
+            "name": "SpriteBatch",
+            "shortname": "SpriteBatch",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "kami",
+            "namespace": "",
+            "file": "lib/SpriteBatch.js",
+            "line": 14,
+            "description": "A basic implementation of a batcher which draws 2D sprites.\nThis uses two triangles (quads) with indexed and interleaved\nvertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).",
+            "params": [
+                {
+                    "name": "context",
+                    "description": "the context for this batch",
+                    "type": "WebGLContext"
+                },
+                {
+                    "name": "size",
+                    "description": "the max number of sprites to fit in a single batch",
+                    "type": "Number"
+                }
+            ]
+        },
+        "WebGLContext": {
+            "name": "WebGLContext",
+            "shortname": "WebGLContext",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "kami-gl",
+            "namespace": "",
+            "file": "node_modules/kami-gl/lib/WebGLContext.js",
+            "line": 8,
+            "description": "A thin wrapper around WebGLRenderingContext which handles\ncontext loss and restore with other Kami rendering objects."
+        }
+    },
+    "classitems": [
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 64,
+            "description": "Called from the constructor to create a new Mesh \nbased on the expected batch size. Should set up\nverts & indices properly.\n\nUsers should not call this directly; instead, it\nshould only be implemented by subclasses.",
+            "itemtype": "method",
+            "name": "_createMesh",
+            "params": [
+                {
+                    "name": "size",
+                    "description": "the size passed through the constructor",
+                    "type": "Number"
+                }
+            ],
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 107,
+            "description": "Returns a shader for this batch. If you plan to support\nmultiple instances of your batch, it may or may not be wise\nto use a shared shader to save resources.\n\nThis method initially throws an error; so it must be overridden by\nsubclasses of AbstractBatch.",
+            "itemtype": "method",
+            "name": "_createShader",
+            "return": {
+                "description": "the size of a vertex, in # of floats",
+                "type": "Number"
+            },
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 122,
+            "description": "Returns an array of vertex attributes for this mesh; \nsubclasses should implement this with the attributes \nexpected for their batch.\n\nThis method initially throws an error; so it must be overridden by\nsubclasses of AbstractBatch.",
+            "itemtype": "method",
+            "name": "_createVertexAttributes",
+            "return": {
+                "description": "an array of Mesh.VertexAttrib objects",
+                "type": "Array"
+            },
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 138,
+            "description": "Returns the number of floats per vertex for this batcher.\n\nThis method initially throws an error; so it must be overridden by\nsubclasses of AbstractBatch.",
+            "itemtype": "method",
+            "name": "getVertexSize",
+            "return": {
+                "description": "the size of a vertex, in # of floats",
+                "type": "Number"
+            },
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 152,
+            "description": "Begins the sprite batch. This will bind the shader\nand mesh. Subclasses may want to disable depth or \nset up blending.",
+            "itemtype": "method",
+            "name": "begin",
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 170,
+            "description": "Ends the sprite batch. This will flush any remaining \ndata and set GL state back to normal.",
+            "itemtype": "method",
+            "name": "end",
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 186,
+            "description": "Called before rendering to bind new textures.\nThis method does nothing by default.",
+            "itemtype": "method",
+            "name": "_preRender",
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 195,
+            "description": "Called after flushing the batch. This method\ndoes nothing by default.",
+            "itemtype": "method",
+            "name": "_postRender",
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 204,
+            "description": "Flushes the batch by pushing the current data\nto GL.",
+            "itemtype": "method",
+            "name": "flush",
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 230,
+            "description": "Adds a sprite to this batch.\nThe specifics depend on the sprite batch implementation.",
+            "itemtype": "method",
+            "name": "draw",
+            "params": [
+                {
+                    "name": "texture",
+                    "description": "the texture for this sprite",
+                    "type": "Texture"
+                },
+                {
+                    "name": "x",
+                    "description": "the x position, defaults to zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "y",
+                    "description": "the y position, defaults to zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "width",
+                    "description": "the width, defaults to the texture width",
+                    "type": "Number"
+                },
+                {
+                    "name": "height",
+                    "description": "the height, defaults to the texture height",
+                    "type": "Number"
+                },
+                {
+                    "name": "color",
+                    "description": "the color float (alpha), default zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "u1",
+                    "description": "the first U coordinate, default zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "v1",
+                    "description": "the first V coordinate, default zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "u2",
+                    "description": "the second U coordinate, default one",
+                    "type": "Number"
+                },
+                {
+                    "name": "v2",
+                    "description": "the second V coordinate, default one",
+                    "type": "Number"
+                }
+            ],
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 249,
+            "description": "Adds a single quad mesh to this sprite batch from the given\narray of vertices.\nThe specifics depend on the sprite batch implementation.",
+            "itemtype": "method",
+            "name": "drawVertices",
+            "params": [
+                {
+                    "name": "texture",
+                    "description": "the texture we are drawing for this sprite",
+                    "type": "Texture"
+                },
+                {
+                    "name": "verts",
+                    "description": "an array of vertices",
+                    "type": "Float32Array"
+                },
+                {
+                    "name": "off",
+                    "description": "the offset into the vertices array to read from",
+                    "type": "Number"
+                }
+            ],
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AbstractBatch.js",
+            "line": 263,
+            "description": "Destroys the batch, deleting its buffers and removing it from the\nWebGLContext management. Trying to use this\nbatch after destroying it can lead to unpredictable behaviour.",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "AbstractBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 49,
+            "description": "An array of assets that this AssetManager is handling.\nThis should not be modified directly.",
+            "itemtype": "property",
+            "name": "assets",
+            "type": "{Array}",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 58,
+            "description": "The queue of tasks to load. Each contains\nan\n{{#crossLink \"AssetManager.Descriptor\"}}{{/crossLink}}.\n\nLoading a task will pop it off this list and fire the async\nor synchronous process.\n\nThis should not be modified directly.",
+            "itemtype": "property",
+            "name": "tasks",
+            "access": "protected",
+            "tagname": "",
+            "type": "{Array}",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 83,
+            "description": "A signal dispatched when loading first begins, \ni.e. when update() is called and the loading queue is the\nsame size as the total asset list.",
+            "itemtype": "event",
+            "name": "loadStarted",
+            "type": "{Signal}",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 93,
+            "description": "A signal dispatched when all assets have been loaded\n(i.e. their async tasks finished).",
+            "itemtype": "event",
+            "name": "loadFinished",
+            "type": "{Signal}",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 102,
+            "description": "A signal dispatched on progress updates, once an asset\nhas been loaded in full (i.e. its async task finished).\n\nThis passes three arguments to the listener function:\n\n- `current` number of assets that have been loaded\n- `total` number of assets to loaded\n- `name` of the asset which was just loaded",
+            "itemtype": "event",
+            "name": "loadProgress",
+            "type": "{[type]}",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 117,
+            "description": "A signal dispatched on problematic load; e.g. if\nthe image was not found and \"onerror\" was triggered. \nThe first argument passed to the listener will be \nthe string name of the asset.\n\nThe asset manager will continue loading subsequent assets.\n\nThis is dispatched after the status of the asset is\nset to Status.LOAD_FAIL, and before the loadProgress\nsignal is dispatched.",
+            "itemtype": "event",
+            "name": "loadError",
+            "type": "{Signal}",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 134,
+            "description": "A read-only property that describes the number of \nassets remaining to be loaded.",
+            "itemtype": "attribute",
+            "name": "remaining",
+            "type": "{Number}",
+            "readonly": "",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 148,
+            "description": "A read-only property that descriibes the total\nnumber of assets in this AssetManager.",
+            "itemtype": "attribute",
+            "name": "total",
+            "readonly": "",
+            "type": "{Number}",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 183,
+            "description": "Destroys this asset manager; removing its listeners\nwith WebGLContext and deleting the assets array.",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 196,
+            "description": "Called to invalidate the asset manager\nand require all assets to be re-loaded.\nThis is called internally on context loss.",
+            "access": "protected",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "invalidate",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 215,
+            "description": "Pushes an asset onto this stack. This\nattempts to detect the loader for you based\non the asset name's file extension. If the\nasset name doesn't have a known file extension,\nor if there is no loader registered for that filename,\nthis method throws an error. \n\nThe first argument is the asset name. Any subsequent\narguments will be passed along to the loader for further\nprocessing.\n\nThe return value of this method is determined by\nthe loader's processArguments method. For example, the\ndefault Image loader returns a Texture object.",
+            "itemtype": "method",
+            "name": "load",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the asset name",
+                    "type": "String"
+                },
+                {
+                    "name": "args",
+                    "description": "a variable number of optional arguments",
+                    "type": "Any"
+                }
+            ],
+            "return": {
+                "description": "returns the best type for this asset's loader",
+                "type": "Any"
+            },
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 256,
+            "description": "Pushes an asset onto this stack. This allows you to\nspecify a loader function for the asset. This is useful\nif you wish to use generic names for your assets (instead of\nfilenames), or if you want a particular asset to use a specific\nloader. \n\nLike with {{#crossLink \"AssetManager/load:method\"}}{{/crossLink}},\nthe first argument is the asset name. The second argument is the loader\nto use for this asset. Any subsequent\narguments will be passed along to the loader for further\nprocessing.\n\nThe return value of this method is determined by\nthe loader's processArguments method. For example, the\ndefault Image loader returns a Texture object.",
+            "itemtype": "method",
+            "name": "load",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the asset name",
+                    "type": "String"
+                },
+                {
+                    "name": "loader",
+                    "description": "the loader function",
+                    "type": "Fucntion"
+                },
+                {
+                    "name": "args",
+                    "description": "a variable number of optional arguments",
+                    "type": "Object ..."
+                }
+            ],
+            "return": {
+                "description": "returns the best type for this asset's loader",
+                "type": "Any"
+            },
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 349,
+            "description": "Updates this AssetManager by loading the next asset in the queue.\nIf all assets have been loaded, this method returns true, otherwise\nit will return false.",
+            "itemtype": "method",
+            "name": "update",
+            "return": {
+                "description": "whether this asset manager has finished loading",
+                "type": "Boolean"
+            },
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 384,
+            "description": "A set of loader plugins for this asset manager. These might be as simple\nas pushing HTML Image objects into a Texture, or more complex like decoding\na compressed, mip-mapped, or cube-map texture.\n\nThis object is a simple hashmap of lower-case extension names to Loader functions.",
+            "itemtype": "property",
+            "name": "loaders",
+            "static": 1,
+            "type": "{Object}",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 397,
+            "description": "Registers a loader function with the given extension(s).\nThe first parameter is a loader function, and all subsequent\nparameters are lower-case extensions (without the period) that\nshould be associated with that loader. This will override other\nloaders by the same extension.\n\nBy default, the extensions \"png\", \"jpg\", \"jpeg\", and \"gif\" are\nregistered to {{#crossLink \"AssetManager/ImageLoader:attribute\"}}{{/crossLink}}.",
+            "itemtype": "method",
+            "name": "registerLoader",
+            "static": 1,
+            "params": [
+                {
+                    "name": "loaderFunc",
+                    "description": "the loader function",
+                    "type": "Function"
+                },
+                {
+                    "name": "extensions",
+                    "description": "a variable number of strings",
+                    "type": "String ..."
+                }
+            ],
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 420,
+            "description": "A simple wrapper for assets which will be passed along to the loader;\nthis is used internally.\n\n//@class AssetManager.Descriptor",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 442,
+            "description": "Defines the status of an asset in the manager queue.",
+            "type": "{Object}",
+            "class": "AssetManager",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 472,
+            "description": "This is a \"loader function\" which handles the asynchronous\nloading for an asset. The function must be implemented in a very\nstrict manner for the asset manager to work correctly.\n\nThe first parameter passed to this function is the name of the\nasset being loaded. The second parameter is a callback that must\nbe invoked after the async task is completed.\nAny subsequent parameters are those that came from the inital call\nto {{#crossLink \"AssetManager/load:method\"}}AssetManager.load{{/crossLink}}. \n\nOnce the synchronous or asynchronous loading task is completed, the\n`finished` callback must be invoked with two parameters: first, the\n`name` of the asset as passed to this loader. And second, a boolean indicating\nthe `success` of the load operation. \n\nIf you don't invoke the callback, the asset manager may never finish loading.",
+            "itemtype": "method",
+            "name": "loadAsset",
+            "static": 1,
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the name of the asset to load",
+                    "type": "String"
+                },
+                {
+                    "name": "finished",
+                    "description": "the function to call when async loading is complete",
+                    "type": "Function"
+                },
+                {
+                    "name": "texture",
+                    "description": "the texture to operate on for this asset",
+                    "type": "Texture"
+                },
+                {
+                    "name": "path",
+                    "description": "the optional image path to use instead of the `name` parameter",
+                    "type": "String"
+                }
+            ],
+            "class": "AssetManager.ImageLoader",
+            "module": "kami"
+        },
+        {
+            "file": "lib/AssetManager.js",
+            "line": 534,
+            "description": "This method is called from \n{{#crossLink \"AssetManager/load:method\"}}AssetManager.load{{/crossLink}} to\nprocess the arguments and setup any default values. This is also responsible for\ndetermining the appropriate return value for the load function. In the case of\n`ImageLoader`, we return the Texture that was passed to the load() function, or\na new Texture object if none was given. This way, the user can write code like this:\n\n      var texture = assetManager.load(\"img.png\"); //returns new Texture\n\nThe first argument is the name of the asset being processed. The second argument\nis an array of arguments that will be passed to the loader function.\n\nThe method is called bound to the AssetManager, so we can access WebGLContext\nwith \"this.context\".",
+            "itemtype": "method",
+            "name": "processArguments",
+            "static": 1,
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the asset name",
+                    "type": "String"
+                },
+                {
+                    "name": "params",
+                    "description": "an array of parameters that will be used to load the asset",
+                    "type": "Array"
+                }
+            ],
+            "return": {
+                "description": "the object the user may expect from the loader, in this case a Texture object",
+                "type": "Any"
+            },
+            "class": "AssetManager.ImageLoader",
+            "module": "kami"
+        },
+        {
+            "file": "lib/Point.js",
+            "line": 29,
+            "description": "This is the Float32Array which can be accessed\ndirectly for better performance or gl-matrix operations.",
+            "itemtype": "property",
+            "name": "items",
+            "type": "{Float32Array}",
+            "class": "Point",
+            "module": "kami"
+        },
+        {
+            "file": "lib/Point.js",
+            "line": 46,
+            "description": "Reads or writes the \"x\" value in the backing array (the first element).",
+            "itemtype": "attribute",
+            "name": "",
+            "default": "0",
+            "type": "{Number}",
+            "class": "Point",
+            "module": "kami"
+        },
+        {
+            "file": "lib/Point.js",
+            "line": 62,
+            "description": "Reads or writes the \"y\" value in the backing array (the second element).",
+            "itemtype": "attribute",
+            "name": "",
+            "default": "0",
+            "type": "{Number}",
+            "class": "Point",
+            "module": "kami"
+        },
+        {
+            "file": "lib/Point.js",
+            "line": 78,
+            "description": "Returns a string representation of this point.",
+            "return": {
+                "description": "a string value for this point",
+                "type": "String"
+            },
+            "class": "Point",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 27,
+            "description": "SpriteBatch uploads a vec2 for projection\ntransform in the shader. A custom shader might\nuse a matrix or some other means of calculating \nprojection; in which case this should be set to false.",
+            "itemtype": "property",
+            "name": "useProjectionVector",
+            "type": "{Boolean}",
+            "default": "true",
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 39,
+            "description": "The projection Point which is\nused to avoid some matrix calculations. A 3D \nbatcher might want to replace this and \n{{#crossLink \"SpriteBatch/setProjection:method\"}}{{/crossLink}} \nentirely.",
+            "itemtype": "property",
+            "name": "projection",
+            "type": "{Point}",
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 62,
+            "description": "The number of floats per vertex for this batcher \n(Position.xy + Color + TexCoord0.xy).",
+            "itemtype": "method",
+            "name": "getVertexSize",
+            "return": {
+                "description": "the number of floats per vertex",
+                "type": "Number"
+            },
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 73,
+            "description": "Used internally to return the Position, Color, and TexCoord0 attributes.",
+            "itemtype": "method",
+            "name": "_createVertexAttribuets",
+            "access": "protected",
+            "tagname": "",
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 89,
+            "description": "Sets the projection vector, an x and y\ndefining the middle points of your stage.",
+            "itemtype": "method",
+            "name": "setProjection",
+            "params": [
+                {
+                    "name": "x",
+                    "description": "the x projection value",
+                    "type": "Number"
+                },
+                {
+                    "name": "y",
+                    "description": "the y projection value",
+                    "type": "Number"
+                }
+            ],
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 110,
+            "description": "Creates a default shader for this batch.",
+            "itemtype": "method",
+            "name": "_createShader",
+            "access": "protected",
+            "tagname": "",
+            "return": {
+                "description": "a new instance of ShaderProgram",
+                "type": "ShaderProgram"
+            },
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 126,
+            "description": "This is called during rendering to update projection/transform\nmatrices and upload the new values to the shader. For example,\nif the user calls setProjection mid-draw, the batch will flush\nand this will be called before continuing to add items to the batch.\n\nYou generally should not need to call this directly.",
+            "itemtype": "method",
+            "name": "updateMatrices",
+            "access": "protected",
+            "tagname": "",
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 144,
+            "description": "Called before rendering, and binds the current texture.",
+            "itemtype": "method",
+            "name": "_preRender",
+            "access": "protected",
+            "tagname": "",
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 155,
+            "description": "Binds the shader, disables depth writing, \nenables blending, activates texture unit 0, and sends\ndefault matrices and sampler2D uniforms to the shader.",
+            "itemtype": "method",
+            "name": "begin",
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 190,
+            "description": "Ends the sprite batcher and flushes any remaining data to the GPU.",
+            "itemtype": "method",
+            "name": "end",
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 209,
+            "description": "Flushes the batch to the GPU. This should be called when\nstate changes, such as blend functions, depth or stencil states,\nshaders, and so forth.",
+            "itemtype": "method",
+            "name": "flush",
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 227,
+            "description": "Adds a sprite to this batch. The sprite is drawn in \nscreen-space with the origin at the upper-left corner (y-down).",
+            "itemtype": "method",
+            "name": "draw",
+            "params": [
+                {
+                    "name": "texture",
+                    "description": "the texture for this sprite",
+                    "type": "Texture"
+                },
+                {
+                    "name": "x",
+                    "description": "the x position in pixels, defaults to zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "y",
+                    "description": "the y position in pixels, defaults to zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "width",
+                    "description": "the width in pixels, defaults to the texture width",
+                    "type": "Number"
+                },
+                {
+                    "name": "height",
+                    "description": "the height in pixels, defaults to the texture height",
+                    "type": "Number"
+                },
+                {
+                    "name": "color",
+                    "description": "the color float (alpha), default zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "u1",
+                    "description": "the first U coordinate, default zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "v1",
+                    "description": "the first V coordinate, default zero",
+                    "type": "Number"
+                },
+                {
+                    "name": "u2",
+                    "description": "the second U coordinate, default one",
+                    "type": "Number"
+                },
+                {
+                    "name": "v2",
+                    "description": "the second V coordinate, default one",
+                    "type": "Number"
+                }
+            ],
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 313,
+            "description": "Adds a single quad mesh to this sprite batch from the given\narray of vertices. The sprite is drawn in \nscreen-space with the origin at the upper-left corner (y-down).\n\nThis reads 20 interleaved floats from the given offset index, in the format\n\n\t{ x, y, color, u, v,\n\t\t...  }",
+            "itemtype": "method",
+            "name": "drawVertices",
+            "params": [
+                {
+                    "name": "texture",
+                    "description": "the texture we are drawing for this sprite",
+                    "type": "Texture"
+                },
+                {
+                    "name": "verts",
+                    "description": "an array of vertices",
+                    "type": "Float32Array"
+                },
+                {
+                    "name": "off",
+                    "description": "the offset into the vertices array to read from",
+                    "type": "Number"
+                }
+            ],
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 385,
+            "description": "The default vertex size, i.e. number of floats per vertex.",
+            "itemtype": "attribute",
+            "name": "VERTEX_SIZE",
+            "static": 1,
+            "final": 1,
+            "type": "{Number}",
+            "default": "5",
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 395,
+            "description": "Incremented after each draw call, can be used for debugging.\n\n    SpriteBatch.totalRenderCalls = 0;\n\n    ... draw your scene ...\n\n    console.log(\"Draw calls per frame:\", SpriteBatch.totalRenderCalls);",
+            "itemtype": "attribute",
+            "name": "totalRenderCalls",
+            "static": 1,
+            "type": "{Number}",
+            "default": "0",
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Mesh.js",
+            "line": 22,
+            "itemtype": "property",
+            "name": "",
+            "access": "private",
+            "tagname": "",
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Mesh.js",
+            "line": 28,
+            "itemtype": "property",
+            "name": "",
+            "access": "private",
+            "tagname": "",
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Mesh.js",
+            "line": 34,
+            "description": "A write-only property which sets both vertices and indices \nflag to dirty or not.",
+            "itemtype": "property",
+            "name": "",
+            "type": "{Boolean}",
+            "writeonly": "",
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Mesh.js",
+            "line": 49,
+            "description": "Creates a new Mesh with the provided parameters.\n\nIf numIndices is 0 or falsy, no index buffer will be used\nand indices will be an empty ArrayBuffer and a null indexBuffer.\n\nIf isStatic is true, then vertexUsage and indexUsage will\nbe set to gl.STATIC_DRAW. Otherwise they will use gl.DYNAMIC_DRAW.\nYou may want to adjust these after initialization for further control.",
+            "params": [
+                {
+                    "name": "context",
+                    "description": "the context for management",
+                    "type": "WebGLContext"
+                },
+                {
+                    "name": "isStatic",
+                    "description": "a hint as to whether this geometry is static",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "numVerts",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "numIndices",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "vertexAttribs",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Mesh.js",
+            "line": 232,
+            "description": "Location is optional and for advanced users that\nwant vertex arrays to match across shaders. Any non-numerical\nvalue will be converted to null, and ignored. If a numerical\nvalue is given, it will override the position of this attribute\nwhen given to a mesh.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "numComponents",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "location",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 38,
+            "description": "This is called during the ShaderProgram constructor,\nand may need to be called again after context loss and restore.",
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 161,
+            "description": "Returns the cached uniform info (size, type, location).\nIf the uniform is not found in the cache, it is assumed\nto not exist, and this method returns null.\n\nThis may return null even if the uniform is defined in GLSL:\nif it is _inactive_ (i.e. not used in the program) then it may\nbe optimized out.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the uniform name as defined in GLSL",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "an object containing location, size, and type",
+                "type": "Object"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 177,
+            "description": "Returns the cached attribute info (size, type, location).\nIf the attribute is not found in the cache, it is assumed\nto not exist, and this method returns null.\n\nThis may return null even if the attribute is defined in GLSL:\nif it is _inactive_ (i.e. not used in the program or disabled) \nthen it may be optimized out.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the attribute name as defined in GLSL",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "an object containing location, size and type",
+                "type": "Object"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 194,
+            "description": "Returns the cached uniform location object.\nIf the uniform is not found, this method returns null.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the uniform name as defined in GLSL",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "the location object",
+                "type": "GLint"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 206,
+            "description": "Returns the cached uniform location object.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the uniform name as defined in GLSL",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "the location object",
+                "type": "WebGLUniformLocation"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 217,
+            "description": "Returns true if the uniform is active and found in this\ncompiled program.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the uniform name",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "true if the uniform is found and active",
+                "type": "Boolean"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 228,
+            "description": "Returns true if the attribute is active and found in this\ncompiled program.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the attribute name",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "true if the attribute is found and active",
+                "type": "Boolean"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 239,
+            "description": "Returns the uniform value by name.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the uniform name as defined in GLSL",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "The value of the WebGL uniform",
+                "type": "Any"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 249,
+            "description": "Returns the uniform value at the specified WebGLUniformLocation.",
+            "params": [
+                {
+                    "name": "location",
+                    "description": "the location object",
+                    "type": "WebGLUniformLocation"
+                }
+            ],
+            "return": {
+                "description": "The value of the WebGL uniform",
+                "type": "Any"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 309,
+            "description": "A convenience method to set uniformNfv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the name of the uniform",
+                    "type": "String"
+                },
+                {
+                    "name": "arrayBuffer",
+                    "description": "the array buffer",
+                    "type": "ArrayBuffer"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/ShaderProgram.js",
+            "line": 332,
+            "description": "A convenience method to set uniformNfv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the name of the uniform",
+                    "type": "String"
+                },
+                {
+                    "name": "arrayBuffer",
+                    "description": "the array buffer",
+                    "type": "ArrayBuffer"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 13,
+            "description": "Creates a new texture with the optional data provider.\n\nA data provider is a function which is called by Texture\non intiialization, and subsequently on any context restoration.\nThis allows images to be re-loaded without the need to keep\nthem hanging around in memory. This also means that procedural\ntextures will be re-created properly on context restore.\n\nCalling this constructor with no arguments will result in an Error.\n\nIf this constructor is called with only the context (one argument),\nthen no provider is used and the texture will be unmanaged and its width\nand height will be zero.\n\nIf the second argument is a string, we will use the default ImageProvider \nto load the texture into the GPU asynchronously. Usage:\n\n    new Texture(context, \"path/img.png\");\n    new Texture(context, \"path/img.png\", onloadCallback, onerrorCallback);\n\nThe callbacks will be fired every time the image is re-loaded, even on context\nrestore.\n\nIf the second and third arguments are Numbers, we will use the default\nArrayProvider, which takes in a ArrayBufferView of pixels. This allows\nus to create textures synchronously like so:\n\n    new Texture(context, 256, 256); //uses empty data, transparent black\n    new Texture(context, 256, 256, gl.LUMINANCE); //empty data and LUMINANCE format\n    new Texture(context, 256, 256, gl.LUMINANCE, gl.UNSIGNED_BYTE, byteArray); //custom data\n\nOtherwise, we will assume that a custom provider is specified. In this case, the second\nargument is a provider function, and the subsequent arguments are those which will be passed \nto the provider. The provider function always receives the texture object as the first argument,\nand then any others that may have been passed to it. For example, here is a basic ImageProvider \nimplementation:\n\n    //the provider function\n    var ImageProvider = function(texture, path) {\n    \t   var img = new Image();\n        img.onload = function() {\n   \t       texture.uploadImage(img);\n        }.bind(this);\n        img.src = path;\n    };\n\n    //loads the image asynchronously\n    var tex = new Texture(context, ImageProvider, \"myimg.png\");\n\nNote that a texture will not be renderable until some data has been uploaded to it.\nTo get around this, you can upload a very small null buffer to the uploadData function,\nuntil your async load is complete. Or you can use a higher level provider that manages\nmultiple assets and dispatches a signal once all textures are renderable.",
+            "params": [
+                {
+                    "name": "gl",
+                    "description": "the WebGL context",
+                    "type": "WebGLContext"
+                },
+                {
+                    "name": "provider",
+                    "description": "[description]",
+                    "type": "Function"
+                },
+                {
+                    "name": "args",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 159,
+            "description": "Sets the wrap mode for this texture; if the second argument\nis undefined or falsy, then both S and T wrap will use the first\nargument.\n\nYou can use Texture.Wrap constants for convenience, to avoid needing \na GL reference.",
+            "params": [
+                {
+                    "name": "s",
+                    "description": "the S wrap mode",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "t",
+                    "description": "the T wrap mode",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "ignoreBind",
+                    "description": "(optional) if true, the bind will be ignored.",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 187,
+            "description": "Sets the min and mag filter for this texture; \nif mag is undefined or falsy, then both min and mag will use the\nfilter specified for min.\n\nYou can use Texture.Filter constants for convenience, to avoid needing \na GL reference.",
+            "params": [
+                {
+                    "name": "min",
+                    "description": "the minification filter",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "mag",
+                    "description": "the magnification filter",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "ignoreBind",
+                    "description": "if true, the bind will be ignored.",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 214,
+            "description": "A low-level method to upload the specified ArrayBufferView\nto this texture. This will cause the width and height of this\ntexture to change.",
+            "params": [
+                {
+                    "name": "width",
+                    "description": "the new width of this texture,\n                                defaults to the last used width (or zero)",
+                    "type": "Number"
+                },
+                {
+                    "name": "height",
+                    "description": "the new height of this texture\n                                defaults to the last used height (or zero)",
+                    "type": "Number"
+                },
+                {
+                    "name": "format",
+                    "description": "the data format, default RGBA",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "type",
+                    "description": "the data type, default UNSIGNED_BYTE (Uint8Array)",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "data",
+                    "description": "the raw data for this texture, or null for an empty image",
+                    "type": "ArrayBufferView"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 244,
+            "description": "Uploads ImageData, HTMLImageElement, HTMLCanvasElement or \nHTMLVideoElement.",
+            "params": [
+                {
+                    "name": "domObject",
+                    "description": "the DOM image container",
+                    "type": "Object"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 265,
+            "description": "Binds the texture. If unit is specified,\nit will bind the texture at the given slot\n(TEXTURE0, TEXTURE1, etc). If unit is not specified,\nit will simply bind the texture at whichever slot\nis currently active.",
+            "params": [
+                {
+                    "name": "unit",
+                    "description": "the texture unit index, starting at 0",
+                    "type": "Number"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 310,
+            "description": "The default wrap mode when creating new textures. If a custom \nprovider was specified, it may choose to override this default mode.",
+            "type": "{GLenum} the wrap mode for S and T coordinates",
+            "default": "Texture.Wrap.CLAMP_TO_EDGE",
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 320,
+            "description": "The default filter mode when creating new textures. If a custom\nprovider was specified, it may choose to override this default mode.",
+            "type": "{GLenum} the filter mode for min/mag",
+            "default": "Texture.Filter.LINEAR",
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 329,
+            "description": "This is a \"provider\" function for images, based on the given\npath (src) and optional callbacks, WebGL format and type options.\n\nThe callbacks are called from the Texture scope; but also passed the\ntexture to the first argument (in case the user wishes to re-bind the \nfunctions to something else).",
+            "params": [
+                {
+                    "name": "texture",
+                    "description": "the texture which is being acted on",
+                    "type": "Texture"
+                },
+                {
+                    "name": "path",
+                    "description": "the path to the image",
+                    "type": "String"
+                },
+                {
+                    "name": "onLoad",
+                    "description": "the callback after the image has been loaded and uploaded to GPU",
+                    "type": "Function"
+                },
+                {
+                    "name": "onErr",
+                    "description": "the callback if there was an error while loading the image",
+                    "type": "Function"
+                },
+                {
+                    "name": "format",
+                    "description": "the GL texture format (default RGBA)",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "type",
+                    "description": "the GL texture type (default UNSIGNED_BYTE)",
+                    "type": "GLenum"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 366,
+            "description": "This is a \"provider\" function for synchronous ArrayBufferView pixel uploads.",
+            "params": [
+                {
+                    "name": "texture",
+                    "description": "the texture which is being acted on",
+                    "type": "Texture"
+                },
+                {
+                    "name": "width",
+                    "description": "the width of this texture,",
+                    "type": "Number"
+                },
+                {
+                    "name": "height",
+                    "description": "the height of this texture",
+                    "type": "Number"
+                },
+                {
+                    "name": "format",
+                    "description": "the data format, default RGBA",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "type",
+                    "description": "the data type, default UNSIGNED_BYTE (Uint8Array)",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "data",
+                    "description": "the raw data for this texture, or null for an empty image",
+                    "type": "ArrayBufferView"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/Texture.js",
+            "line": 380,
+            "description": "Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.\nReturns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,\nLUMINANCE_ALPHA, RGB, or RGBA.",
+            "itemtype": "method",
+            "name": "",
+            "static": 1,
+            "params": [
+                {
+                    "name": "format",
+                    "description": "a texture format, i.e. Texture.Format.RGBA",
+                    "type": "GLenum"
+                }
+            ],
+            "return": {
+                "description": "the number of components for this format",
+                "type": "Number"
+            },
+            "class": "WebGLContext",
+            "module": "kami"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/WebGLContext.js",
+            "line": 25,
+            "description": "Whether this context is 'valid', i.e. renderable. A context that has been lost\n(and not yet restored) is invalid.",
+            "type": "{Boolean}",
+            "class": "WebGLContext",
+            "module": "kami-gl"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/WebGLContext.js",
+            "line": 33,
+            "description": "Called when GL context is lost. \n\nThe first argument passed to the listener is the WebGLContext\nmanaging the context loss.",
+            "type": "{Signal}",
+            "class": "WebGLContext",
+            "module": "kami-gl"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/WebGLContext.js",
+            "line": 43,
+            "description": "Called when GL context is restored, after all the managed\nobjects have been recreated.\n\nThe first argument passed to the listener is the WebGLContext\nwhich managed the restoration.\n\nThis does not gaurentee that all objects will be renderable.\nFor example, a Texture with an ImageProvider may still be loading\nasynchronously.",
+            "type": "{Signal}",
+            "class": "WebGLContext",
+            "module": "kami-gl"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/WebGLContext.js",
+            "line": 106,
+            "description": "Updates the width and height of this WebGL context, resizes\nthe canvas view, and calls gl.viewport() with the new size.",
+            "params": [
+                {
+                    "name": "width",
+                    "description": "the new width",
+                    "type": "Number"
+                },
+                {
+                    "name": "height",
+                    "description": "the new height",
+                    "type": "Number"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami-gl"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/WebGLContext.js",
+            "line": 124,
+            "description": "(internal use)\nA managed object is anything with a \"create\" function, that will\nrestore GL state after context loss.",
+            "params": [
+                {
+                    "name": "tex",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "class": "WebGLContext",
+            "module": "kami-gl"
+        },
+        {
+            "file": "node_modules/kami-gl/lib/WebGLContext.js",
+            "line": 135,
+            "description": "(internal use)\nRemoves a managed object from the cache. This is useful to destroy\na texture or shader, and have it no longer re-load on context restore.\n\nReturns the object that was removed, or null if it was not found in the cache.",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "the object to be managed",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "the removed object, or null",
+                "type": "Object"
+            },
+            "class": "WebGLContext",
+            "module": "kami-gl"
+        }
+    ],
+    "warnings": [
+        {
+            "message": "unknown tag: writeonly",
+            "line": " node_modules/kami-gl/lib/Mesh.js:34"
+        },
+        {
+            "message": "Missing item type\nA simple wrapper for assets which will be passed along to the loader;\nthis is used internally.\n\n//@class AssetManager.Descriptor",
+            "line": " lib/AssetManager.js:420"
+        },
+        {
+            "message": "Missing item type\nDefines the status of an asset in the manager queue.",
+            "line": " lib/AssetManager.js:442"
+        },
+        {
+            "message": "Missing item type\nReturns a string representation of this point.",
+            "line": " lib/Point.js:78"
+        },
+        {
+            "message": "Missing item type\nCreates a new Mesh with the provided parameters.\n\nIf numIndices is 0 or falsy, no index buffer will be used\nand indices will be an empty ArrayBuffer and a null indexBuffer.\n\nIf isStatic is true, then vertexUsage and indexUsage will\nbe set to gl.STATIC_DRAW. Otherwise they will use gl.DYNAMIC_DRAW.\nYou may want to adjust these after initialization for further control.",
+            "line": " node_modules/kami-gl/lib/Mesh.js:49"
+        },
+        {
+            "message": "Missing item type\nLocation is optional and for advanced users that\nwant vertex arrays to match across shaders. Any non-numerical\nvalue will be converted to null, and ignored. If a numerical\nvalue is given, it will override the position of this attribute\nwhen given to a mesh.",
+            "line": " node_modules/kami-gl/lib/Mesh.js:232"
+        },
+        {
+            "message": "Missing item type\nThis is called during the ShaderProgram constructor,\nand may need to be called again after context loss and restore.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:38"
+        },
+        {
+            "message": "Missing item type\nReturns the cached uniform info (size, type, location).\nIf the uniform is not found in the cache, it is assumed\nto not exist, and this method returns null.\n\nThis may return null even if the uniform is defined in GLSL:\nif it is _inactive_ (i.e. not used in the program) then it may\nbe optimized out.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:161"
+        },
+        {
+            "message": "Missing item type\nReturns the cached attribute info (size, type, location).\nIf the attribute is not found in the cache, it is assumed\nto not exist, and this method returns null.\n\nThis may return null even if the attribute is defined in GLSL:\nif it is _inactive_ (i.e. not used in the program or disabled) \nthen it may be optimized out.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:177"
+        },
+        {
+            "message": "Missing item type\nReturns the cached uniform location object.\nIf the uniform is not found, this method returns null.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:194"
+        },
+        {
+            "message": "Missing item type\nReturns the cached uniform location object.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:206"
+        },
+        {
+            "message": "Missing item type\nReturns true if the uniform is active and found in this\ncompiled program.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:217"
+        },
+        {
+            "message": "Missing item type\nReturns true if the attribute is active and found in this\ncompiled program.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:228"
+        },
+        {
+            "message": "Missing item type\nReturns the uniform value by name.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:239"
+        },
+        {
+            "message": "Missing item type\nReturns the uniform value at the specified WebGLUniformLocation.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:249"
+        },
+        {
+            "message": "Missing item type\nA convenience method to set uniformNfv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:309"
+        },
+        {
+            "message": "Missing item type\nA convenience method to set uniformNfv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer.",
+            "line": " node_modules/kami-gl/lib/ShaderProgram.js:332"
+        },
+        {
+            "message": "Missing item type\nCreates a new texture with the optional data provider.\n\nA data provider is a function which is called by Texture\non intiialization, and subsequently on any context restoration.\nThis allows images to be re-loaded without the need to keep\nthem hanging around in memory. This also means that procedural\ntextures will be re-created properly on context restore.\n\nCalling this constructor with no arguments will result in an Error.\n\nIf this constructor is called with only the context (one argument),\nthen no provider is used and the texture will be unmanaged and its width\nand height will be zero.\n\nIf the second argument is a string, we will use the default ImageProvider \nto load the texture into the GPU asynchronously. Usage:\n\n    new Texture(context, \"path/img.png\");\n    new Texture(context, \"path/img.png\", onloadCallback, onerrorCallback);\n\nThe callbacks will be fired every time the image is re-loaded, even on context\nrestore.\n\nIf the second and third arguments are Numbers, we will use the default\nArrayProvider, which takes in a ArrayBufferView of pixels. This allows\nus to create textures synchronously like so:\n\n    new Texture(context, 256, 256); //uses empty data, transparent black\n    new Texture(context, 256, 256, gl.LUMINANCE); //empty data and LUMINANCE format\n    new Texture(context, 256, 256, gl.LUMINANCE, gl.UNSIGNED_BYTE, byteArray); //custom data\n\nOtherwise, we will assume that a custom provider is specified. In this case, the second\nargument is a provider function, and the subsequent arguments are those which will be passed \nto the provider. The provider function always receives the texture object as the first argument,\nand then any others that may have been passed to it. For example, here is a basic ImageProvider \nimplementation:\n\n    //the provider function\n    var ImageProvider = function(texture, path) {\n    \t   var img = new Image();\n        img.onload = function() {\n   \t       texture.uploadImage(img);\n        }.bind(this);\n        img.src = path;\n    };\n\n    //loads the image asynchronously\n    var tex = new Texture(context, ImageProvider, \"myimg.png\");\n\nNote that a texture will not be renderable until some data has been uploaded to it.\nTo get around this, you can upload a very small null buffer to the uploadData function,\nuntil your async load is complete. Or you can use a higher level provider that manages\nmultiple assets and dispatches a signal once all textures are renderable.",
+            "line": " node_modules/kami-gl/lib/Texture.js:13"
+        },
+        {
+            "message": "Missing item type\nSets the wrap mode for this texture; if the second argument\nis undefined or falsy, then both S and T wrap will use the first\nargument.\n\nYou can use Texture.Wrap constants for convenience, to avoid needing \na GL reference.",
+            "line": " node_modules/kami-gl/lib/Texture.js:159"
+        },
+        {
+            "message": "Missing item type\nSets the min and mag filter for this texture; \nif mag is undefined or falsy, then both min and mag will use the\nfilter specified for min.\n\nYou can use Texture.Filter constants for convenience, to avoid needing \na GL reference.",
+            "line": " node_modules/kami-gl/lib/Texture.js:187"
+        },
+        {
+            "message": "Missing item type\nA low-level method to upload the specified ArrayBufferView\nto this texture. This will cause the width and height of this\ntexture to change.",
+            "line": " node_modules/kami-gl/lib/Texture.js:214"
+        },
+        {
+            "message": "Missing item type\nUploads ImageData, HTMLImageElement, HTMLCanvasElement or \nHTMLVideoElement.",
+            "line": " node_modules/kami-gl/lib/Texture.js:244"
+        },
+        {
+            "message": "Missing item type\nBinds the texture. If unit is specified,\nit will bind the texture at the given slot\n(TEXTURE0, TEXTURE1, etc). If unit is not specified,\nit will simply bind the texture at whichever slot\nis currently active.",
+            "line": " node_modules/kami-gl/lib/Texture.js:265"
+        },
+        {
+            "message": "Missing item type\nThe default wrap mode when creating new textures. If a custom \nprovider was specified, it may choose to override this default mode.",
+            "line": " node_modules/kami-gl/lib/Texture.js:310"
+        },
+        {
+            "message": "Missing item type\nThe default filter mode when creating new textures. If a custom\nprovider was specified, it may choose to override this default mode.",
+            "line": " node_modules/kami-gl/lib/Texture.js:320"
+        },
+        {
+            "message": "Missing item type\nThis is a \"provider\" function for images, based on the given\npath (src) and optional callbacks, WebGL format and type options.\n\nThe callbacks are called from the Texture scope; but also passed the\ntexture to the first argument (in case the user wishes to re-bind the \nfunctions to something else).",
+            "line": " node_modules/kami-gl/lib/Texture.js:329"
+        },
+        {
+            "message": "Missing item type\nThis is a \"provider\" function for synchronous ArrayBufferView pixel uploads.",
+            "line": " node_modules/kami-gl/lib/Texture.js:366"
+        },
+        {
+            "message": "Missing item type\nWhether this context is 'valid', i.e. renderable. A context that has been lost\n(and not yet restored) is invalid.",
+            "line": " node_modules/kami-gl/lib/WebGLContext.js:25"
+        },
+        {
+            "message": "Missing item type\nCalled when GL context is lost. \n\nThe first argument passed to the listener is the WebGLContext\nmanaging the context loss.",
+            "line": " node_modules/kami-gl/lib/WebGLContext.js:33"
+        },
+        {
+            "message": "Missing item type\nCalled when GL context is restored, after all the managed\nobjects have been recreated.\n\nThe first argument passed to the listener is the WebGLContext\nwhich managed the restoration.\n\nThis does not gaurentee that all objects will be renderable.\nFor example, a Texture with an ImageProvider may still be loading\nasynchronously.",
+            "line": " node_modules/kami-gl/lib/WebGLContext.js:43"
+        },
+        {
+            "message": "Missing item type\nUpdates the width and height of this WebGL context, resizes\nthe canvas view, and calls gl.viewport() with the new size.",
+            "line": " node_modules/kami-gl/lib/WebGLContext.js:106"
+        },
+        {
+            "message": "Missing item type\n(internal use)\nA managed object is anything with a \"create\" function, that will\nrestore GL state after context loss.",
+            "line": " node_modules/kami-gl/lib/WebGLContext.js:124"
+        },
+        {
+            "message": "Missing item type\n(internal use)\nRemoves a managed object from the cache. This is useful to destroy\na texture or shader, and have it no longer re-load on context restore.\n\nReturns the object that was removed, or null if it was not found in the cache.",
+            "line": " node_modules/kami-gl/lib/WebGLContext.js:135"
+        }
+    ]
+}

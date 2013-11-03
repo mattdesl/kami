@@ -2,6 +2,13 @@ module.exports = function(grunt) {
 	
 	require('load-grunt-tasks')(grunt);
 
+	var docPaths = [ //Find a better way to handle this...
+		'<%= dirs.src %>',
+
+		//Other dependencies we want to include in main doc
+		'node_modules/kami-gl/lib'
+	];
+
 	grunt.initConfig({
 
 		pkg: grunt.file.readJSON('package.json'),
@@ -13,7 +20,9 @@ module.exports = function(grunt) {
 
 			demos: 'demos', 
 			demo_src: 'demos/src',
-			demo_build: 'demos/build'
+			demo_build: 'demos/build',
+
+			docs: 'docs'
 		},
 
 
@@ -25,8 +34,6 @@ module.exports = function(grunt) {
 				
 				options: {
 					standalone: "kami"
-					// ignore: '<%= pkg.main %>',
-					// debug: true
 				}
 			},
 			
@@ -49,14 +56,39 @@ module.exports = function(grunt) {
 			demos: { 
 				//Watch for changes...
 				files: ['<%= dirs.src %>/**/*.js', 
+						'<%= node_modules/kami-gl/lib/**/*.js %>',
 						'<%= dirs.demo_src %>/**/*.js',
 						'<%= dirs.demos %>/**/*.html', 
 						'Gruntfile.js'],
-				tasks: ['browserify:demos'],
+				tasks: ['browserify:demos', 'yuidoc'],
 				options: { 
 					livereload: true
 				},
 			},
+		},
+
+		copy: {
+			//For source discovery to work properly in YUIDoc,
+			//we need to copy the files, THEN doc, then delete the 
+			//copied files.
+			docDependencies: {
+				
+			}
+		},
+
+		yuidoc: {
+			compile: {
+				name: '<%= pkg.name %>',
+				description: '<%= pkg.description %>',
+				version: '<%= pkg.version %>',
+				url: '<%= pkg.homepage %>',
+				options: {
+					paths: docPaths,
+					outdir: '<%= dirs.docs %>',
+
+					//nocode: true, 
+				}
+			}
 		}
 	});
 

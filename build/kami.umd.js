@@ -1,6 +1,613 @@
 !function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.kami=e():"undefined"!=typeof global?global.kami=e():"undefined"!=typeof self&&(self.kami=e())}(function(){var define,module,exports;
 return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var Class = require('jsOOP').Class;
+var Mesh = require('kami-gl').Mesh;
+
+var AbstractBatch = new Class({
+
+	_blendSrc: null,
+	_blendDst: null,
+	_blendEnabled: true,
+
+	/**
+	 * An abstract batcher composed of quads (two tris, indexed).
+	 *
+	 * The batcher itself is not managed by WebGLContext; however, it makes
+	 * use of Mesh and Texture which will be managed.
+	 * 
+	 * @param {WebGLContext} context the context this batcher belongs to
+	 * @param {[type]} size [description]
+	 */
+	initialize: function(context, size) {
+		if (!context)
+			throw "GL context not specified";
+		this.context = context;
+
+		this.size = size || 500;
+		
+		// 65535 is max index, so 65535 / 6 = 10922.
+		if (this.size > 10922)  //(you'd have to be insane to try and batch this much with WebGL)
+			throw "Can't have more than 10922 sprites per batch: " + this.size;
+				
+		//TODO: support defaultShader/customShader 
+		this.shader = this._createShader();
+
+		//TODO: make these public
+		this._blendSrc = this.context.gl.ONE;
+		this._blendDst = this.context.gl.ONE_MINUS_SRC_ALPHA
+		this._blendEnabled = true;
+
+		this.idx = 0;
+		this.drawing = false;
+
+		this.mesh = this._createMesh(this.size);
+	},
+
+	/**
+	 * Called from the constructor to create a new Mesh 
+	 * based on the expected batch size. Should set up
+	 * verts & indices properly.
+	 */
+	_createMesh: function(size) {
+		//the total number of floats in our batch
+		var numVerts = size * 4 * this.getVertexSize();
+		//the total number of indices in our batch
+		var numIndices = size * 6;
+		var gl = this.context.gl;
+
+		//vertex data
+		this.vertices = new Float32Array(numVerts);
+		//index data
+		this.indices = new Uint16Array(numIndices); 
+		
+		for (var i=0, j=0; i < numIndices; i += 6, j += 4) 
+		{
+			this.indices[i + 0] = j + 0; 
+			this.indices[i + 1] = j + 1;
+			this.indices[i + 2] = j + 2;
+			this.indices[i + 3] = j + 0;
+			this.indices[i + 4] = j + 2;
+			this.indices[i + 5] = j + 3;
+		}
+
+		var mesh = new Mesh(this.context, false, 
+						numVerts, numIndices, this._createVertexAttributes());
+		mesh.vertices = this.vertices;
+		mesh.indices = this.indices;
+		mesh.vertexUsage = gl.DYNAMIC_DRAW;
+		mesh.indexUsage = gl.STATIC_DRAW;
+		mesh.dirty = true;
+		return mesh;
+	},
+
+	/**
+	 * Returns a shader for this batch. If you plan to support
+	 * multiple instances of your batch, it may or may not be wise
+	 * to use a shared shader to save resources.
+	 * 
+	 * This method initially throws an error; so it must be overridden by
+	 * subclasses of AbstractBatch.
+	 * 
+	 * @return {Number} the size of a vertex, in # of floats
+	 */
+	_createShader: function() {
+		throw "_createShader not implemented"
+	},	
+
+	/**
+	 * Returns an array of vertex attributes for this mesh; 
+	 * subclasses should implement this with the attributes 
+	 * expected for their batch.
+	 *
+	 * This method initially throws an error; so it must be overridden by
+	 * subclasses of AbstractBatch.
+	 * 
+	 * @return {Array} an array of Mesh.VertexAttrib objects
+	 */
+	_createVertexAttributes: function() {
+		throw "_createVertexAttributes not implemented";
+	},
+
+
+	/**
+	 * Returns the number of floats per vertex for this batcher.
+	 * 
+	 * This method initially throws an error; so it must be overridden by
+	 * subclasses of AbstractBatch.
+	 * 
+	 * @return {Number} the size of a vertex, in # of floats
+	 */
+	getVertexSize: function() {
+		throw "getVertexSize not implemented";
+	},
+
+	
+	/** 
+	 * Begins the sprite batch. This will bind the shader
+	 * and mesh. Subclasses may want to disable depth or 
+	 * set up blending.
+	 */
+	begin: function()  {
+		if (this.drawing) 
+			throw "batch.end() must be called before begin";
+		this.drawing = true;
+
+		this.shader.bind();
+
+		//bind the attributes now to avoid redundant calls
+		this.mesh.bind(this.shader);
+	},
+
+	/** 
+	 * Begins the sprite batch. This will bind the shader
+	 * and mesh. Subclasses may want to disable depth or 
+	 * set up blending.
+	 */
+	end: function()  {
+		if (!this.drawing)
+			throw "batch.begin() must be called before end";
+		if (this.idx > 0)
+			this.flush();
+		this.drawing = false;
+
+		this.mesh.unbind(this.shader);
+	},
+
+	/** 
+	 * Called before rendering to bind new textures.
+	 * This method does nothing by default.
+	 */
+	_preRender: function()  {
+	},
+
+	/** 
+	 * Called after flushing the batch.
+	 */
+	_postRender: function() {
+	},
+
+	flush: function()  {
+		if (this.idx===0)
+			return;
+
+	    var gl = this.gl;
+	    
+		this._preRender();
+
+
+
+		//number of sprites in batch
+		var numComponents = this.getVertexSize();
+		var spriteCount = (this.idx / (numComponents * 4));
+	 	
+	 	//draw the sprites
+	    var gl = this.context.gl;
+	    this.mesh.verticesDirty = true;
+	    this.mesh.draw(gl.TRIANGLES, spriteCount * 6, 0);
+
+	    this.idx = 0;
+	},
+
+	/**
+	 * Adds a single quad mesh to this sprite batch
+	 * (i.e. getVertexSize() * 4). 
+	 */
+	drawVertices: function(texture, verts, off)  {
+
+	},
+
+	/**
+	 * Destroys the batch, deleting its buffers and removing it from the
+	 * WebGLContext management. Trying to use this
+	 * batch after destroying it can lead to unpredictable behaviour.
+	 *
+	 * @method destroy
+	 */
+	destroy: function() {
+		this.vertices = [];
+		this.indices = [];
+		this.size = this.maxVertices = 0;
+
+		this.mesh.destroy();
+	}
+});
+
+module.exports = AbstractBatch;
+
+},{"jsOOP":7,"kami-gl":16}],2:[function(require,module,exports){
+var Class = require('jsOOP').Class;
+var Signal = require('signals');
+
+/**
+ * This is a minimal asset loader which is mainly used as 
+ * a notification that GL is ready to render all assets.
+ * 
+ * This needs to play well with context loss.
+ */
+var AssetManager = new Class({
+	
+	assets: null,
+	loaders: null,
+	tasks: null,
+
+	//Private stuff... do not touch!
+
+	__loadCount: 0,
+	__totalItems: 0,
+	__loadCallbackFunc: null,
+	__invalidateFunc: null,
+
+	// Signals 
+	
+	loadStarted: null,
+	loadFinished: null,
+
+	/**
+	 * A signal dispatched on progress updates, once an asset
+	 * has been loaded in full (i.e. its async task finished).
+	 *
+	 * This is passed four arguments: 
+	 * 
+	 *     current - the current number of assets that have been loaded
+	 *     total - the total number of assets to load
+	 *     name - the asset name which was just loaded
+	 * 
+	 * @type {[type]}
+	 */
+	loadProgress: null,
+
+	/**
+	 * A signal dispatched on problematic load; e.g. if
+	 * the image was not found and "onerror" was triggered. 
+	 * The first argument passed to the listener will be 
+	 * the string name of the asset.
+	 *
+	 * The asset manager will continue loading subsequent assets.
+	 *
+	 * This is dispatched after the status of the asset is
+	 * set to Status.LOAD_FAIL, and before the loadProgress
+	 * signal is dispatched.
+	 * 
+	 * @type {Signal}
+	 */
+	loadError: null,
+
+
+	initialize: function(context) {
+		this.assets = [];
+		this.loaders = {};
+		this.tasks = [];
+		this.__loadCount = this.__totalItems = 0;
+
+		this.loadStarted = new Signal();
+		this.loadFinished = new Signal();
+		this.loadProgress = new Signal();
+
+		this.__invalidateFunc = this.invalidate.bind(this);
+		this.__loadCallbackFunc = this.__loadCallback.bind(this);
+
+		this.context = context;
+		this.context.lost.add(this.__invalidateFunc);
+	},
+
+	/**
+	 * Destroys this asset manager; removing its listeners
+	 * with WebGLContext and deleting the assets array.
+	 */
+	destroy: function() {
+		this.assets = [];
+		this.tasks = [];
+		this.__loadCount = this.__totalItems = 0;
+		this.context.lost.remove(this.__invalidateFunc);
+	},
+
+	/**
+	 * Called to invalidate the asset manager
+	 * and require all assets to be re-loaded.
+	 * This is generally only called on context loss.
+	 * 
+	 * @return {[type]} [description]
+	 */
+	invalidate: function() {
+		//mark all as not yet loaded
+		for (var i=0; i<this.assets.length; i++) 
+			this.assets[i].loaded = false;
+
+		//copy our assets to a queue which can be popped
+		this.tasks = this.assets.slice();
+
+		this.__loadCount = this.__totalItems = this.tasks.length;
+	},
+
+	/**
+	 * Pushes an asset onto this stack. This
+	 * attempts to detect the loader for you based
+	 * on the asset name's file extension. If the
+	 * asset name doesn't have a known file extension,
+	 * or if there is no loader registered for that filename,
+	 * this method throws an error. 
+	 * 
+	 * @param  {[type]} name [description]
+	 * @return {[type]}      [description]
+	 */
+	load: function(name) {
+		var ext = this.__extension(name);
+		if (!ext) 
+			throw "Asset name does not have a file extension: " + name;
+		if (!AssetManager.loaders.hasOwnProperty(ext))
+			throw "No known loader for extension "+ext+" in asset "+name;
+
+		var args = [ name, AssetManager.loaders[ext] ];
+		args = args.concat( Array.prototype.slice.call(arguments, 1) );
+
+		return this.loadAs.apply(this, args);
+	},
+
+	__extension: function(str) {
+		var idx = str.lastIndexOf('.');
+		if (idx === -1 || idx === 0 || idx === str.length-1) // does not have a clear file extension
+			return "";
+		return str.substring(idx+1).toLowerCase();
+	},
+
+	loadAs: function(name, loader) {
+		if (!name)
+			throw "no name specified to load";
+		if (!loader)
+			throw "no loader specified for asset "+name;
+		
+		var idx = this.__indexOf(this.assets, name);
+		if (idx !== -1) //TODO: eventually add support for dependencies and shared assets
+			throw "asset already defined in asset manager";
+
+		//grab any additional arguments
+		var params = Array.prototype.slice.call(arguments, 2);
+
+		var desc = new AssetManager.Descriptor(name, loader, params);
+
+		//keep hold of this asset
+		this.assets.push(desc);
+
+		//also add it to our queue of current tasks
+		this.tasks.push(desc);
+		this.__loadCount++;
+		this.__totalItems++;
+
+		//if we can process the arguments and get a return value...
+		if (loader.processArguments) {
+			return loader.processArguments.call(this, name, params);
+		} else
+			return null;
+	},
+
+	__indexOf: function(list, name) {
+		for (var i=0; i<list.length; i++) {
+			if (list[i].name === name)
+				return i;
+		}
+		return -1;
+	},
+
+	__loadCallback: function(name, success) {
+		this.__loadCount--;
+
+		var assetIdx = this.__indexOf(this.assets, name);
+		if (assetIdx !== -1) {
+			this.assets[assetIdx].loaded = true;
+			this.assets[assetIdx].status = success 
+						? AssetManager.Status.LOAD_SUCCESS
+						: AssetManager.Status.LOAD_FAILED;
+			if (!success) {
+				this.loadError.dispatch(name);
+			}
+		}
+
+		this.loadProgress.dispatch( (this.__totalItems - this.__loadCount), 
+									this.__totalItems,
+									name);
+			
+		if (this.__loadCount === 0) {
+			this.loadFinished.dispatch();
+		}
+	},
+
+	isLoaded: function(name) {
+		var assetIdx = this.__indexOf(this.assets, name);
+		return assetIdx !== -1 ? this.assets[assetIdx].loaded : false;
+	},
+
+	update: function() {
+		if (!this.context.valid)
+			return false;
+
+		if (this.tasks.length === 0)
+			return (this.__loadCount === 0);
+
+		//If we still haven't popped any from the assets list...
+		if (this.tasks.length === this.assets.length) {
+			this.loadStarted.dispatch();
+		}
+
+		//grab the next task on the stack
+		var nextTask = this.tasks.shift();
+
+		//apply the loading step
+		var loader = nextTask.loader;
+
+		var cb = this.__loadCallbackFunc;
+
+		var newParams = [ nextTask.name, cb ].concat(nextTask.params);
+		loader.apply(this, newParams);
+
+		return (this.__loadCount === 0);
+	}
+});
+
+/**
+ * A set of loader plugins for this asset manager. These might be as simple
+ * as pushing HTML Image objects into a Texture, or more complex like decoding
+ * a compressed, mip-mapped, or cube-map texture.
+ * 
+ * @static
+ * @type {Object}
+ */
+AssetManager.loaders = {};
+
+/**
+ * Registers a loader function with the given extension(s).
+ * The first parameter is a loader function, and all subsequent
+ * parameters are lower-case extensions (without the period) that
+ * should be associated with that loader. This will override other
+ * loaders by the same extension.
+ * 
+ * @method
+ * @static
+ * @param {Function} loaderFunc the loader function
+ * @param {String ...} extensions a variable number of strings
+ */
+AssetManager.registerLoader = function(loaderFunc, extensions) {
+	if (arguments.length===0)
+		throw "must specify at least one extension for the loader";
+	var exts = Array.prototype.slice.call(arguments, 1);
+	for (var i=0; i<exts.length; i++) 
+		AssetManager.loaders[ exts[i] ] = loaderFunc;
+};
+
+AssetManager.Descriptor = new Class({
+
+	name: null,
+	loader: null,
+	params: null,
+	status: null,
+
+	initialize: function(name, loader, params) {
+		this.name = name;
+		this.loader = loader;
+		this.params = params;
+		this.status = AssetManager.Status.QUEUED;
+	}
+});
+
+/**
+ * Defines the status of an asset in the manager queue.
+ * @type {Object}
+ */
+AssetManager.Status = {
+	QUEUED: 0,
+	LOADING: 1,
+	LOAD_SUCCESS: 2,
+	LOAD_FAIL: 3
+};
+
+/**
+ * This is a "loader function" which handles the asynchronous
+ * loading for an asset. The function must be implemented in a very
+ * strict manner for the asset manager to work correctly.
+ *
+ * The first parameter passed to this function is the name of the
+ * asset being loaded. The second parameter is a callback that must
+ * be invoked after the async task is completed.
+ * Any subsequent parameters are those that came from the inital call
+ * to load(). 
+ *
+ * Once the synchronous or asynchronous loading task is completed, the
+ * "finished" callback must be invoked with two parameters: first, the
+ * name of the asset as passed to this loader. And second, a boolean indicating
+ * the success of the load operation. 
+ *
+ * If you don't invoke the callback, the asset manager may never finish.
+ *
+ * The function can also have an optional "static method" (i.e. attached to
+ * the function) called "processArguments". This is a utility which takes in
+ * the arguments and handles them accordingly before allowing them to be passed
+ * along to the loader. The return value of this method will be the return value of
+ * the load() method, for the user's convenience. This allows users to do the 
+ * following:
+ *
+ *     var tex0 = assetManager.load("img.png"); //returns a new Texture
+ *     var tex1 = assetManager.load("img.png", new Texture(context)); //same as above
+ *
+ *     //also equivalent to this:
+ *     var tex2 = new Texture(context);
+ *     assetManager.load("img.png", tex2);
+ * 
+ * @param  {[type]} assetName [description]
+ * @return {[type]}           [description]
+ */
+AssetManager.ImageLoader = function(name, finished, texture, path) {
+	if (!texture) {
+		throw "no texture object specified to the ImageLoader for asset manager";
+	}
+
+	//if path is undefined, use the asset name and 
+	//assume its a path.
+	path = path || name;
+
+	var img = new Image();
+
+	img.onload = function() {
+		img.onerror = img.onabort = null; //clear other listeners
+		texture.uploadImage(img);
+		finished(name, true);
+	};
+	img.onerror = function() {
+		img.onload = img.onabort = null;
+		console.warn("Error loading image: "+path);
+		//We use null data to avoid WebGL errors
+		//TODO: handle fail more smoothly, i.e. with a callback
+		//TODO: Should this be pure black, or purely transparent?
+		texture.uploadData(1, 1); 
+		finished(name, false);
+	};
+	img.onabort = function() {
+		img.onload = img.onerror = null;
+		console.warn("Aborted image: "+path);
+		//We use null data to avoid WebGL errors
+		texture.uploadData(1, 1);
+		finished(name, false);
+	};
+
+	//setup source
+	img.src = path;
+};
+
+//This is a little bit ugly; would it be better with a class that extends 
+//a base Loader class? But it would use instance methods...
+
+/**
+ * This method is called to 'parse' the arguments before using them for
+ * loading. In this case, if the specified texture is null or undefined,
+ * we will replace it with a new object.
+ *
+ * 'params' is an array of arguments that was passed to the loader function.
+ *
+ * The return value of this method is also the return value of the load()
+ * method, for convenience.
+ *
+ * The method is called bound to the AssetManager, so we can access WebGLContext
+ * with "this.context".
+ * 
+ * @param  {String} name the asset name
+ * @param  {Array} params an array of parameters that will be used to load the asset
+ * @return {Object} the object the user may expect from the loader, in this case a Texture object
+ */
+AssetManager.ImageLoader.processArguments = function(name, params) {
+	//the first parameter is a texture... if not specified, we need to assign it a new object
+	if (params.length === 0 || !params[0])
+		return (params[0] = new Texture(this.context));
+	else
+		return params[0];
+};
+
+
+// Register our default loaders...
+
+AssetManager.registerLoader(AssetManager.ImageLoader, "png", "gif", "jpg", "jpeg");
+
+module.exports = AssetManager;
+
+},{"jsOOP":7,"signals":23}],3:[function(require,module,exports){
+var Class = require('jsOOP').Class;
 var vec2 = require('gl-matrix').vec2;
 
 //TODO: What about other types? Vector3, Vector4 ? 
@@ -58,17 +665,360 @@ var Point = new Class({
 });
 
 module.exports = Point;
-},{"gl-matrix":3,"jsOOP":4}],2:[function(require,module,exports){
-//This is the index file for our UMD build. 
+},{"gl-matrix":6,"jsOOP":7}],4:[function(require,module,exports){
+// Requires....
+var Class 		  = require('jsOOP').Class;
+
+var AbstractBatch = require('./AbstractBatch');
+var Point 		  = require('./Point');
+
+var Mesh 		  = require('kami-gl').Mesh;
+var ShaderProgram = require('kami-gl').ShaderProgram;
+
+
+
+var SpriteBatch = new Class({
+
+	Extends: AbstractBatch,
+
+	/**
+	 * Subclasses can set this to false if they 
+	 * want to upload their own projection matrices
+	 * instead of a simple 2D vector. 
+	 * 
+	 * @type {Boolean}
+	 * @default  true
+	 */
+	_useProjectionVector: true,
+
+	/**
+	 * The projection Point (a 2D vector) which is
+	 * used to avoid some matrix calculations. A 3D 
+	 * batcher might want to replace this and
+	 * setProjection entirely. 
+	 * 
+	 * @type {[type]}
+	 */
+	projection: null,
+
+	initialize: function(context, size) {
+		this.parent(context, size);
+
+		//currently bound texture
+		this.texture = null;
+
+		//TODO: use a Point or Vector class...
+		this.projection = new Point(0, 0);
+	},
+
+	getVertexSize: function() {
+		return SpriteBatch.VERTEX_SIZE;
+	},
+
+	_createVertexAttributes: function() {
+		return [ 
+			new Mesh.Attrib("Position", 2),
+			new Mesh.Attrib("Color", 1),
+			new Mesh.Attrib("TexCoord0", 2)
+		];
+	},
+
+
+	/**
+	 * Sets the projection vector, an x and y
+	 * defining the middle points of your stage.
+	 * 
+	 * @param {Number} x the x projection value
+	 * @param {Number} y the y projection value
+	 */
+	setProjection: function(x, y) {
+		var oldX = this.projection.x;
+		var oldY = this.projection.y;
+		this.projection.x = x;
+		this.projection.y = y;
+
+		//we need to flush the batch..
+		if (this.drawing && (x != oldX || y != oldY)) {
+			this.flush();
+			this._updateMatrices();
+		}
+	},
+
+	_createShader: function() {
+		var shader = new ShaderProgram(this.context,
+				SpriteBatch.DEFAULT_VERT_SHADER, 
+				SpriteBatch.DEFAULT_FRAG_SHADER);
+		if (shader.log)
+			console.warn("Shader Log:\n" + shader.log);
+		return shader;
+	},
+
+	/**
+	 * This should be called to update projection/transform
+	 * matrices and upload the new values to the shader. For example,
+	 * if the user calls setProjection mid-draw, the batch will flush
+	 * and this will be called before continuing to add items to the batch.
+	 */
+	_updateMatrices: function() {
+		//an extension of SpriteBatch might want to support full transform &
+		//projection matrices for 3D billboards. if so, override this method
+		this.shader.setUniformfv("u_projection", this.projection.items);
+	},
+
+	//TODO: support 3D billboards by not always uploading a 2D proj vector
+	//maybe a simple _useProjectionVector flag
+
+	/**
+	 * Binds the shader, disables depth writing, 
+	 * enables blending, activates texture unit 0, and sends
+	 * default matrices and sampler2D uniforms to shader.
+	 */
+	begin: function() {
+		//sprite batch doesn't hold a reference to GL since it is volatile
+		var gl = this.context.gl;
+		
+		//just do direct parent call for speed here
+		//This binds the shader and mesh!
+		AbstractBatch.prototype.begin.call(this);
+
+		this._updateMatrices(); //send projection/transform to shader
+
+		//upload the sampler uniform. not necessary every flush so we just
+		//do it here.
+		this.shader.setUniformi("u_texture0", 0);
+
+		//disable depth mask
+		gl.depthMask(false);
+
+		//premultiplied alpha
+		if (this._blendEnabled) {
+			gl.enable(gl.BLEND);
+
+			//set either to -1 if you want to call your own 
+			//blendFunc or blendFuncSeparate
+			if (this._blendSrc !== -1 && this._blendDst !== -1)
+				gl.blendFunc(this._blendSrc, this._blendDst); 
+		}
+	},
+
+	flush: function() {
+		//ignore flush if texture is null
+		if (!this.texture)
+			return;
+		AbstractBatch.prototype.flush.call(this);
+	},
+
+	_preRender: function() {
+		if (this.texture)
+			this.texture.bind();
+	},
+
+	end: function() {
+		//sprite batch doesn't hold a reference to GL since it is volatile
+		var gl = this.context.gl;
+		
+		//just do direct parent call for speed here
+		//This binds the shader and mesh!
+		AbstractBatch.prototype.end.call(this);
+
+		gl.depthMask(true);
+
+		if (this._blendEnabled)
+			gl.disable(gl.BLEND);
+	},
+
+	draw: function(texture, x, y, width, height, color, u1, v1, u2, v2) {
+		if (!this.drawing)
+			throw "Illegal State: trying to draw a batch before begin()";
+		
+		//don't draw anything if GL tex doesn't exist..
+		if (!texture)
+			return;
+		
+		if (this.texture === null || this.texture.id !== texture.id) {
+			//new texture.. flush previous data
+			this.flush();
+			this.texture = texture;
+		} else if (this.idx == this.vertices.length) {
+			this.flush(); //we've reached our max, flush before pushing more data
+		}
+
+		width = (width===0) ? width : (width || texture.width);
+		height = (height===0) ? height : (height || texture.height);
+		x = x || 0;
+		y = y || 0;
+
+		var x1 = x;
+		var x2 = x + width;
+		var y1 = y;
+		var y2 = y + height;
+
+		u1 = u1 || 0;
+		u2 = (u2===0) ? u2 : (u2 || 1);
+		v1 = v1 || 0;
+		v2 = (v2===0) ? v2 : (v2 || 1);
+
+		var c = (color===0) ? color : (color || 1.0);
+
+		//xy
+		this.vertices[this.idx++] = x1;
+		this.vertices[this.idx++] = y1;
+		//color
+		this.vertices[this.idx++] = c;
+		//uv
+		this.vertices[this.idx++] = u1;
+		this.vertices[this.idx++] = v1;
+		
+		//xy
+		this.vertices[this.idx++] = x2;
+		this.vertices[this.idx++] = y1;
+		//color
+		this.vertices[this.idx++] = c;
+		//uv
+		this.vertices[this.idx++] = u2;
+		this.vertices[this.idx++] = v1;
+
+		//xy
+		this.vertices[this.idx++] = x2;
+		this.vertices[this.idx++] = y2;
+		//color
+		this.vertices[this.idx++] = c;
+		//uv
+		this.vertices[this.idx++] = u2;
+		this.vertices[this.idx++] = v2;
+
+		//xy
+		this.vertices[this.idx++] = x1;
+		this.vertices[this.idx++] = y2;
+		//color
+		this.vertices[this.idx++] = c;
+		//uv
+		this.vertices[this.idx++] = u1;
+		this.vertices[this.idx++] = v2;
+	},
+
+	/**
+	 * Adds a single set of vertices to this sprite batch (20 floats).
+	 */
+	drawVertices: function(texture, verts, off) {
+		if (!this.drawing)
+			throw "Illegal State: trying to draw a batch before begin()";
+		
+		//don't draw anything if GL tex doesn't exist..
+		if (!texture)
+			return;
+		
+		if (this.texture != texture) {
+			//new texture.. flush previous data
+			this.flush();
+			this.texture = texture;
+		} else if (this.idx == this.vertices.length) {
+			this.flush(); //we've reached our max, flush before pushing more data
+		}
+
+		off = off || 0;
+		//TODO: use a loop here?
+		//xy
+		this.vertices[this.idx++] = verts[off++];
+		this.vertices[this.idx++] = verts[off++];
+		//color
+		this.vertices[this.idx++] = verts[off++];
+		//uv
+		this.vertices[this.idx++] = verts[off++];
+		this.vertices[this.idx++] = verts[off++];
+		
+		//xy
+		this.vertices[this.idx++] = verts[off++];
+		this.vertices[this.idx++] = verts[off++];
+		//color
+		this.vertices[this.idx++] = verts[off++];
+		//uv
+		this.vertices[this.idx++] = verts[off++];
+		this.vertices[this.idx++] = verts[off++];
+
+		//xy
+		this.vertices[this.idx++] = verts[off++];
+		this.vertices[this.idx++] = verts[off++];
+		//color
+		this.vertices[this.idx++] = verts[off++];
+		//uv
+		this.vertices[this.idx++] = verts[off++];
+		this.vertices[this.idx++] = verts[off++];
+
+		//xy
+		this.vertices[this.idx++] = verts[off++];
+		this.vertices[this.idx++] = verts[off++];
+		//color
+		this.vertices[this.idx++] = verts[off++];
+		//uv
+		this.vertices[this.idx++] = verts[off++];
+		this.vertices[this.idx++] = verts[off++];
+	}
+
+});
+
+SpriteBatch.VERTEX_SIZE = 5;
+SpriteBatch.totalRenderCalls = 0;
+
+
+
+SpriteBatch.DEFAULT_FRAG_SHADER = [
+	"precision mediump float;",
+	"varying vec2 vTexCoord0;",
+	"varying float vColor;",
+	"uniform sampler2D u_texture0;",
+
+	"void main(void) {",
+	"	gl_FragColor = texture2D(u_texture0, vTexCoord0) * vColor;",
+	"}"
+].join('\n');
+
+SpriteBatch.DEFAULT_VERT_SHADER = [
+	"attribute vec2 Position;",
+	"attribute float Color;",
+	"attribute vec2 TexCoord0;",
+
+	"uniform vec2 u_projection;",
+	"varying vec2 vTexCoord0;",
+	"varying float vColor;",
+
+	"void main(void) {",
+	"	gl_Position = vec4( Position.x / u_projection.x - 1.0, Position.y / -u_projection.y + 1.0 , 0.0, 1.0);",
+	"	vTexCoord0 = TexCoord0;",
+	"	vColor = Color;",
+	"}"
+].join('\n');
+
+module.exports = SpriteBatch;
+
+},{"./AbstractBatch":1,"./Point":3,"jsOOP":7,"kami-gl":16}],5:[function(require,module,exports){
+//This is an index for UMD builds. It includes kami and kami-gl. 
+//The dependencies are included and aliased like so:
+//	var Signal = require('signals')
+//	var glmatrix = require('gl-matrix');
+//	var jsOOP = require('jsOOP');
 
 module.exports = {
+	//kami core
 	Point: require('./Point'),
+	AbstractBatch: require('./AbstractBatch'),
+	SpriteBatch: require('./SpriteBatch'),
+	AssetManager: require('./AssetManager'),
 
+	//kami-gl
 	Mesh: require('kami-gl').Mesh,
-	
-	vec2: require('gl-matrix').vec2
+	ShaderProgram: require('kami-gl').ShaderProgram,
+	Texture: require('kami-gl').Texture,
+	WebGLContext: require('kami-gl').WebGLContext,
+
+	//dependencies
+	jsOOP: require('jsOOP'),
+	glmatrix: require('gl-matrix'),
+	signals: require('signals')
 };
-},{"./Point":1,"gl-matrix":3,"kami-gl":13}],3:[function(require,module,exports){
+
+//TODO: Find a better way of handling this. maybe with a source transform.
+},{"./AbstractBatch":1,"./AssetManager":2,"./Point":3,"./SpriteBatch":4,"gl-matrix":6,"jsOOP":7,"kami-gl":16,"signals":23}],6:[function(require,module,exports){
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -4188,7 +5138,7 @@ if(typeof(exports) !== 'undefined') {
   })(shim.exports);
 })(this);
 
-},{}],4:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var Class = require('./lib/Class'),
 	Enum = require('./lib/Enum'),
 	Interface = require('./lib/Interface');
@@ -4198,7 +5148,7 @@ module.exports = {
 	Enum: Enum,
 	Interface: Interface
 };
-},{"./lib/Class":5,"./lib/Enum":6,"./lib/Interface":7}],5:[function(require,module,exports){
+},{"./lib/Class":8,"./lib/Enum":9,"./lib/Interface":10}],8:[function(require,module,exports){
 var BaseClass = require('./baseClass');
 
 var Class = function( descriptor ) {
@@ -4263,7 +5213,7 @@ var Class = function( descriptor ) {
 };	
 
 exports = module.exports = Class;
-},{"./baseClass":8}],6:[function(require,module,exports){
+},{"./baseClass":11}],9:[function(require,module,exports){
 var Class = require('./Class');
 
 /**
@@ -4498,7 +5448,7 @@ Enum.Base = new Class({
 
 exports = module.exports = Enum;
 
-},{"./Class":5}],7:[function(require,module,exports){
+},{"./Class":8}],10:[function(require,module,exports){
 
 var Interface = function( descriptor ) {
 	this.descriptor = descriptor;
@@ -4533,7 +5483,7 @@ Interface.prototype.compare = function( classToCheck ) {
 };
 
 exports = module.exports = Interface;
-},{}],8:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 //Exports a function named 'parent'
 module.exports.parent = function() {
 	// if the current function calling is the constructor
@@ -4573,7 +5523,7 @@ module.exports.parent = function() {
 
 	return parentFunction.apply( this, arguments );
 };
-},{}],9:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var Class = require('jsOOP').Class;
 
 //TODO: decouple into VBO + IBO utilities 
@@ -4848,7 +5798,7 @@ module.exports = Mesh;
 //	but we are still sending alpha so WTF
 //	would need another buffer, but that can get real ugly.
 //  
-},{"jsOOP":14}],10:[function(require,module,exports){
+},{"jsOOP":17}],13:[function(require,module,exports){
 var Class = require('jsOOP').Class;
 
 var ShaderProgram = new Class({
@@ -5205,8 +6155,9 @@ var ShaderProgram = new Class({
 });
 
 module.exports = ShaderProgram;
-},{"jsOOP":14}],11:[function(require,module,exports){
+},{"jsOOP":17}],14:[function(require,module,exports){
 var Class = require('jsOOP').Class;
+var Signal = require('signals');
 
 var Texture = new Class({
 
@@ -5216,25 +6167,6 @@ var Texture = new Class({
 	height: 0,
 	wrap: null,
 	filter: null,
-
-	__managed: false,
-
-	/**
-	 * Whether this texture is 'managed' and will be restored on context loss.
-	 * If no image provider is used
-	 * 
-	 * @type {Boolean}
-	 */
-	managed: {
-		get: function() { 
-			return this.__managed; 
-		}
-
-		//TODO: add to cache when user sets managed = true
-		// set: function(val) {
-
-		// }
-	},
 
 	/**
 	 * Creates a new texture with the optional data provider.
@@ -5300,7 +6232,8 @@ var Texture = new Class({
 		if (!context)
 			throw "GL context not specified";
 		this.context = context;
-		
+		this.created = new Signal();
+
 		var providerArgs = [this];
 		var provider = null;
 
@@ -5340,11 +6273,8 @@ var Texture = new Class({
 		this.provider = provider;
 		this.providerArgs = providerArgs;
 
-		//if a provider is specified, it will be managed by WebGLCanvas
-		this.__managed = this.provider !== null;
+		//This is maanged by WebGLContext
 		this.context.addManagedObject(this);
-
-		//if we have a provider, invoke it
 		this.create();
 	},
 
@@ -5583,6 +6513,11 @@ Texture.ImageProvider = function(texture, path, onLoad, onErr, format, type) {
 			onErr.call(texture, texture);
 	};
 
+	img.onabort = function() {
+		if (onErr && typeof onErr === "function")
+			onErr.call(texture, texture);
+	};
+
 	img.src = path;
 };
 
@@ -5642,22 +6577,22 @@ Texture.getNumComponents = function(format) {
 
 
 module.exports = Texture;
-},{"jsOOP":14}],12:[function(require,module,exports){
+},{"jsOOP":17,"signals":22}],15:[function(require,module,exports){
 var Class = require('jsOOP').Class;
-
+var Signal = require('signals');
 /**
  * A thin wrapper around WebGLRenderingContext which handles
  * context loss and restore with other Kami rendering objects.
  */
 var WebGLContext = new Class({
 	
-	managedTextures: null,
-	managedShaders: null,
+	managedObjects: null,
 
 	gl: null,
 	width: null,
 	height: null,
 	view: null,
+
 	contextAttributes: null,
 	
 	/**
@@ -5668,7 +6603,35 @@ var WebGLContext = new Class({
 	 */
 	valid: false,
 
+	/**
+	 * Called when GL context is lost. 
+	 * 
+	 * The first argument passed to the listener is the WebGLContext
+	 * managing the context loss.
+	 * 
+	 * @type {Signal}
+	 */
+	lost: null,
+
+	/**
+	 * Called when GL context is restored, after all the managed
+	 * objects have been recreated.
+	 *
+	 * The first argument passed to the listener is the WebGLContext
+	 * which managed the restoration.
+	 *
+	 * This does not gaurentee that all objects will be renderable.
+	 * For example, a Texture with an ImageProvider may still be loading
+	 * asynchronously.	 
+	 * 
+	 * @type {Signal}
+	 */
+	restored: null,
+
 	initialize: function(width, height, view, contextAttributes) {
+		this.lost = new Signal();
+		this.restored = new Signal();
+
 		//setup defaults
 		this.view = view || document.createElement("canvas");
 
@@ -5692,7 +6655,6 @@ var WebGLContext = new Class({
 			
 		this.contextAttributes = contextAttributes;
 		this._initContext();
-		this.initGL();
 
 		this.resize(this.width, this.height);
 	},
@@ -5732,15 +6694,6 @@ var WebGLContext = new Class({
 		gl.viewport(0, 0, this.width, this.height);
 	},
 
-	initGL: function() {
-		var gl = this.gl;
-		gl.viewport(0, 0, this.width, this.height);
-
-		// get rid of this.. let user handle it
-		// gl.clearColor(0.5,0.5,0.0,1.0);
-		// gl.clear(gl.COLOR_BUFFER_BIT);
-	},
-
 	/**
 	 * (internal use)
 	 * A managed object is anything with a "create" function, that will
@@ -5775,9 +6728,18 @@ var WebGLContext = new Class({
 		//all textures/shaders/buffers/FBOs have been deleted... 
 		//we need to re-create them on restore
 		this.valid = false;
+
+		this.lost.dispatch(this);
 	},
 
 	_contextRestored: function(ev) {
+		//If an asset manager is attached to this
+		//context, we need to invalidate it and re-load 
+		//the assets.
+		if (this.assetManager) {
+			this.assetManager.invalidate();
+		}
+
 		//first, initialize the GL context again
 		this._initContext();
 
@@ -5786,29 +6748,481 @@ var WebGLContext = new Class({
 			this.managedObjects[i].create();
 		}
 
-		this.initGL();
+		//update GL viewport
+		this.resize(this.width, this.height);
+
+		this.restored.dispatch(this);
 	}
 });
 
 module.exports = WebGLContext;
-},{"jsOOP":14}],13:[function(require,module,exports){
+},{"jsOOP":17,"signals":22}],16:[function(require,module,exports){
 module.exports = {
 	ShaderProgram: require('./ShaderProgram'),
 	WebGLContext: require('./WebGLContext'),
 	Texture: require('./Texture'),
 	Mesh: require('./Mesh')
 };
-},{"./Mesh":9,"./ShaderProgram":10,"./Texture":11,"./WebGLContext":12}],14:[function(require,module,exports){
-arguments[4][4][0].apply(exports,arguments)
-},{"./lib/Class":15,"./lib/Enum":16,"./lib/Interface":17}],15:[function(require,module,exports){
-module.exports=require(5)
-},{"./baseClass":18}],16:[function(require,module,exports){
-arguments[4][6][0].apply(exports,arguments)
-},{"./Class":15}],17:[function(require,module,exports){
-module.exports=require(7)
-},{}],18:[function(require,module,exports){
+},{"./Mesh":12,"./ShaderProgram":13,"./Texture":14,"./WebGLContext":15}],17:[function(require,module,exports){
+arguments[4][7][0].apply(exports,arguments)
+},{"./lib/Class":18,"./lib/Enum":19,"./lib/Interface":20}],18:[function(require,module,exports){
 module.exports=require(8)
-},{}]},{},[2])
-(2)
+},{"./baseClass":21}],19:[function(require,module,exports){
+arguments[4][9][0].apply(exports,arguments)
+},{"./Class":18}],20:[function(require,module,exports){
+module.exports=require(10)
+},{}],21:[function(require,module,exports){
+module.exports=require(11)
+},{}],22:[function(require,module,exports){
+/*jslint onevar:true, undef:true, newcap:true, regexp:true, bitwise:true, maxerr:50, indent:4, white:false, nomen:false, plusplus:false */
+/*global define:false, require:false, exports:false, module:false, signals:false */
+
+/** @license
+ * JS Signals <http://millermedeiros.github.com/js-signals/>
+ * Released under the MIT license
+ * Author: Miller Medeiros
+ * Version: 1.0.0 - Build: 268 (2012/11/29 05:48 PM)
+ */
+
+(function(global){
+
+    // SignalBinding -------------------------------------------------
+    //================================================================
+
+    /**
+     * Object that represents a binding between a Signal and a listener function.
+     * <br />- <strong>This is an internal constructor and shouldn't be called by regular users.</strong>
+     * <br />- inspired by Joa Ebert AS3 SignalBinding and Robert Penner's Slot classes.
+     * @author Miller Medeiros
+     * @constructor
+     * @internal
+     * @name SignalBinding
+     * @param {Signal} signal Reference to Signal object that listener is currently bound to.
+     * @param {Function} listener Handler function bound to the signal.
+     * @param {boolean} isOnce If binding should be executed just once.
+     * @param {Object} [listenerContext] Context on which listener will be executed (object that should represent the `this` variable inside listener function).
+     * @param {Number} [priority] The priority level of the event listener. (default = 0).
+     */
+    function SignalBinding(signal, listener, isOnce, listenerContext, priority) {
+
+        /**
+         * Handler function bound to the signal.
+         * @type Function
+         * @private
+         */
+        this._listener = listener;
+
+        /**
+         * If binding should be executed just once.
+         * @type boolean
+         * @private
+         */
+        this._isOnce = isOnce;
+
+        /**
+         * Context on which listener will be executed (object that should represent the `this` variable inside listener function).
+         * @memberOf SignalBinding.prototype
+         * @name context
+         * @type Object|undefined|null
+         */
+        this.context = listenerContext;
+
+        /**
+         * Reference to Signal object that listener is currently bound to.
+         * @type Signal
+         * @private
+         */
+        this._signal = signal;
+
+        /**
+         * Listener priority
+         * @type Number
+         * @private
+         */
+        this._priority = priority || 0;
+    }
+
+    SignalBinding.prototype = {
+
+        /**
+         * If binding is active and should be executed.
+         * @type boolean
+         */
+        active : true,
+
+        /**
+         * Default parameters passed to listener during `Signal.dispatch` and `SignalBinding.execute`. (curried parameters)
+         * @type Array|null
+         */
+        params : null,
+
+        /**
+         * Call listener passing arbitrary parameters.
+         * <p>If binding was added using `Signal.addOnce()` it will be automatically removed from signal dispatch queue, this method is used internally for the signal dispatch.</p>
+         * @param {Array} [paramsArr] Array of parameters that should be passed to the listener
+         * @return {*} Value returned by the listener.
+         */
+        execute : function (paramsArr) {
+            var handlerReturn, params;
+            if (this.active && !!this._listener) {
+                params = this.params? this.params.concat(paramsArr) : paramsArr;
+                handlerReturn = this._listener.apply(this.context, params);
+                if (this._isOnce) {
+                    this.detach();
+                }
+            }
+            return handlerReturn;
+        },
+
+        /**
+         * Detach binding from signal.
+         * - alias to: mySignal.remove(myBinding.getListener());
+         * @return {Function|null} Handler function bound to the signal or `null` if binding was previously detached.
+         */
+        detach : function () {
+            return this.isBound()? this._signal.remove(this._listener, this.context) : null;
+        },
+
+        /**
+         * @return {Boolean} `true` if binding is still bound to the signal and have a listener.
+         */
+        isBound : function () {
+            return (!!this._signal && !!this._listener);
+        },
+
+        /**
+         * @return {boolean} If SignalBinding will only be executed once.
+         */
+        isOnce : function () {
+            return this._isOnce;
+        },
+
+        /**
+         * @return {Function} Handler function bound to the signal.
+         */
+        getListener : function () {
+            return this._listener;
+        },
+
+        /**
+         * @return {Signal} Signal that listener is currently bound to.
+         */
+        getSignal : function () {
+            return this._signal;
+        },
+
+        /**
+         * Delete instance properties
+         * @private
+         */
+        _destroy : function () {
+            delete this._signal;
+            delete this._listener;
+            delete this.context;
+        },
+
+        /**
+         * @return {string} String representation of the object.
+         */
+        toString : function () {
+            return '[SignalBinding isOnce:' + this._isOnce +', isBound:'+ this.isBound() +', active:' + this.active + ']';
+        }
+
+    };
+
+
+/*global SignalBinding:false*/
+
+    // Signal --------------------------------------------------------
+    //================================================================
+
+    function validateListener(listener, fnName) {
+        if (typeof listener !== 'function') {
+            throw new Error( 'listener is a required param of {fn}() and should be a Function.'.replace('{fn}', fnName) );
+        }
+    }
+
+    /**
+     * Custom event broadcaster
+     * <br />- inspired by Robert Penner's AS3 Signals.
+     * @name Signal
+     * @author Miller Medeiros
+     * @constructor
+     */
+    function Signal() {
+        /**
+         * @type Array.<SignalBinding>
+         * @private
+         */
+        this._bindings = [];
+        this._prevParams = null;
+
+        // enforce dispatch to aways work on same context (#47)
+        var self = this;
+        this.dispatch = function(){
+            Signal.prototype.dispatch.apply(self, arguments);
+        };
+    }
+
+    Signal.prototype = {
+
+        /**
+         * Signals Version Number
+         * @type String
+         * @const
+         */
+        VERSION : '1.0.0',
+
+        /**
+         * If Signal should keep record of previously dispatched parameters and
+         * automatically execute listener during `add()`/`addOnce()` if Signal was
+         * already dispatched before.
+         * @type boolean
+         */
+        memorize : false,
+
+        /**
+         * @type boolean
+         * @private
+         */
+        _shouldPropagate : true,
+
+        /**
+         * If Signal is active and should broadcast events.
+         * <p><strong>IMPORTANT:</strong> Setting this property during a dispatch will only affect the next dispatch, if you want to stop the propagation of a signal use `halt()` instead.</p>
+         * @type boolean
+         */
+        active : true,
+
+        /**
+         * @param {Function} listener
+         * @param {boolean} isOnce
+         * @param {Object} [listenerContext]
+         * @param {Number} [priority]
+         * @return {SignalBinding}
+         * @private
+         */
+        _registerListener : function (listener, isOnce, listenerContext, priority) {
+
+            var prevIndex = this._indexOfListener(listener, listenerContext),
+                binding;
+
+            if (prevIndex !== -1) {
+                binding = this._bindings[prevIndex];
+                if (binding.isOnce() !== isOnce) {
+                    throw new Error('You cannot add'+ (isOnce? '' : 'Once') +'() then add'+ (!isOnce? '' : 'Once') +'() the same listener without removing the relationship first.');
+                }
+            } else {
+                binding = new SignalBinding(this, listener, isOnce, listenerContext, priority);
+                this._addBinding(binding);
+            }
+
+            if(this.memorize && this._prevParams){
+                binding.execute(this._prevParams);
+            }
+
+            return binding;
+        },
+
+        /**
+         * @param {SignalBinding} binding
+         * @private
+         */
+        _addBinding : function (binding) {
+            //simplified insertion sort
+            var n = this._bindings.length;
+            do { --n; } while (this._bindings[n] && binding._priority <= this._bindings[n]._priority);
+            this._bindings.splice(n + 1, 0, binding);
+        },
+
+        /**
+         * @param {Function} listener
+         * @return {number}
+         * @private
+         */
+        _indexOfListener : function (listener, context) {
+            var n = this._bindings.length,
+                cur;
+            while (n--) {
+                cur = this._bindings[n];
+                if (cur._listener === listener && cur.context === context) {
+                    return n;
+                }
+            }
+            return -1;
+        },
+
+        /**
+         * Check if listener was attached to Signal.
+         * @param {Function} listener
+         * @param {Object} [context]
+         * @return {boolean} if Signal has the specified listener.
+         */
+        has : function (listener, context) {
+            return this._indexOfListener(listener, context) !== -1;
+        },
+
+        /**
+         * Add a listener to the signal.
+         * @param {Function} listener Signal handler function.
+         * @param {Object} [listenerContext] Context on which listener will be executed (object that should represent the `this` variable inside listener function).
+         * @param {Number} [priority] The priority level of the event listener. Listeners with higher priority will be executed before listeners with lower priority. Listeners with same priority level will be executed at the same order as they were added. (default = 0)
+         * @return {SignalBinding} An Object representing the binding between the Signal and listener.
+         */
+        add : function (listener, listenerContext, priority) {
+            validateListener(listener, 'add');
+            return this._registerListener(listener, false, listenerContext, priority);
+        },
+
+        /**
+         * Add listener to the signal that should be removed after first execution (will be executed only once).
+         * @param {Function} listener Signal handler function.
+         * @param {Object} [listenerContext] Context on which listener will be executed (object that should represent the `this` variable inside listener function).
+         * @param {Number} [priority] The priority level of the event listener. Listeners with higher priority will be executed before listeners with lower priority. Listeners with same priority level will be executed at the same order as they were added. (default = 0)
+         * @return {SignalBinding} An Object representing the binding between the Signal and listener.
+         */
+        addOnce : function (listener, listenerContext, priority) {
+            validateListener(listener, 'addOnce');
+            return this._registerListener(listener, true, listenerContext, priority);
+        },
+
+        /**
+         * Remove a single listener from the dispatch queue.
+         * @param {Function} listener Handler function that should be removed.
+         * @param {Object} [context] Execution context (since you can add the same handler multiple times if executing in a different context).
+         * @return {Function} Listener handler function.
+         */
+        remove : function (listener, context) {
+            validateListener(listener, 'remove');
+
+            var i = this._indexOfListener(listener, context);
+            if (i !== -1) {
+                this._bindings[i]._destroy(); //no reason to a SignalBinding exist if it isn't attached to a signal
+                this._bindings.splice(i, 1);
+            }
+            return listener;
+        },
+
+        /**
+         * Remove all listeners from the Signal.
+         */
+        removeAll : function () {
+            var n = this._bindings.length;
+            while (n--) {
+                this._bindings[n]._destroy();
+            }
+            this._bindings.length = 0;
+        },
+
+        /**
+         * @return {number} Number of listeners attached to the Signal.
+         */
+        getNumListeners : function () {
+            return this._bindings.length;
+        },
+
+        /**
+         * Stop propagation of the event, blocking the dispatch to next listeners on the queue.
+         * <p><strong>IMPORTANT:</strong> should be called only during signal dispatch, calling it before/after dispatch won't affect signal broadcast.</p>
+         * @see Signal.prototype.disable
+         */
+        halt : function () {
+            this._shouldPropagate = false;
+        },
+
+        /**
+         * Dispatch/Broadcast Signal to all listeners added to the queue.
+         * @param {...*} [params] Parameters that should be passed to each handler.
+         */
+        dispatch : function (params) {
+            if (! this.active) {
+                return;
+            }
+
+            var paramsArr = Array.prototype.slice.call(arguments),
+                n = this._bindings.length,
+                bindings;
+
+            if (this.memorize) {
+                this._prevParams = paramsArr;
+            }
+
+            if (! n) {
+                //should come after memorize
+                return;
+            }
+
+            bindings = this._bindings.slice(); //clone array in case add/remove items during dispatch
+            this._shouldPropagate = true; //in case `halt` was called before dispatch or during the previous dispatch.
+
+            //execute all callbacks until end of the list or until a callback returns `false` or stops propagation
+            //reverse loop since listeners with higher priority will be added at the end of the list
+            do { n--; } while (bindings[n] && this._shouldPropagate && bindings[n].execute(paramsArr) !== false);
+        },
+
+        /**
+         * Forget memorized arguments.
+         * @see Signal.memorize
+         */
+        forget : function(){
+            this._prevParams = null;
+        },
+
+        /**
+         * Remove all bindings from signal and destroy any reference to external objects (destroy Signal object).
+         * <p><strong>IMPORTANT:</strong> calling any method on the signal instance after calling dispose will throw errors.</p>
+         */
+        dispose : function () {
+            this.removeAll();
+            delete this._bindings;
+            delete this._prevParams;
+        },
+
+        /**
+         * @return {string} String representation of the object.
+         */
+        toString : function () {
+            return '[Signal active:'+ this.active +' numListeners:'+ this.getNumListeners() +']';
+        }
+
+    };
+
+
+    // Namespace -----------------------------------------------------
+    //================================================================
+
+    /**
+     * Signals namespace
+     * @namespace
+     * @name signals
+     */
+    var signals = Signal;
+
+    /**
+     * Custom event broadcaster
+     * @see Signal
+     */
+    // alias for backwards compatibility (see #gh-44)
+    signals.Signal = Signal;
+
+
+
+    //exports to multiple environments
+    if(typeof define === 'function' && define.amd){ //AMD
+        define(function () { return signals; });
+    } else if (typeof module !== 'undefined' && module.exports){ //node
+        module.exports = signals;
+    } else { //browser
+        //use string because of Google closure compiler ADVANCED_MODE
+        /*jslint sub:true */
+        global['signals'] = signals;
+    }
+
+}(this));
+
+},{}],23:[function(require,module,exports){
+module.exports=require(22)
+},{}]},{},[5])
+(5)
 });
 ;

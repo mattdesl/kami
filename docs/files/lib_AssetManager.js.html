@@ -1,9 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>lib/AssetManager.js - kami</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title="kami"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/AbstractBatch.html">AbstractBatch</a></li>
+            
+                <li><a href="../classes/AssetManager.html">AssetManager</a></li>
+            
+                <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
+            
+                <li><a href="../classes/Point.html">Point</a></li>
+            
+                <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
+            
+                <li><a href="../classes/WebGLContext.html">WebGLContext</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/kami.html">kami</a></li>
+            
+                <li><a href="../modules/kami-gl.html">kami-gl</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: lib/AssetManager.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
 /**
  * @module kami
  */
 
-var Class = require('jsOOP').Class;
-var Signal = require('signals');
+var Class = require(&#x27;jsOOP&#x27;).Class;
+var Signal = require(&#x27;signals&#x27;);
 
 
 /**
@@ -18,8 +120,8 @@ var Signal = require('signals');
  *     var assets = new AssetManager(context);
  *  
  *     //image types will return a new Texture
- *     var tex0 = assets.load("img/grass.png");
- *     var tex1 = assets.load("img/scene.png");
+ *     var tex0 = assets.load(&quot;img/grass.png&quot;);
+ *     var tex1 = assets.load(&quot;img/scene.png&quot;);
  *
  *     ... inside game loop ...
  *
@@ -58,7 +160,7 @@ var AssetManager = new Class({
 	/**
 	 * The queue of tasks to load. Each contains
 	 * an
-	 * {{#crossLink "AssetManager.Descriptor"}}{{/crossLink}}.
+	 * {{#crossLink &quot;AssetManager.Descriptor&quot;}}{{/crossLink}}.
 	 *
 	 * Loading a task will pop it off this list and fire the async
 	 * or synchronous process.
@@ -105,9 +207,9 @@ var AssetManager = new Class({
 	 *
 	 * This passes three arguments to the listener function:
 	 * 
-	 * - `current` number of assets that have been loaded
-	 * - `total` number of assets to loaded
-	 * - `name` of the asset which was just loaded
+	 * - &#x60;current&#x60; number of assets that have been loaded
+	 * - &#x60;total&#x60; number of assets to loaded
+	 * - &#x60;name&#x60; of the asset which was just loaded
 	 *  
 	 * @event loadProgress
 	 * @type {[type]}
@@ -116,7 +218,7 @@ var AssetManager = new Class({
 
 	/**
 	 * A signal dispatched on problematic load; e.g. if
-	 * the image was not found and "onerror" was triggered. 
+	 * the image was not found and &quot;onerror&quot; was triggered. 
 	 * The first argument passed to the listener will be 
 	 * the string name of the asset.
 	 *
@@ -162,7 +264,7 @@ var AssetManager = new Class({
 	//Constructor
 	initialize: function(context) {
 		if (!context)
-			throw "no context defined for AssetManager";
+			throw &quot;no context defined for AssetManager&quot;;
 
 		this.assets = [];
 		this.loaders = {};
@@ -203,7 +305,7 @@ var AssetManager = new Class({
 	 */
 	invalidate: function() {
 		//mark all as not yet loaded
-		for (var i=0; i<this.assets.length; i++) 
+		for (var i=0; i&lt;this.assets.length; i++) 
 			this.assets[i].loaded = false;
 
 		//copy our assets to a queue which can be popped
@@ -215,8 +317,8 @@ var AssetManager = new Class({
 	/**
 	 * Pushes an asset onto this stack. This
 	 * attempts to detect the loader for you based
-	 * on the asset name's file extension. If the
-	 * asset name doesn't have a known file extension,
+	 * on the asset name&#x27;s file extension. If the
+	 * asset name doesn&#x27;t have a known file extension,
 	 * or if there is no loader registered for that filename,
 	 * this method throws an error. 
 	 *
@@ -225,20 +327,20 @@ var AssetManager = new Class({
 	 * processing.
 	 *
 	 * The return value of this method is determined by
-	 * the loader's processArguments method. For example, the
+	 * the loader&#x27;s processArguments method. For example, the
 	 * default Image loader returns a Texture object.
 	 *
 	 * @method  load
 	 * @param  {String} name the asset name
 	 * @param {any} args a variable number of optional arguments
-	 * @return {any} returns the best type for this asset's loader
+	 * @return {any} returns the best type for this asset&#x27;s loader
 	 */
 	load: function(name) {
 		var ext = this.__extension(name);
 		if (!ext) 
-			throw "Asset name does not have a file extension: " + name;
+			throw &quot;Asset name does not have a file extension: &quot; + name;
 		if (!AssetManager.loaders.hasOwnProperty(ext))
-			throw "No known loader for extension "+ext+" in asset "+name;
+			throw &quot;No known loader for extension &quot;+ext+&quot; in asset &quot;+name;
 
 		var args = [ name, AssetManager.loaders[ext] ];
 		args = args.concat( Array.prototype.slice.call(arguments, 1) );
@@ -247,9 +349,9 @@ var AssetManager = new Class({
 	},
 
 	__extension: function(str) {
-		var idx = str.lastIndexOf('.');
+		var idx = str.lastIndexOf(&#x27;.&#x27;);
 		if (idx === -1 || idx === 0 || idx === str.length-1) // does not have a clear file extension
-			return "";
+			return &quot;&quot;;
 		return str.substring(idx+1).toLowerCase();
 	},
 
@@ -260,31 +362,31 @@ var AssetManager = new Class({
 	 * filenames), or if you want a particular asset to use a specific
 	 * loader. 
 	 *
-	 * Like with {{#crossLink "AssetManager/load:method"}}{{/crossLink}},
+	 * Like with {{#crossLink &quot;AssetManager/load:method&quot;}}{{/crossLink}},
 	 * the first argument is the asset name. The second argument is the loader
 	 * to use for this asset. Any subsequent
 	 * arguments will be passed along to the loader for further
 	 * processing.
 	 *
 	 * The return value of this method is determined by
-	 * the loader's processArguments method. For example, the
+	 * the loader&#x27;s processArguments method. For example, the
 	 * default Image loader returns a Texture object.
 	 *
 	 * @method  load
 	 * @param {String} name the asset name
 	 * @param {Fucntion} loader the loader function
 	 * @param {Object ...} args a variable number of optional arguments
-	 * @return {any} returns the best type for this asset's loader
+	 * @return {any} returns the best type for this asset&#x27;s loader
 	 */
 	loadAs: function(name, loader) {
 		if (!name)
-			throw "no name specified to load";
+			throw &quot;no name specified to load&quot;;
 		if (!loader)
-			throw "no loader specified for asset "+name;
+			throw &quot;no loader specified for asset &quot;+name;
 
 		var idx = this.__indexOf(this.assets, name);
 		if (idx !== -1) //TODO: eventually add support for dependencies and shared assets
-			throw "asset already defined in asset manager";
+			throw &quot;asset already defined in asset manager&quot;;
 
 		//grab any additional arguments
 		var params = Array.prototype.slice.call(arguments, 2);
@@ -307,7 +409,7 @@ var AssetManager = new Class({
 	},
 
 	__indexOf: function(list, name) {
-		for (var i=0; i<list.length; i++) {
+		for (var i=0; i&lt;list.length; i++) {
 			if (list[i].name === name)
 				return i;
 		}
@@ -315,9 +417,9 @@ var AssetManager = new Class({
 	},
 
 	__loadCallback: function(name, success) {
-		if (arguments.length < 2) //some helpful debug information if you're writing a Loader
-			throw "Loader passed invalid arguments to finished() callback;"
-					+" must include name and success flag";
+		if (arguments.length &lt; 2) //some helpful debug information if you&#x27;re writing a Loader
+			throw &quot;Loader passed invalid arguments to finished() callback;&quot;
+					+&quot; must include name and success flag&quot;;
 
 		this.__loadCount--;
 
@@ -361,7 +463,7 @@ var AssetManager = new Class({
 		if (this.tasks.length === 0)
 			return (this.__loadCount === 0);
 
-		//If we still haven't popped any from the assets list...
+		//If we still haven&#x27;t popped any from the assets list...
 		if (this.tasks.length === this.assets.length) {
 			this.loadStarted.dispatch();
 		}
@@ -401,8 +503,8 @@ AssetManager.loaders = {};
  * should be associated with that loader. This will override other
  * loaders by the same extension.
  *
- * By default, the extensions "png", "jpg", "jpeg", and "gif" are
- * registered to {{#crossLink "AssetManager/ImageLoader:attribute"}}{{/crossLink}}.
+ * By default, the extensions &quot;png&quot;, &quot;jpg&quot;, &quot;jpeg&quot;, and &quot;gif&quot; are
+ * registered to {{#crossLink &quot;AssetManager/ImageLoader:attribute&quot;}}{{/crossLink}}.
  * 
  * @method registerLoader
  * @static
@@ -411,9 +513,9 @@ AssetManager.loaders = {};
  */
 AssetManager.registerLoader = function(loaderFunc, extensions) {
 	if (arguments.length===0)
-		throw "must specify at least one extension for the loader";
+		throw &quot;must specify at least one extension for the loader&quot;;
 	var exts = Array.prototype.slice.call(arguments, 1);
-	for (var i=0; i<exts.length; i++) 
+	for (var i=0; i&lt;exts.length; i++) 
 		AssetManager.loaders[ exts[i] ] = loaderFunc;
 };
 
@@ -459,10 +561,10 @@ AssetManager.Status = {
  * texture. You will not need to deal with this class directly, unless you want
  * to write your own AssetManager loaders.
  *
- * A `Loader` type for AssetManager is simply an object which defines two (static) methods:
+ * A &#x60;Loader&#x60; type for AssetManager is simply an object which defines two (static) methods:
  *
- * - `loadAsset`: this is the loading function, which handles the asynchronous load.
- * - `processArguments`: this is for the user's convenience, handling default arguments
+ * - &#x60;loadAsset&#x60;: this is the loading function, which handles the asynchronous load.
+ * - &#x60;processArguments&#x60;: this is for the user&#x27;s convenience, handling default arguments
  * and giving a meaningful return value. 
  * 
  * @class AssetManager.ImageLoader
@@ -470,7 +572,7 @@ AssetManager.Status = {
 AssetManager.ImageLoader = {
 	
 	/**
-	 * This is a "loader function" which handles the asynchronous
+	 * This is a &quot;loader function&quot; which handles the asynchronous
 	 * loading for an asset. The function must be implemented in a very
 	 * strict manner for the asset manager to work correctly.
 	 *
@@ -478,25 +580,25 @@ AssetManager.ImageLoader = {
 	 * asset being loaded. The second parameter is a callback that must
 	 * be invoked after the async task is completed.
 	 * Any subsequent parameters are those that came from the inital call
-	 * to {{#crossLink "AssetManager/load:method"}}AssetManager.load{{/crossLink}}. 
+	 * to {{#crossLink &quot;AssetManager/load:method&quot;}}AssetManager.load{{/crossLink}}. 
 	 *
 	 * Once the synchronous or asynchronous loading task is completed, the
-	 * `finished` callback must be invoked with two parameters: first, the
-	 * `name` of the asset as passed to this loader. And second, a boolean indicating
-	 * the `success` of the load operation. 
+	 * &#x60;finished&#x60; callback must be invoked with two parameters: first, the
+	 * &#x60;name&#x60; of the asset as passed to this loader. And second, a boolean indicating
+	 * the &#x60;success&#x60; of the load operation. 
 	 *
-	 * If you don't invoke the callback, the asset manager may never finish loading.
+	 * If you don&#x27;t invoke the callback, the asset manager may never finish loading.
 	 * 
 	 * @method loadAsset
 	 * @static
 	 * @param  {String} name the name of the asset to load
 	 * @param {Function} finished the function to call when async loading is complete
 	 * @param {Texture} texture the texture to operate on for this asset
-	 * @param {String} path the optional image path to use instead of the `name` parameter
+	 * @param {String} path the optional image path to use instead of the &#x60;name&#x60; parameter
 	 */
 	loadAsset: function(name, finished, texture, path) {
 		if (!texture) {
-			throw "no texture object specified to the ImageLoader for asset manager";
+			throw &quot;no texture object specified to the ImageLoader for asset manager&quot;;
 		}
 
 		//if path is undefined, use the asset name and 
@@ -512,7 +614,7 @@ AssetManager.ImageLoader = {
 		};
 		img.onerror = function() {
 			img.onload = img.onabort = null;
-			console.warn("Error loading image: "+path);
+			console.warn(&quot;Error loading image: &quot;+path);
 			//We use null data to avoid WebGL errors
 			//TODO: handle fail more smoothly, i.e. with a callback
 			//TODO: Should this be pure black, or purely transparent?
@@ -521,7 +623,7 @@ AssetManager.ImageLoader = {
 		};
 		img.onabort = function() {
 			img.onload = img.onerror = null;
-			console.warn("Aborted image: "+path);
+			console.warn(&quot;Aborted image: &quot;+path);
 			//We use null data to avoid WebGL errors
 			texture.uploadData(1, 1);
 			finished(name, false);
@@ -533,19 +635,19 @@ AssetManager.ImageLoader = {
 
 	/**
 	 * This method is called from 
-	 * {{#crossLink "AssetManager/load:method"}}AssetManager.load{{/crossLink}} to
+	 * {{#crossLink &quot;AssetManager/load:method&quot;}}AssetManager.load{{/crossLink}} to
 	 * process the arguments and setup any default values. This is also responsible for
 	 * determining the appropriate return value for the load function. In the case of
-	 * `ImageLoader`, we return the Texture that was passed to the load() function, or
+	 * &#x60;ImageLoader&#x60;, we return the Texture that was passed to the load() function, or
 	 * a new Texture object if none was given. This way, the user can write code like this:
 	 *
-	 *       var texture = assetManager.load("img.png"); //returns new Texture
+	 *       var texture = assetManager.load(&quot;img.png&quot;); //returns new Texture
 	 *
 	 * The first argument is the name of the asset being processed. The second argument
 	 * is an array of arguments that will be passed to the loader function.
 	 * 
 	 * The method is called bound to the AssetManager, so we can access WebGLContext
-	 * with "this.context".
+	 * with &quot;this.context&quot;.
 	 *
 	 * @method  processArguments
 	 * @static
@@ -567,6 +669,26 @@ AssetManager.ImageLoader = {
 
 // Register our default loaders...
 
-AssetManager.registerLoader(AssetManager.ImageLoader, "png", "gif", "jpg", "jpeg");
+AssetManager.registerLoader(AssetManager.ImageLoader, &quot;png&quot;, &quot;gif&quot;, &quot;jpg&quot;, &quot;jpeg&quot;);
 
 module.exports = AssetManager;
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

@@ -1,10 +1,14 @@
 ## kami
 
-Kami is a fast and lightweight WebGL sprite rendering framework. It aims to support modern WebGL features such as compressed textures and WebGL2 extensions, and can also be used for 2D or 3D purposes. It is modular and reusable, and easy to plug into existing game engines.
+Kami is a fast and lightweight WebGL sprite rendering framework. It can be used for 2D or 3D purposes, and aims to support modern WebGL features like compressed textures.
 
 ## Features
 
-- **WebGLContext** - manages textures, shaders, and other GL objects that need to be recreated on context loss
+- **WebGLContext**
+
+
+- **WebGLContext** 
+	- manages textures, shaders, and other GL objects that need to be recreated on context loss
 - **Texture** - a wrapper around OpenGL textures
 	- Handles data provided by Image or another means, such as ArrayBufferView or a HTMLVideoElement
 	- Can easily support other texture targets, such as cube or array textures

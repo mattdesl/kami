@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>AssetManager - kami</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title="kami"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/AbstractBatch.html">AbstractBatch</a></li>
+            
+                <li><a href="../classes/AssetManager.html">AssetManager</a></li>
+            
+                <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
+            
+                <li><a href="../classes/Point.html">Point</a></li>
+            
+                <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
+            
+                <li><a href="../classes/WebGLContext.html">WebGLContext</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/kami.html">kami</a></li>
+            
+                <li><a href="../modules/kami-gl.html">kami-gl</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1>AssetManager Class</h1>
+<div class="box meta">
+    
+
+    
+
+    
+        <div class="foundat">
+            Defined in: <a href="../files/lib_AssetManager.js.html#l9"><code>lib&#x2F;AssetManager.js:9</code></a>
+        </div>
+    
+
+    
+        
+            Module: <a href="../modules/kami.html">kami</a>
+        
+    
+
+    
+</div>
+
+
+
+<div class="box intro">
+    <p>This is a utility which makes asset loading cleaner
+and simpler, especially with regard to asynchronous image
+loading and WebGL context loss.</p>
+<p>Basic usage looks like this:</p>
+<pre class="code prettyprint"><code>//Create an asset manager 
+var assets = new AssetManager(context);
+
+//image types will return a new Texture
+var tex0 = assets.load(&quot;img/grass.png&quot;);
+var tex1 = assets.load(&quot;img/scene.png&quot;);
+
+... inside game loop ...
+
+    if (assets.update()) {
+        // all assets are loaded, we can render.
+    } else {
+        // not all assets are loaded. we need
+        // to show our preloader.
+    }</code></pre>
+<p>Currently this class only supports image loading,
+although in the future others could be added for 
+compressed textures, sprite sheets, and so forth.</p>
+<p>Creating a new asset manager will listen for context
+loss events on the given WebGLContext. When this happens,
+all assets will be invalidated and added to the loading queue.
+As such, update() will return false until the assets have been
+re-loaded.</p>
+
+</div>
+
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+        <div id="method_AssetManager" class="method item">
+    <h3 class="name"><code>AssetManager</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>context</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l9"><code>lib&#x2F;AssetManager.js:9</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">context</code>
+                        <span class="type"><a href="../classes/WebGLContext.html" class="crosslink">WebGLContext</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the WebGLContext for this manager</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+    </div>
+
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+        
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
+        
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+        
+        
+            <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
+        
+        
+            <li class="api-class-tab events"><a href="#events">Events</a></li>
+        
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+            
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods">
+                        
+                            <li class="index-item method">
+                                <a href="#method_destroy">destroy</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method protected">
+                                <a href="#method_invalidate">invalidate</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_load">load</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_load">load</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_registerLoader">registerLoader</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_update">update</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties">
+                        
+                            <li class="index-item property">
+                                <a href="#property_assets">assets</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_loaders">loaders</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property protected">
+                                <a href="#property_tasks">tasks</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section attrs">
+                    <h3>Attributes</h3>
+
+                    <ul class="index-list attrs">
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_remaining">remaining</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_total">total</a>
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section events">
+                    <h3>Events</h3>
+
+                    <ul class="index-list events">
+                        
+                            <li class="index-item event">
+                                <a href="#event_loadError">loadError</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item event">
+                                <a href="#event_loadFinished">loadFinished</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item event">
+                                <a href="#event_loadProgress">loadProgress</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item event">
+                                <a href="#event_loadStarted">loadStarted</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+        </div>
+
+        
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_destroy" class="method item">
+    <h3 class="name"><code>destroy</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l183"><code>lib&#x2F;AssetManager.js:183</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Destroys this asset manager; removing its listeners
+with WebGLContext and deleting the assets array.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_invalidate" class="method item protected">
+    <h3 class="name"><code>invalidate</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag protected">protected</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l196"><code>lib&#x2F;AssetManager.js:196</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called to invalidate the asset manager
+and require all assets to be re-loaded.
+This is called internally on context loss.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_load" class="method item">
+    <h3 class="name"><code>load</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>name</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>args</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Any</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l215"><code>lib&#x2F;AssetManager.js:215</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Pushes an asset onto this stack. This
+attempts to detect the loader for you based
+on the asset name&#39;s file extension. If the
+asset name doesn&#39;t have a known file extension,
+or if there is no loader registered for that filename,
+this method throws an error. </p>
+<p>The first argument is the asset name. Any subsequent
+arguments will be passed along to the loader for further
+processing.</p>
+<p>The return value of this method is determined by
+the loader&#39;s processArguments method. For example, the
+default Image loader returns a Texture object.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the asset name</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">args</code>
+                        <span class="type">Any</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>a variable number of optional arguments</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Any</span>:
+                    
+                    <p>returns the best type for this asset&#39;s loader</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_load" class="method item">
+    <h3 class="name"><code>load</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>name</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>loader</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>args</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Any</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l256"><code>lib&#x2F;AssetManager.js:256</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Pushes an asset onto this stack. This allows you to
+specify a loader function for the asset. This is useful
+if you wish to use generic names for your assets (instead of
+filenames), or if you want a particular asset to use a specific
+loader. </p>
+<p>Like with <a href="../classes/AssetManager.html#method_load" class="crosslink">load</a>,
+the first argument is the asset name. The second argument is the loader
+to use for this asset. Any subsequent
+arguments will be passed along to the loader for further
+processing.</p>
+<p>The return value of this method is determined by
+the loader&#39;s processArguments method. For example, the
+default Image loader returns a Texture object.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the asset name</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">loader</code>
+                        <span class="type">Fucntion</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the loader function</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">args</code>
+                        <span class="type">Object ...</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>a variable number of optional arguments</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Any</span>:
+                    
+                    <p>returns the best type for this asset&#39;s loader</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_registerLoader" class="method item">
+    <h3 class="name"><code>registerLoader</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>loaderFunc</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>extensions</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l397"><code>lib&#x2F;AssetManager.js:397</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Registers a loader function with the given extension(s).
+The first parameter is a loader function, and all subsequent
+parameters are lower-case extensions (without the period) that
+should be associated with that loader. This will override other
+loaders by the same extension.</p>
+<p>By default, the extensions "png", "jpg", "jpeg", and "gif" are
+registered to AssetManager/ImageLoader:attribute.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">loaderFunc</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the loader function</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">extensions</code>
+                        <span class="type">String ...</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>a variable number of strings</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_update" class="method item">
+    <h3 class="name"><code>update</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Boolean</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l349"><code>lib&#x2F;AssetManager.js:349</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Updates this AssetManager by loading the next asset in the queue.
+If all assets have been loaded, this method returns true, otherwise
+it will return false.</p>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Boolean</span>:
+                    
+                    <p>whether this asset manager has finished loading</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+                
+                    <div id="property_assets" class="property item">
+    <h3 class="name"><code>assets</code></h3>
+    <span class="type">Array</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l49"><code>lib&#x2F;AssetManager.js:49</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>An array of assets that this AssetManager is handling.
+This should not be modified directly.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_loaders" class="property item">
+    <h3 class="name"><code>loaders</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l384"><code>lib&#x2F;AssetManager.js:384</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A set of loader plugins for this asset manager. These might be as simple
+as pushing HTML Image objects into a Texture, or more complex like decoding
+a compressed, mip-mapped, or cube-map texture.</p>
+<p>This object is a simple hashmap of lower-case extension names to Loader functions.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_tasks" class="property item protected">
+    <h3 class="name"><code>tasks</code></h3>
+    <span class="type">Array</span>
+
+    
+
+    
+        <span class="flag protected">protected</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l58"><code>lib&#x2F;AssetManager.js:58</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The queue of tasks to load. Each contains
+an
+AssetManager.Descriptor.</p>
+<p>Loading a task will pop it off this list and fire the async
+or synchronous process.</p>
+<p>This should not be modified directly.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+            <div id="attrs" class="api-class-tabpanel">
+                <h2 class="off-left">Attributes</h2>
+
+                
+                    <div id="attr_remaining" class="attr item">
+    <a name="config_remaining"></a> 
+    <h3 class="name"><code>remaining</code></h3>
+    <span class="type">Number</span>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag readonly">readonly</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l134"><code>lib&#x2F;AssetManager.js:134</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A read-only property that describes the number of 
+assets remaining to be loaded.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_total" class="attr item">
+    <a name="config_total"></a> 
+    <h3 class="name"><code>total</code></h3>
+    <span class="type">Number</span>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag readonly">readonly</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l148"><code>lib&#x2F;AssetManager.js:148</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A read-only property that descriibes the total
+number of assets in this AssetManager.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+            <div id="events" class="api-class-tabpanel">
+                <h2 class="off-left">Events</h2>
+
+                
+                    <div id="event_loadError" class="events item">
+    <h3 class="name"><code>loadError</code></h3>
+    <span class="type">Signal</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l117"><code>lib&#x2F;AssetManager.js:117</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A signal dispatched on problematic load; e.g. if
+the image was not found and &quot;onerror&quot; was triggered. 
+The first argument passed to the listener will be 
+the string name of the asset.</p>
+<p>The asset manager will continue loading subsequent assets.</p>
+<p>This is dispatched after the status of the asset is
+set to Status.LOAD_FAIL, and before the loadProgress
+signal is dispatched.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_loadFinished" class="events item">
+    <h3 class="name"><code>loadFinished</code></h3>
+    <span class="type">Signal</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l93"><code>lib&#x2F;AssetManager.js:93</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A signal dispatched when all assets have been loaded
+(i.e. their async tasks finished).</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_loadProgress" class="events item">
+    <h3 class="name"><code>loadProgress</code></h3>
+    <span class="type">type</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l102"><code>lib&#x2F;AssetManager.js:102</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A signal dispatched on progress updates, once an asset
+has been loaded in full (i.e. its async task finished).</p>
+<p>This passes three arguments to the listener function:</p>
+<ul>
+<li><code>current</code> number of assets that have been loaded</li>
+<li><code>total</code> number of assets to loaded</li>
+<li><code>name</code> of the asset which was just loaded</li>
+</ul>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_loadStarted" class="events item">
+    <h3 class="name"><code>loadStarted</code></h3>
+    <span class="type">Signal</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l83"><code>lib&#x2F;AssetManager.js:83</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A signal dispatched when loading first begins, 
+i.e. when update() is called and the loading queue is the
+same size as the total asset list.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+            </div>
+        
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>
