@@ -2,6 +2,10 @@
 
 Kami is a fast and lightweight WebGL sprite rendering framework. It can be used for 2D or 3D purposes, and aims to support modern WebGL features like compressed textures.
 
+### kami-gl
+
+The low-level WebGL utilities are maintained in the [kami-gl](https://github.com/mattdesl/kami-gl/) module. The `kami` module is higher-level, and geared more specifically toward 2D.
+
 ## Usage
 
 Here is an example using Node style requires and browserify:
