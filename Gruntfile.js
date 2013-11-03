@@ -7,9 +7,11 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 
 		dirs: {
-			dist: 'build',
+			build: 'build',
+
 			src: 'lib',
-			demos: 'demos',
+
+			demos: 'demos', 
 			demo_src: 'demos/src',
 			demo_build: 'demos/build'
 		},
@@ -18,23 +20,27 @@ module.exports = function(grunt) {
 		browserify: {
 			//We include a UMD build for non-Node people...
 			UMD: {
-				src: ['./lib/index.js'],
-				dest: '<%= dirs.dist %>/kami.umd.js',
-
+				src: ['<%= dirs.src %>/index-umd.js'],
+				dest: '<%= dirs.build %>/kami.umd.js',
+				
 				options: {
-					standalone: "KAMI"
+					standalone: "kami"
 					// ignore: '<%= pkg.main %>',
 					// debug: true
 				}
 			},
 			
 			demos: {
-				src: ['<%= dirs.demo_src %>/index.js'],
+				src: ['<%= dirs.src %>/index.js'],
 				dest: '<%= dirs.demo_build %>/bundle.js',
-
+				
 				options: {
 					debug: true,
-					alias: 'kami'		
+					alias: [
+						'<%= dirs.src %>/index.js:kami',
+						'kami-gl',
+						'signals'
+					]
 				}
 			}
 		},

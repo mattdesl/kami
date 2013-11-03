@@ -11,13 +11,14 @@
   "dependencies": {
     "gl-matrix": "toji/gl-matrix.git#v2.2.0",
     "jsOOP": "mattdesl/jsOOP",
-    "requireindex": "~1.0.1"
+    "kami-gl": "git://github.com/mattdesl/kami-gl",
+    "signals": "git://github.com/millermedeiros/js-signals#v1.0.0"
   },
   "devDependencies": {
-    "requireindex": "~1.0.1",
     "grunt": "~0.4.1",
     "browserify": "~2.35.0",
     "grunt-browserify": "~1.2.9",
-    "grunt-contrib-watch": "~0.5.3"
+    "grunt-contrib-watch": "~0.5.3",
+    "load-grunt-tasks": "~0.2.0"
   }
 }
