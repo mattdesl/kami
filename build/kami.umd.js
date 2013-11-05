@@ -1,23 +1,43 @@
 !function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.kami=e():"undefined"!=typeof global?global.kami=e():"undefined"!=typeof self&&(self.kami=e())}(function(){var define,module,exports;
 return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Class = require('jsOOP').Class;
-var Mesh = require('kami-gl').Mesh;
+/**
+ * The core kami module provides basic 2D sprite batching and 
+ * asset management.
+ * 
+ * @module kami
+ */
 
+var Class = require('jsOOP').Class;
+var Mesh = require('./glutils/Mesh');
+
+/**
+ * An abstract batcher composed of quads (two tris, indexed). 
+ *
+ * This is used internally; users should look at 
+ * {{#crossLink "SpriteBatch"}}{{/crossLink}} instead.
+ * 
+ * The batcher itself is not managed by WebGLContext; however, it makes
+ * use of Mesh and Texture which will be managed. For this reason, the batcher
+ * does not hold a direct reference to the GL state.
+ *
+ * Subclasses must implement the following:  
+ * {{#crossLink "AbstractBatch/_createShader:method"}}{{/crossLink}}  
+ * {{#crossLink "AbstractBatch/_createVertexAttributes:method"}}{{/crossLink}}  
+ * {{#crossLink "AbstractBatch/getVertexSize:method"}}{{/crossLink}}  
+ * 
+ * @class  AbstractBatch
+ * @constructor
+ * @param {WebGLContext} context the context this batcher belongs to
+ * @param {Number} size the optional size of this batch, i.e. max number of quads
+ * @default  500
+ */
 var AbstractBatch = new Class({
 
 	_blendSrc: null,
 	_blendDst: null,
 	_blendEnabled: true,
 
-	/**
-	 * An abstract batcher composed of quads (two tris, indexed).
-	 *
-	 * The batcher itself is not managed by WebGLContext; however, it makes
-	 * use of Mesh and Texture which will be managed.
-	 * 
-	 * @param {WebGLContext} context the context this batcher belongs to
-	 * @param {[type]} size [description]
-	 */
+	//Constructor
 	initialize: function(context, size) {
 		if (!context)
 			throw "GL context not specified";
@@ -47,6 +67,12 @@ var AbstractBatch = new Class({
 	 * Called from the constructor to create a new Mesh 
 	 * based on the expected batch size. Should set up
 	 * verts & indices properly.
+	 *
+	 * Users should not call this directly; instead, it
+	 * should only be implemented by subclasses.
+	 * 
+	 * @method _createMesh
+	 * @param {Number} size the size passed through the constructor
 	 */
 	_createMesh: function(size) {
 		//the total number of floats in our batch
@@ -87,7 +113,8 @@ var AbstractBatch = new Class({
 	 * 
 	 * This method initially throws an error; so it must be overridden by
 	 * subclasses of AbstractBatch.
-	 * 
+	 *
+	 * @method  _createShader
 	 * @return {Number} the size of a vertex, in # of floats
 	 */
 	_createShader: function() {
@@ -101,7 +128,8 @@ var AbstractBatch = new Class({
 	 *
 	 * This method initially throws an error; so it must be overridden by
 	 * subclasses of AbstractBatch.
-	 * 
+	 *
+	 * @method _createVertexAttributes
 	 * @return {Array} an array of Mesh.VertexAttrib objects
 	 */
 	_createVertexAttributes: function() {
@@ -114,7 +142,8 @@ var AbstractBatch = new Class({
 	 * 
 	 * This method initially throws an error; so it must be overridden by
 	 * subclasses of AbstractBatch.
-	 * 
+	 *
+	 * @method  getVertexSize
 	 * @return {Number} the size of a vertex, in # of floats
 	 */
 	getVertexSize: function() {
@@ -126,6 +155,8 @@ var AbstractBatch = new Class({
 	 * Begins the sprite batch. This will bind the shader
 	 * and mesh. Subclasses may want to disable depth or 
 	 * set up blending.
+	 *
+	 * @method  begin
 	 */
 	begin: function()  {
 		if (this.drawing) 
@@ -139,9 +170,10 @@ var AbstractBatch = new Class({
 	},
 
 	/** 
-	 * Begins the sprite batch. This will bind the shader
-	 * and mesh. Subclasses may want to disable depth or 
-	 * set up blending.
+	 * Ends the sprite batch. This will flush any remaining 
+	 * data and set GL state back to normal.
+	 * 
+	 * @method  end
 	 */
 	end: function()  {
 		if (!this.drawing)
@@ -156,16 +188,27 @@ var AbstractBatch = new Class({
 	/** 
 	 * Called before rendering to bind new textures.
 	 * This method does nothing by default.
+	 *
+	 * @method  _preRender
 	 */
 	_preRender: function()  {
 	},
 
 	/** 
-	 * Called after flushing the batch.
+	 * Called after flushing the batch. This method
+	 * does nothing by default.
+	 *
+	 * @method  _postRender
 	 */
 	_postRender: function() {
 	},
 
+	/**
+	 * Flushes the batch by pushing the current data
+	 * to GL.
+	 * 
+	 * @method flush
+	 */
 	flush: function()  {
 		if (this.idx===0)
 			return;
@@ -173,8 +216,6 @@ var AbstractBatch = new Class({
 	    var gl = this.gl;
 	    
 		this._preRender();
-
-
 
 		//number of sprites in batch
 		var numComponents = this.getVertexSize();
@@ -189,8 +230,33 @@ var AbstractBatch = new Class({
 	},
 
 	/**
-	 * Adds a single quad mesh to this sprite batch
-	 * (i.e. getVertexSize() * 4). 
+	 * Adds a sprite to this batch.
+	 * The specifics depend on the sprite batch implementation.
+	 *
+	 * @method draw
+	 * @param  {Texture} texture the texture for this sprite
+	 * @param  {Number} x       the x position, defaults to zero
+	 * @param  {Number} y       the y position, defaults to zero
+	 * @param  {Number} width   the width, defaults to the texture width
+	 * @param  {Number} height  the height, defaults to the texture height
+	 * @param  {Number} color   the color float (alpha), default zero
+	 * @param  {Number} u1      the first U coordinate, default zero
+	 * @param  {Number} v1      the first V coordinate, default zero
+	 * @param  {Number} u2      the second U coordinate, default one
+	 * @param  {Number} v2      the second V coordinate, default one
+	 */
+	draw: function(texture, x, y, width, height, color, u1, v1, u2, v2) {
+	},
+
+	/**
+	 * Adds a single quad mesh to this sprite batch from the given
+	 * array of vertices.
+	 * The specifics depend on the sprite batch implementation.
+	 *
+	 * @method  drawVertices
+	 * @param {Texture} texture the texture we are drawing for this sprite
+	 * @param {Float32Array} verts an array of vertices
+	 * @param {Number} off the offset into the vertices array to read from
 	 */
 	drawVertices: function(texture, verts, off)  {
 
@@ -214,20 +280,78 @@ var AbstractBatch = new Class({
 
 module.exports = AbstractBatch;
 
-},{"jsOOP":7,"kami-gl":16}],2:[function(require,module,exports){
+},{"./glutils/Mesh":7,"jsOOP":11}],2:[function(require,module,exports){
+/**
+ * @module kami
+ */
+
 var Class = require('jsOOP').Class;
 var Signal = require('signals');
 
+
 /**
- * This is a minimal asset loader which is mainly used as 
- * a notification that GL is ready to render all assets.
+ * This is a utility which makes asset loading cleaner
+ * and simpler, especially with regard to asynchronous image
+ * loading and WebGL context loss.
+ *
+ *
+ * Basic usage looks like this:
+ *
+ *     //Create an asset manager 
+ *     var assets = new AssetManager(context);
+ *  
+ *     //image types will return a new Texture
+ *     var tex0 = assets.load("img/grass.png");
+ *     var tex1 = assets.load("img/scene.png");
+ *
+ *     ... inside game loop ...
+ *
+ *         if (assets.update()) {
+ *             // all assets are loaded, we can render.
+ *         } else {
+ *             // not all assets are loaded. we need
+ *             // to show our preloader.
+ *         }
+ *
+ * Currently this class only supports image loading,
+ * although in the future others could be added for 
+ * compressed textures, sprite sheets, and so forth.
+ *
+ * Creating a new asset manager will listen for context
+ * loss events on the given WebGLContext. When this happens,
+ * all assets will be invalidated and added to the loading queue.
+ * As such, update() will return false until the assets have been
+ * re-loaded.
  * 
- * This needs to play well with context loss.
+ * @class  AssetManager
+ * @constructor 	
+ * @param {WebGLContext} context the WebGLContext for this manager
  */
 var AssetManager = new Class({
 	
+	/**
+	 * An array of assets that this AssetManager is handling.
+	 * This should not be modified directly.
+	 * 
+	 * @property assets
+	 * @type {Array}
+	 */
 	assets: null,
-	loaders: null,
+
+	/**
+	 * The queue of tasks to load. Each contains
+	 * an
+	 * {{#crossLink "AssetManager.Descriptor"}}{{/crossLink}}.
+	 *
+	 * Loading a task will pop it off this list and fire the async
+	 * or synchronous process.
+	 *
+	 * This should not be modified directly.
+	 *
+	 * @property tasks
+	 * @protected
+	 * @type {Array}
+	 */
 	tasks: null,
 
 	//Private stuff... do not touch!
@@ -239,19 +363,36 @@ var AssetManager = new Class({
 
 	// Signals 
 	
+	/**
+	 * A signal dispatched when loading first begins, 
+	 * i.e. when update() is called and the loading queue is the
+	 * same size as the total asset list.
+	 *
+	 * @event loadStarted
+	 * @type {Signal}
+	 */
 	loadStarted: null,
+
+	/**
+	 * A signal dispatched when all assets have been loaded
+	 * (i.e. their async tasks finished).
+	 *
+	 * @event loadFinished
+	 * @type {Signal}
+	 */
 	loadFinished: null,
 
 	/**
 	 * A signal dispatched on progress updates, once an asset
 	 * has been loaded in full (i.e. its async task finished).
 	 *
-	 * This is passed four arguments: 
+	 * This passes three arguments to the listener function:
 	 * 
-	 *     current - the current number of assets that have been loaded
-	 *     total - the total number of assets to load
-	 *     name - the asset name which was just loaded
-	 * 
+	 * - `current` number of assets that have been loaded
+	 * - `total` number of assets to loaded
+	 * - `name` of the asset which was just loaded
+	 *  
+	 * @event loadProgress
 	 * @type {[type]}
 	 */
 	loadProgress: null,
@@ -267,13 +408,45 @@ var AssetManager = new Class({
 	 * This is dispatched after the status of the asset is
 	 * set to Status.LOAD_FAIL, and before the loadProgress
 	 * signal is dispatched.
-	 * 
+	 *
+	 * @event loadError
 	 * @type {Signal}
 	 */
 	loadError: null,
 
+	/**
+	 * A read-only property that describes the number of 
+	 * assets remaining to be loaded.
+	 *
+	 * @attribute remaining
+	 * @type {Number}
+	 * @readOnly
+	 */
+	remaining: {
+		get: function() {
+			return this.__totalItems - this.__loadCount;
+		}
+	},
 
+	/**
+	 * A read-only property that descriibes the total
+	 * number of assets in this AssetManager.
+	 *
+	 * @attribute total
+	 * @readOnly
+	 * @type {Number}
+	 */
+	total: {
+		get: function() {
+			return this.__totalItems;
+		}
+	},
+
+	//Constructor
 	initialize: function(context) {
+		if (!context)
+			throw "no context defined for AssetManager";
+
 		this.assets = [];
 		this.loaders = {};
 		this.tasks = [];
@@ -293,6 +466,8 @@ var AssetManager = new Class({
 	/**
 	 * Destroys this asset manager; removing its listeners
 	 * with WebGLContext and deleting the assets array.
+	 *
+	 * @method  destroy
 	 */
 	destroy: function() {
 		this.assets = [];
@@ -304,9 +479,10 @@ var AssetManager = new Class({
 	/**
 	 * Called to invalidate the asset manager
 	 * and require all assets to be re-loaded.
-	 * This is generally only called on context loss.
-	 * 
-	 * @return {[type]} [description]
+	 * This is called internally on context loss.
+	 *
+	 * @protected
+	 * @method invalidate
 	 */
 	invalidate: function() {
 		//mark all as not yet loaded
@@ -326,9 +502,19 @@ var AssetManager = new Class({
 	 * asset name doesn't have a known file extension,
 	 * or if there is no loader registered for that filename,
 	 * this method throws an error. 
-	 * 
-	 * @param  {[type]} name [description]
-	 * @return {[type]}      [description]
+	 *
+	 * The first argument is the asset name. Any subsequent
+	 * arguments will be passed along to the loader for further
+	 * processing.
+	 *
+	 * The return value of this method is determined by
+	 * the loader's processArguments method. For example, the
+	 * default Image loader returns a Texture object.
+	 *
+	 * @method  load
+	 * @param  {String} name the asset name
+	 * @param {any} args a variable number of optional arguments
+	 * @return {any} returns the best type for this asset's loader
 	 */
 	load: function(name) {
 		var ext = this.__extension(name);
@@ -350,12 +536,35 @@ var AssetManager = new Class({
 		return str.substring(idx+1).toLowerCase();
 	},
 
+	/**
+	 * Pushes an asset onto this stack. This allows you to
+	 * specify a loader function for the asset. This is useful
+	 * if you wish to use generic names for your assets (instead of
+	 * filenames), or if you want a particular asset to use a specific
+	 * loader. 
+	 *
+	 * Like with {{#crossLink "AssetManager/load:method"}}{{/crossLink}},
+	 * the first argument is the asset name. The second argument is the loader
+	 * to use for this asset. Any subsequent
+	 * arguments will be passed along to the loader for further
+	 * processing.
+	 *
+	 * The return value of this method is determined by
+	 * the loader's processArguments method. For example, the
+	 * default Image loader returns a Texture object.
+	 *
+	 * @method  load
+	 * @param {String} name the asset name
+	 * @param {Fucntion} loader the loader function
+	 * @param {Object ...} args a variable number of optional arguments
+	 * @return {any} returns the best type for this asset's loader
+	 */
 	loadAs: function(name, loader) {
 		if (!name)
 			throw "no name specified to load";
 		if (!loader)
 			throw "no loader specified for asset "+name;
-		
+
 		var idx = this.__indexOf(this.assets, name);
 		if (idx !== -1) //TODO: eventually add support for dependencies and shared assets
 			throw "asset already defined in asset manager";
@@ -373,6 +582,7 @@ var AssetManager = new Class({
 		this.__loadCount++;
 		this.__totalItems++;
 
+
 		//if we can process the arguments and get a return value...
 		if (loader.processArguments) {
 			return loader.processArguments.call(this, name, params);
@@ -389,11 +599,14 @@ var AssetManager = new Class({
 	},
 
 	__loadCallback: function(name, success) {
+		if (arguments.length < 2) //some helpful debug information if you're writing a Loader
+			throw "Loader passed invalid arguments to finished() callback;"
+					+" must include name and success flag";
+
 		this.__loadCount--;
 
 		var assetIdx = this.__indexOf(this.assets, name);
 		if (assetIdx !== -1) {
-			this.assets[assetIdx].loaded = true;
 			this.assets[assetIdx].status = success 
 						? AssetManager.Status.LOAD_SUCCESS
 						: AssetManager.Status.LOAD_FAILED;
@@ -411,11 +624,20 @@ var AssetManager = new Class({
 		}
 	},
 
-	isLoaded: function(name) {
-		var assetIdx = this.__indexOf(this.assets, name);
-		return assetIdx !== -1 ? this.assets[assetIdx].loaded : false;
-	},
+	// TODO....
+	// isLoaded: function(name) {
+	// 	var assetIdx = this.__indexOf(this.assets, name);
+	// 	return assetIdx !== -1 ? this.assets[assetIdx].loaded : false;
+	// },
 
+	/**
+	 * Updates this AssetManager by loading the next asset in the queue.
+	 * If all assets have been loaded, this method returns true, otherwise
+	 * it will return false.
+	 *
+	 * @method  update
+	 * @return {Boolean} whether this asset manager has finished loading
+	 */
 	update: function() {
 		if (!this.context.valid)
 			return false;
@@ -437,7 +659,7 @@ var AssetManager = new Class({
 		var cb = this.__loadCallbackFunc;
 
 		var newParams = [ nextTask.name, cb ].concat(nextTask.params);
-		loader.apply(this, newParams);
+		loader.loadAsset.apply(this, newParams);
 
 		return (this.__loadCount === 0);
 	}
@@ -447,7 +669,10 @@ var AssetManager = new Class({
  * A set of loader plugins for this asset manager. These might be as simple
  * as pushing HTML Image objects into a Texture, or more complex like decoding
  * a compressed, mip-mapped, or cube-map texture.
+ *
+ * This object is a simple hashmap of lower-case extension names to Loader functions.
  * 
+ * @property loaders
  * @static
  * @type {Object}
  */
@@ -459,8 +684,11 @@ AssetManager.loaders = {};
  * parameters are lower-case extensions (without the period) that
  * should be associated with that loader. This will override other
  * loaders by the same extension.
+ *
+ * By default, the extensions "png", "jpg", "jpeg", and "gif" are
+ * registered to {{#crossLink "AssetManager/ImageLoader:attribute"}}{{/crossLink}}.
  * 
- * @method
+ * @method registerLoader
  * @static
  * @param {Function} loaderFunc the loader function
  * @param {String ...} extensions a variable number of strings
@@ -473,6 +701,12 @@ AssetManager.registerLoader = function(loaderFunc, extensions) {
 		AssetManager.loaders[ exts[i] ] = loaderFunc;
 };
 
+/**
+ * A simple wrapper for assets which will be passed along to the loader;
+ * this is used internally.
+ * 
+ * //@class AssetManager.Descriptor
+ */
 AssetManager.Descriptor = new Class({
 
 	name: null,
@@ -488,6 +722,7 @@ AssetManager.Descriptor = new Class({
 	}
 });
 
+//TODO: document this
 /**
  * Defines the status of an asset in the manager queue.
  * @type {Object}
@@ -499,105 +734,119 @@ AssetManager.Status = {
 	LOAD_FAIL: 3
 };
 
+
+//TODO: use a base loader class; pull these out into their own files ?
+
 /**
- * This is a "loader function" which handles the asynchronous
- * loading for an asset. The function must be implemented in a very
- * strict manner for the asset manager to work correctly.
+ * This is the default implementation of an image loader plugin for AssetManager.
+ * This uses a DOM Image object to upload PNG, GIF and JPG images to a WebGL
+ * texture. You will not need to deal with this class directly, unless you want
+ * to write your own AssetManager loaders.
  *
- * The first parameter passed to this function is the name of the
- * asset being loaded. The second parameter is a callback that must
- * be invoked after the async task is completed.
- * Any subsequent parameters are those that came from the inital call
- * to load(). 
+ * A `Loader` type for AssetManager is simply an object which defines two (static) methods:
  *
- * Once the synchronous or asynchronous loading task is completed, the
- * "finished" callback must be invoked with two parameters: first, the
- * name of the asset as passed to this loader. And second, a boolean indicating
- * the success of the load operation. 
- *
- * If you don't invoke the callback, the asset manager may never finish.
- *
- * The function can also have an optional "static method" (i.e. attached to
- * the function) called "processArguments". This is a utility which takes in
- * the arguments and handles them accordingly before allowing them to be passed
- * along to the loader. The return value of this method will be the return value of
- * the load() method, for the user's convenience. This allows users to do the 
- * following:
- *
- *     var tex0 = assetManager.load("img.png"); //returns a new Texture
- *     var tex1 = assetManager.load("img.png", new Texture(context)); //same as above
- *
- *     //also equivalent to this:
- *     var tex2 = new Texture(context);
- *     assetManager.load("img.png", tex2);
+ * - `loadAsset`: this is the loading function, which handles the asynchronous load.
+ * - `processArguments`: this is for the user's convenience, handling default arguments
+ * and giving a meaningful return value. 
  * 
- * @param  {[type]} assetName [description]
- * @return {[type]}           [description]
+ * @class AssetManager.ImageLoader
  */
-AssetManager.ImageLoader = function(name, finished, texture, path) {
-	if (!texture) {
-		throw "no texture object specified to the ImageLoader for asset manager";
+AssetManager.ImageLoader = {
+	
+	/**
+	 * This is a "loader function" which handles the asynchronous
+	 * loading for an asset. The function must be implemented in a very
+	 * strict manner for the asset manager to work correctly.
+	 *
+	 * The first parameter passed to this function is the name of the
+	 * asset being loaded. The second parameter is a callback that must
+	 * be invoked after the async task is completed.
+	 * Any subsequent parameters are those that came from the inital call
+	 * to {{#crossLink "AssetManager/load:method"}}AssetManager.load{{/crossLink}}. 
+	 *
+	 * Once the synchronous or asynchronous loading task is completed, the
+	 * `finished` callback must be invoked with two parameters: first, the
+	 * `name` of the asset as passed to this loader. And second, a boolean indicating
+	 * the `success` of the load operation. 
+	 *
+	 * If you don't invoke the callback, the asset manager may never finish loading.
+	 * 
+	 * @method loadAsset
+	 * @static
+	 * @param  {String} name the name of the asset to load
+	 * @param {Function} finished the function to call when async loading is complete
+	 * @param {Texture} texture the texture to operate on for this asset
+	 * @param {String} path the optional image path to use instead of the `name` parameter
+	 */
+	loadAsset: function(name, finished, texture, path) {
+		if (!texture) {
+			throw "no texture object specified to the ImageLoader for asset manager";
+		}
+
+		//if path is undefined, use the asset name and 
+		//assume its a path.
+		path = path || name;
+
+		var img = new Image();
+
+		img.onload = function() {
+			img.onerror = img.onabort = null; //clear other listeners
+			texture.uploadImage(img);
+			finished(name, true);
+		};
+		img.onerror = function() {
+			img.onload = img.onabort = null;
+			console.warn("Error loading image: "+path);
+			//We use null data to avoid WebGL errors
+			//TODO: handle fail more smoothly, i.e. with a callback
+			//TODO: Should this be pure black, or purely transparent?
+			texture.uploadData(1, 1); 
+			finished(name, false);
+		};
+		img.onabort = function() {
+			img.onload = img.onerror = null;
+			console.warn("Aborted image: "+path);
+			//We use null data to avoid WebGL errors
+			texture.uploadData(1, 1);
+			finished(name, false);
+		};
+
+		//setup source
+		img.src = path;
+	},
+
+	/**
+	 * This method is called from 
+	 * {{#crossLink "AssetManager/load:method"}}AssetManager.load{{/crossLink}} to
+	 * process the arguments and setup any default values. This is also responsible for
+	 * determining the appropriate return value for the load function. In the case of
+	 * `ImageLoader`, we return the Texture that was passed to the load() function, or
+	 * a new Texture object if none was given. This way, the user can write code like this:
+	 *
+	 *       var texture = assetManager.load("img.png"); //returns new Texture
+	 *
+	 * The first argument is the name of the asset being processed. The second argument
+	 * is an array of arguments that will be passed to the loader function.
+	 * 
+	 * The method is called bound to the AssetManager, so we can access WebGLContext
+	 * with "this.context".
+	 *
+	 * @method  processArguments
+	 * @static
+	 * @param  {String} name the asset name
+	 * @param  {Array} params an array of parameters that will be used to load the asset
+	 * @return {any} the object the user may expect from the loader, in this case a Texture object
+	 */
+	processArguments: function(name, params) {
+		//the first parameter is a texture... if not specified, we need to assign it a new object
+		if (params.length === 0 || !params[0])
+			return (params[0] = new Texture(this.context));
+		else
+			return params[0];
 	}
-
-	//if path is undefined, use the asset name and 
-	//assume its a path.
-	path = path || name;
-
-	var img = new Image();
-
-	img.onload = function() {
-		img.onerror = img.onabort = null; //clear other listeners
-		texture.uploadImage(img);
-		finished(name, true);
-	};
-	img.onerror = function() {
-		img.onload = img.onabort = null;
-		console.warn("Error loading image: "+path);
-		//We use null data to avoid WebGL errors
-		//TODO: handle fail more smoothly, i.e. with a callback
-		//TODO: Should this be pure black, or purely transparent?
-		texture.uploadData(1, 1); 
-		finished(name, false);
-	};
-	img.onabort = function() {
-		img.onload = img.onerror = null;
-		console.warn("Aborted image: "+path);
-		//We use null data to avoid WebGL errors
-		texture.uploadData(1, 1);
-		finished(name, false);
-	};
-
-	//setup source
-	img.src = path;
 };
 
-//This is a little bit ugly; would it be better with a class that extends 
-//a base Loader class? But it would use instance methods...
-
-/**
- * This method is called to 'parse' the arguments before using them for
- * loading. In this case, if the specified texture is null or undefined,
- * we will replace it with a new object.
- *
- * 'params' is an array of arguments that was passed to the loader function.
- *
- * The return value of this method is also the return value of the load()
- * method, for convenience.
- *
- * The method is called bound to the AssetManager, so we can access WebGLContext
- * with "this.context".
- * 
- * @param  {String} name the asset name
- * @param  {Array} params an array of parameters that will be used to load the asset
- * @return {Object} the object the user may expect from the loader, in this case a Texture object
- */
-AssetManager.ImageLoader.processArguments = function(name, params) {
-	//the first parameter is a texture... if not specified, we need to assign it a new object
-	if (params.length === 0 || !params[0])
-		return (params[0] = new Texture(this.context));
-	else
-		return params[0];
-};
+	
 
 
 // Register our default loaders...
@@ -606,7 +855,11 @@ AssetManager.registerLoader(AssetManager.ImageLoader, "png", "gif", "jpg", "jpeg
 
 module.exports = AssetManager;
 
-},{"jsOOP":7,"signals":23}],3:[function(require,module,exports){
+},{"jsOOP":11,"signals":16}],3:[function(require,module,exports){
+/**
+ * @module kami
+ */
+
 var Class = require('jsOOP').Class;
 var vec2 = require('gl-matrix').vec2;
 
@@ -614,26 +867,33 @@ var vec2 = require('gl-matrix').vec2;
 //Or should Kami be more generic, and just use Point and Point3D ? 
 
 /**
- * This is a convenience wrapper around gl-matrix "vec2"
- * type. i.e. This is really just backed by a Float32Array,
- * with properties "x" and "y" which access the array.
+ * This is a convenience wrapper around [gl-matrix](http://glmatrix.net/) "vec2"
+ * type. It is backed by a Float32Array, and the `x` and `y` properties are included
+ * for convenience.
  * 
- * For performance, you should access the array directly
- * or use it for gl-matrix computations. For convenience,
- * you can use the "x" and "y" properties.
+ * For performance, or when performing gl-matrix operations, 
+ * you should access the `items` array directly. 
+ * For convenience and clarity, the `x` and `y` properties are encouraged.
  * 
- * @type {Class}
+ * @class Point
+ * @constructor
+ * @param {Number} x the x position
+ * @default  0
+ * @param {Number} y the y position
+ * @default  0
  */
 var Point = new Class({
 	
 	/**
 	 * This is the Float32Array which can be accessed
-	 * directly for performance or gl-matrix operations.
+	 * directly for better performance or gl-matrix operations.
 	 * 
+	 * @property items
 	 * @type {Float32Array}
 	 */
 	items: null,
 
+	//Constructor
 	initialize: function(x, y) {
 		x = x || 0;
 		y = y || 0;
@@ -641,6 +901,13 @@ var Point = new Class({
 		this.items = vec2.fromValues(x, y);
 	},
 
+	/**
+	 * Reads or writes the "x" value in the backing array (the first element).
+	 *
+	 * @attribute
+	 * @default  0
+	 * @type {Number}
+	 */
 	x: {
 		get: function() {
 			return this.items[0];
@@ -650,6 +917,13 @@ var Point = new Class({
 		}
 	},
 
+	/**
+	 * Reads or writes the "y" value in the backing array (the second element).
+	 *
+	 * @attribute
+	 * @default  0
+	 * @type {Number}
+	 */
 	y: {
 		get: function() {
 			return this.items[1];
@@ -659,366 +933,1807 @@ var Point = new Class({
 		}
 	},
 
+	/**
+	 * Returns a string representation of this point.
+	 * @return {String} a string value for this point
+	 */
 	toString: function() {
 		return "(" + this.x + ", " + this.y + ")";
 	}
 });
 
 module.exports = Point;
-},{"gl-matrix":6,"jsOOP":7}],4:[function(require,module,exports){
+},{"gl-matrix":10,"jsOOP":11}],4:[function(require,module,exports){
+/**
+ * @module kami
+ */
+
 // Requires....
-var Class 		  = require('jsOOP').Class;
+var Class         = require('jsOOP').Class;
 
 var AbstractBatch = require('./AbstractBatch');
-var Point 		  = require('./Point');
+var Point         = require('./Point');
 
-var Mesh 		  = require('kami-gl').Mesh;
-var ShaderProgram = require('kami-gl').ShaderProgram;
+var Mesh          = require('./glutils/Mesh');
+var ShaderProgram = require('./glutils/ShaderProgram');
 
-
-
+/**
+ * A basic implementation of a batcher which draws 2D sprites.
+ * This uses two triangles (quads) with indexed and interleaved
+ * vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).
+ *
+ * @example
+ *      var SpriteBatch = require('kami').SpriteBatch;  
+ *      
+ *      //create a new batcher
+ *      var batch = new SpriteBatch(context);
+ *
+ *      function render() {
+ *          batch.begin();
+ *          
+ *          //draw some sprites in between begin and end...
+ *          batch.draw( texture, 0, 0, 25, 32 );
+ *          batch.draw( texture1, 0, 25, 42, 23 );
+ * 
+ *          batch.end();
+ *      }
+ *
+ * @class  SpriteBatch
+ * @constructor
+ * @param {WebGLContext} context the context for this batch
+ * @param {Number} size the max number of sprites to fit in a single batch
+ */
 var SpriteBatch = new Class({
 
-	Extends: AbstractBatch,
+    Extends: AbstractBatch,
 
-	/**
-	 * Subclasses can set this to false if they 
-	 * want to upload their own projection matrices
-	 * instead of a simple 2D vector. 
-	 * 
-	 * @type {Boolean}
-	 * @default  true
-	 */
-	_useProjectionVector: true,
+    /**
+     * SpriteBatch uploads a vec2 for projection
+     * transform in the shader. A custom shader might
+     * use a matrix or some other means of calculating 
+     * projection; in which case this should be set to false.
+     * 
+     * @property useProjectionVector
+     * @type {Boolean}
+     * @default  true
+     */
+    useProjectionVector: true,
 
-	/**
-	 * The projection Point (a 2D vector) which is
-	 * used to avoid some matrix calculations. A 3D 
-	 * batcher might want to replace this and
-	 * setProjection entirely. 
-	 * 
-	 * @type {[type]}
-	 */
-	projection: null,
+    /**
+     * The projection Point which is
+     * used to avoid some matrix calculations. A 3D 
+     * batcher might want to replace this and 
+     * {{#crossLink "SpriteBatch/setProjection:method"}}{{/crossLink}} 
+     * entirely. 
+     *
+     * @property projection
+     * @type {Point}
+     */
+    projection: null,
 
-	initialize: function(context, size) {
-		this.parent(context, size);
+    //Constructor
+    initialize: function(context, size) {
+        this.parent(context, size);
 
-		//currently bound texture
-		this.texture = null;
+        //currently bound texture
+        this.texture = null;
 
-		//TODO: use a Point or Vector class...
-		this.projection = new Point(0, 0);
-	},
+        //TODO: use a Point or Vector class...
+        this.projection = new Point(0, 0);
+    },
 
-	getVertexSize: function() {
-		return SpriteBatch.VERTEX_SIZE;
-	},
+    /**
+     * The number of floats per vertex for this batcher 
+     * (Position.xy + Color + TexCoord0.xy).
+     *
+     * @method  getVertexSize
+     * @return {Number} the number of floats per vertex
+     */
+    getVertexSize: function() {
+        return SpriteBatch.VERTEX_SIZE;
+    },
 
-	_createVertexAttributes: function() {
-		return [ 
-			new Mesh.Attrib("Position", 2),
-			new Mesh.Attrib("Color", 1),
-			new Mesh.Attrib("TexCoord0", 2)
-		];
-	},
+    /**
+     * Used internally to return the Position, Color, and TexCoord0 attributes.
+     *
+     * @method  _createVertexAttribuets
+     * @protected
+     * @return {[type]} [description]
+     */
+    _createVertexAttributes: function() {
+        return [ 
+            new Mesh.Attrib("Position", 2),
+            new Mesh.Attrib("Color", 1),
+            new Mesh.Attrib("TexCoord0", 2)
+        ];
+    },
 
 
-	/**
-	 * Sets the projection vector, an x and y
-	 * defining the middle points of your stage.
-	 * 
-	 * @param {Number} x the x projection value
-	 * @param {Number} y the y projection value
-	 */
-	setProjection: function(x, y) {
-		var oldX = this.projection.x;
-		var oldY = this.projection.y;
-		this.projection.x = x;
-		this.projection.y = y;
+    /**
+     * Sets the projection vector, an x and y
+     * defining the middle points of your stage.
+     *
+     * @method setProjection
+     * @param {Number} x the x projection value
+     * @param {Number} y the y projection value
+     */
+    setProjection: function(x, y) {
+        var oldX = this.projection.x;
+        var oldY = this.projection.y;
+        this.projection.x = x;
+        this.projection.y = y;
 
-		//we need to flush the batch..
-		if (this.drawing && (x != oldX || y != oldY)) {
-			this.flush();
-			this._updateMatrices();
-		}
-	},
+        //we need to flush the batch..
+        if (this.drawing && (x != oldX || y != oldY)) {
+            this.flush();
+            this._updateMatrices();
+        }
+    },
 
-	_createShader: function() {
-		var shader = new ShaderProgram(this.context,
-				SpriteBatch.DEFAULT_VERT_SHADER, 
-				SpriteBatch.DEFAULT_FRAG_SHADER);
-		if (shader.log)
-			console.warn("Shader Log:\n" + shader.log);
-		return shader;
-	},
+    /**
+     * Creates a default shader for this batch.
+     *
+     * @method  _createShader
+     * @protected
+     * @return {ShaderProgram} a new instance of ShaderProgram
+     */
+    _createShader: function() {
+        var shader = new ShaderProgram(this.context,
+                SpriteBatch.DEFAULT_VERT_SHADER, 
+                SpriteBatch.DEFAULT_FRAG_SHADER);
+        if (shader.log)
+            console.warn("Shader Log:\n" + shader.log);
+        return shader;
+    },
 
-	/**
-	 * This should be called to update projection/transform
-	 * matrices and upload the new values to the shader. For example,
-	 * if the user calls setProjection mid-draw, the batch will flush
-	 * and this will be called before continuing to add items to the batch.
-	 */
-	_updateMatrices: function() {
-		//an extension of SpriteBatch might want to support full transform &
-		//projection matrices for 3D billboards. if so, override this method
-		this.shader.setUniformfv("u_projection", this.projection.items);
-	},
+    /**
+     * This is called during rendering to update projection/transform
+     * matrices and upload the new values to the shader. For example,
+     * if the user calls setProjection mid-draw, the batch will flush
+     * and this will be called before continuing to add items to the batch.
+     *
+     * You generally should not need to call this directly.
+     * 
+     * @method  updateMatrices
+     * @protected
+     */
+    updateMatrices: function() {
+        //an extension of SpriteBatch might want to support full transform &
+        //projection matrices for 3D billboards. if so, override this method
+        if (this.useProjectionVector)
+            this.shader.setUniformfv("u_projection", this.projection.items);
+    },
 
-	//TODO: support 3D billboards by not always uploading a 2D proj vector
-	//maybe a simple _useProjectionVector flag
+    /**
+     * Called before rendering, and binds the current texture.
+     * 
+     * @method _preRender
+     * @protected
+     */
+    _preRender: function() {
+        if (this.texture)
+            this.texture.bind();
+    },
 
-	/**
-	 * Binds the shader, disables depth writing, 
-	 * enables blending, activates texture unit 0, and sends
-	 * default matrices and sampler2D uniforms to shader.
-	 */
-	begin: function() {
-		//sprite batch doesn't hold a reference to GL since it is volatile
-		var gl = this.context.gl;
-		
-		//just do direct parent call for speed here
-		//This binds the shader and mesh!
-		AbstractBatch.prototype.begin.call(this);
+    /**
+     * Binds the shader, disables depth writing, 
+     * enables blending, activates texture unit 0, and sends
+     * default matrices and sampler2D uniforms to the shader.
+     *
+     * @method  begin
+     */
+    begin: function() {
+        //sprite batch doesn't hold a reference to GL since it is volatile
+        var gl = this.context.gl;
+        
+        //just do direct parent call for speed here
+        //This binds the shader and mesh!
+        AbstractBatch.prototype.begin.call(this);
 
-		this._updateMatrices(); //send projection/transform to shader
+        this.updateMatrices(); //send projection/transform to shader
 
-		//upload the sampler uniform. not necessary every flush so we just
-		//do it here.
-		this.shader.setUniformi("u_texture0", 0);
+        //upload the sampler uniform. not necessary every flush so we just
+        //do it here.
+        this.shader.setUniformi("u_texture0", 0);
 
-		//disable depth mask
-		gl.depthMask(false);
+        //disable depth mask
+        gl.depthMask(false);
 
-		//premultiplied alpha
-		if (this._blendEnabled) {
-			gl.enable(gl.BLEND);
+        //premultiplied alpha
+        if (this._blendEnabled) {
+            gl.enable(gl.BLEND);
 
-			//set either to -1 if you want to call your own 
-			//blendFunc or blendFuncSeparate
-			if (this._blendSrc !== -1 && this._blendDst !== -1)
-				gl.blendFunc(this._blendSrc, this._blendDst); 
-		}
-	},
+            //set either to -1 if you want to call your own 
+            //blendFunc or blendFuncSeparate
+            if (this._blendSrc !== -1 && this._blendDst !== -1)
+                gl.blendFunc(this._blendSrc, this._blendDst); 
+        }
+    },
 
-	flush: function() {
-		//ignore flush if texture is null
-		if (!this.texture)
-			return;
-		AbstractBatch.prototype.flush.call(this);
-	},
+    /**
+     * Ends the sprite batcher and flushes any remaining data to the GPU.
+     * 
+     * @method end
+     */
+    end: function() {
+        //sprite batch doesn't hold a reference to GL since it is volatile
+        var gl = this.context.gl;
+        
+        //just do direct parent call for speed here
+        //This binds the shader and mesh!
+        AbstractBatch.prototype.end.call(this);
 
-	_preRender: function() {
-		if (this.texture)
-			this.texture.bind();
-	},
+        gl.depthMask(true);
 
-	end: function() {
-		//sprite batch doesn't hold a reference to GL since it is volatile
-		var gl = this.context.gl;
-		
-		//just do direct parent call for speed here
-		//This binds the shader and mesh!
-		AbstractBatch.prototype.end.call(this);
+        if (this._blendEnabled)
+            gl.disable(gl.BLEND);
+    },
 
-		gl.depthMask(true);
+    /**
+     * Flushes the batch to the GPU. This should be called when
+     * state changes, such as blend functions, depth or stencil states,
+     * shaders, and so forth.
+     * 
+     * @method flush
+     */
+    flush: function() {
+        //ignore flush if texture is null or our batch is empty
+        if (!this.texture)
+            return;
+        if (this.idx === 0)
+            return;
+        AbstractBatch.prototype.flush.call(this);
+        SpriteBatch.totalRenderCalls++;
+    },
 
-		if (this._blendEnabled)
-			gl.disable(gl.BLEND);
-	},
 
-	draw: function(texture, x, y, width, height, color, u1, v1, u2, v2) {
-		if (!this.drawing)
-			throw "Illegal State: trying to draw a batch before begin()";
-		
-		//don't draw anything if GL tex doesn't exist..
-		if (!texture)
-			return;
-		
-		if (this.texture === null || this.texture.id !== texture.id) {
-			//new texture.. flush previous data
-			this.flush();
-			this.texture = texture;
-		} else if (this.idx == this.vertices.length) {
-			this.flush(); //we've reached our max, flush before pushing more data
-		}
+    /**
+     * Adds a sprite to this batch. The sprite is drawn in 
+     * screen-space with the origin at the upper-left corner (y-down).
+     *
+     * @method draw
+     * @param  {Texture} texture the texture for this sprite
+     * @param  {Number} x       the x position in pixels, defaults to zero
+     * @param  {Number} y       the y position in pixels, defaults to zero
+     * @param  {Number} width   the width in pixels, defaults to the texture width
+     * @param  {Number} height  the height in pixels, defaults to the texture height
+     * @param  {Number} color   the color float (alpha), default zero
+     * @param  {Number} u1      the first U coordinate, default zero
+     * @param  {Number} v1      the first V coordinate, default zero
+     * @param  {Number} u2      the second U coordinate, default one
+     * @param  {Number} v2      the second V coordinate, default one
+     */
+    draw: function(texture, x, y, width, height, color, u1, v1, u2, v2) {
+        if (!this.drawing)
+            throw "Illegal State: trying to draw a batch before begin()";
+        
+        //don't draw anything if GL tex doesn't exist..
+        if (!texture)
+            return;
+        
+        if (this.texture === null || this.texture.id !== texture.id) {
+            //new texture.. flush previous data
+            this.flush();
+            this.texture = texture;
+        } else if (this.idx == this.vertices.length) {
+            this.flush(); //we've reached our max, flush before pushing more data
+        }
 
-		width = (width===0) ? width : (width || texture.width);
-		height = (height===0) ? height : (height || texture.height);
-		x = x || 0;
-		y = y || 0;
+        width = (width===0) ? width : (width || texture.width);
+        height = (height===0) ? height : (height || texture.height);
+        x = x || 0;
+        y = y || 0;
 
-		var x1 = x;
-		var x2 = x + width;
-		var y1 = y;
-		var y2 = y + height;
+        var x1 = x;
+        var x2 = x + width;
+        var y1 = y;
+        var y2 = y + height;
 
-		u1 = u1 || 0;
-		u2 = (u2===0) ? u2 : (u2 || 1);
-		v1 = v1 || 0;
-		v2 = (v2===0) ? v2 : (v2 || 1);
+        u1 = u1 || 0;
+        u2 = (u2===0) ? u2 : (u2 || 1);
+        v1 = v1 || 0;
+        v2 = (v2===0) ? v2 : (v2 || 1);
 
-		var c = (color===0) ? color : (color || 1.0);
+        var c = (color===0) ? color : (color || 1.0);
 
-		//xy
-		this.vertices[this.idx++] = x1;
-		this.vertices[this.idx++] = y1;
-		//color
-		this.vertices[this.idx++] = c;
-		//uv
-		this.vertices[this.idx++] = u1;
-		this.vertices[this.idx++] = v1;
-		
-		//xy
-		this.vertices[this.idx++] = x2;
-		this.vertices[this.idx++] = y1;
-		//color
-		this.vertices[this.idx++] = c;
-		//uv
-		this.vertices[this.idx++] = u2;
-		this.vertices[this.idx++] = v1;
+        //xy
+        this.vertices[this.idx++] = x1;
+        this.vertices[this.idx++] = y1;
+        //color
+        this.vertices[this.idx++] = c;
+        //uv
+        this.vertices[this.idx++] = u1;
+        this.vertices[this.idx++] = v1;
+        
+        //xy
+        this.vertices[this.idx++] = x2;
+        this.vertices[this.idx++] = y1;
+        //color
+        this.vertices[this.idx++] = c;
+        //uv
+        this.vertices[this.idx++] = u2;
+        this.vertices[this.idx++] = v1;
 
-		//xy
-		this.vertices[this.idx++] = x2;
-		this.vertices[this.idx++] = y2;
-		//color
-		this.vertices[this.idx++] = c;
-		//uv
-		this.vertices[this.idx++] = u2;
-		this.vertices[this.idx++] = v2;
+        //xy
+        this.vertices[this.idx++] = x2;
+        this.vertices[this.idx++] = y2;
+        //color
+        this.vertices[this.idx++] = c;
+        //uv
+        this.vertices[this.idx++] = u2;
+        this.vertices[this.idx++] = v2;
 
-		//xy
-		this.vertices[this.idx++] = x1;
-		this.vertices[this.idx++] = y2;
-		//color
-		this.vertices[this.idx++] = c;
-		//uv
-		this.vertices[this.idx++] = u1;
-		this.vertices[this.idx++] = v2;
-	},
+        //xy
+        this.vertices[this.idx++] = x1;
+        this.vertices[this.idx++] = y2;
+        //color
+        this.vertices[this.idx++] = c;
+        //uv
+        this.vertices[this.idx++] = u1;
+        this.vertices[this.idx++] = v2;
+    },
 
-	/**
-	 * Adds a single set of vertices to this sprite batch (20 floats).
-	 */
-	drawVertices: function(texture, verts, off) {
-		if (!this.drawing)
-			throw "Illegal State: trying to draw a batch before begin()";
-		
-		//don't draw anything if GL tex doesn't exist..
-		if (!texture)
-			return;
-		
-		if (this.texture != texture) {
-			//new texture.. flush previous data
-			this.flush();
-			this.texture = texture;
-		} else if (this.idx == this.vertices.length) {
-			this.flush(); //we've reached our max, flush before pushing more data
-		}
+    /**
+     * Adds a single quad mesh to this sprite batch from the given
+     * array of vertices. The sprite is drawn in 
+     * screen-space with the origin at the upper-left corner (y-down).
+     *
+     * This reads 20 interleaved floats from the given offset index, in the format
+     *
+     *  { x, y, color, u, v,
+     *      ...  }
+     *
+     * @method  drawVertices
+     * @param {Texture} texture the texture we are drawing for this sprite
+     * @param {Float32Array} verts an array of vertices
+     * @param {Number} off the offset into the vertices array to read from
+     */
+    drawVertices: function(texture, verts, off) {
+        if (!this.drawing)
+            throw "Illegal State: trying to draw a batch before begin()";
+        
+        //don't draw anything if GL tex doesn't exist..
+        if (!texture)
+            return;
+        
+        if (this.texture != texture) {
+            //new texture.. flush previous data
+            this.flush();
+            this.texture = texture;
+        } else if (this.idx == this.vertices.length) {
+            this.flush(); //we've reached our max, flush before pushing more data
+        }
 
-		off = off || 0;
-		//TODO: use a loop here?
-		//xy
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		//color
-		this.vertices[this.idx++] = verts[off++];
-		//uv
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		
-		//xy
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		//color
-		this.vertices[this.idx++] = verts[off++];
-		//uv
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
+        off = off || 0;
+        //TODO: use a loop here?
+        //xy
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        //color
+        this.vertices[this.idx++] = verts[off++];
+        //uv
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        
+        //xy
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        //color
+        this.vertices[this.idx++] = verts[off++];
+        //uv
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
 
-		//xy
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		//color
-		this.vertices[this.idx++] = verts[off++];
-		//uv
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
+        //xy
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        //color
+        this.vertices[this.idx++] = verts[off++];
+        //uv
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
 
-		//xy
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-		//color
-		this.vertices[this.idx++] = verts[off++];
-		//uv
-		this.vertices[this.idx++] = verts[off++];
-		this.vertices[this.idx++] = verts[off++];
-	}
+        //xy
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+        //color
+        this.vertices[this.idx++] = verts[off++];
+        //uv
+        this.vertices[this.idx++] = verts[off++];
+        this.vertices[this.idx++] = verts[off++];
+    }
 
 });
 
+/**
+ * The default vertex size, i.e. number of floats per vertex.
+ * @attribute  VERTEX_SIZE
+ * @static
+ * @final
+ * @type {Number}
+ * @default  5
+ */
 SpriteBatch.VERTEX_SIZE = 5;
+
+/**
+ * Incremented after each draw call, can be used for debugging.
+ *
+ *     SpriteBatch.totalRenderCalls = 0;
+ *
+ *     ... draw your scene ...
+ *
+ *     console.log("Draw calls per frame:", SpriteBatch.totalRenderCalls);
+ *
+ * 
+ * @attribute  totalRenderCalls
+ * @static
+ * @type {Number}
+ * @default  0
+ */
 SpriteBatch.totalRenderCalls = 0;
 
-
-
 SpriteBatch.DEFAULT_FRAG_SHADER = [
-	"precision mediump float;",
-	"varying vec2 vTexCoord0;",
-	"varying float vColor;",
-	"uniform sampler2D u_texture0;",
+    "precision mediump float;",
+    "varying vec2 vTexCoord0;",
+    "varying float vColor;",
+    "uniform sampler2D u_texture0;",
 
-	"void main(void) {",
-	"	gl_FragColor = texture2D(u_texture0, vTexCoord0) * vColor;",
-	"}"
+    "void main(void) {",
+    "   gl_FragColor = texture2D(u_texture0, vTexCoord0) * vColor;",
+    "}"
 ].join('\n');
 
 SpriteBatch.DEFAULT_VERT_SHADER = [
-	"attribute vec2 Position;",
-	"attribute float Color;",
-	"attribute vec2 TexCoord0;",
+    "attribute vec2 Position;",
+    "attribute float Color;",
+    "attribute vec2 TexCoord0;",
 
-	"uniform vec2 u_projection;",
-	"varying vec2 vTexCoord0;",
-	"varying float vColor;",
+    "uniform vec2 u_projection;",
+    "varying vec2 vTexCoord0;",
+    "varying float vColor;",
 
-	"void main(void) {",
-	"	gl_Position = vec4( Position.x / u_projection.x - 1.0, Position.y / -u_projection.y + 1.0 , 0.0, 1.0);",
-	"	vTexCoord0 = TexCoord0;",
-	"	vColor = Color;",
-	"}"
+    "void main(void) {",
+    "   gl_Position = vec4( Position.x / u_projection.x - 1.0, Position.y / -u_projection.y + 1.0 , 0.0, 1.0);",
+    "   vTexCoord0 = TexCoord0;",
+    "   vColor = Color;",
+    "}"
 ].join('\n');
 
 module.exports = SpriteBatch;
 
-},{"./AbstractBatch":1,"./Point":3,"jsOOP":7,"kami-gl":16}],5:[function(require,module,exports){
-//This is an index for UMD builds. It includes kami and kami-gl. 
-//The dependencies are included and aliased like so:
-//	var Signal = require('signals')
-//	var glmatrix = require('gl-matrix');
-//	var jsOOP = require('jsOOP');
+},{"./AbstractBatch":1,"./Point":3,"./glutils/Mesh":7,"./glutils/ShaderProgram":8,"jsOOP":11}],5:[function(require,module,exports){
+/**
+ * @module kami
+ */
 
-module.exports = {
-	//kami core
-	Point: require('./Point'),
-	AbstractBatch: require('./AbstractBatch'),
-	SpriteBatch: require('./SpriteBatch'),
-	AssetManager: require('./AssetManager'),
+var Class = require('jsOOP').Class;
+var Signal = require('signals');
 
-	//kami-gl
-	Mesh: require('kami-gl').Mesh,
-	ShaderProgram: require('kami-gl').ShaderProgram,
-	Texture: require('kami-gl').Texture,
-	WebGLContext: require('kami-gl').WebGLContext,
+var Texture = new Class({
 
-	//dependencies
-	jsOOP: require('jsOOP'),
-	glmatrix: require('gl-matrix'),
-	signals: require('signals')
+	id: null,
+	target: null,
+	width: 0,
+	height: 0,
+	wrap: null,
+	filter: null,
+
+
+	//TODO: Get rid of provider stuff since it is better for AssetManager to handle it.
+	 /** A data provider is a function which is called by Texture
+	 * on intiialization, and subsequently on any context restoration.
+	 * This allows images to be re-loaded without the need to keep
+	 * them hanging around in memory. This also means that procedural
+	 * textures will be re-created properly on context restore.
+	 *
+	 * Calling this constructor with no arguments will result in an Error.
+	 *
+	 * If this constructor is called with only the context (one argument),
+	 * then no provider is used and the texture will be unmanaged and its width
+	 * and height will be zero.
+	 * 
+	 * If the second argument is a string, we will use the default ImageProvider 
+	 * to load the texture into the GPU asynchronously. Usage:
+	 *
+	 *     new Texture(context, "path/img.png");
+	 *     new Texture(context, "path/img.png", onloadCallback, onerrorCallback);
+	 *
+	 * The callbacks will be fired every time the image is re-loaded, even on context
+	 * restore.
+	 *
+	 * If the second and third arguments are Numbers, we will use the default
+	 * ArrayProvider, which takes in a ArrayBufferView of pixels. This allows
+	 * us to create textures synchronously like so:
+	 *
+	 *     new Texture(context, 256, 256); //uses empty data, transparent black
+	 *     new Texture(context, 256, 256, gl.LUMINANCE); //empty data and LUMINANCE format
+	 *     new Texture(context, 256, 256, gl.LUMINANCE, gl.UNSIGNED_BYTE, byteArray); //custom data
+	 *
+	 * Otherwise, we will assume that a custom provider is specified. In this case, the second
+	 * argument is a provider function, and the subsequent arguments are those which will be passed 
+	 * to the provider. The provider function always receives the texture object as the first argument,
+	 * and then any others that may have been passed to it. For example, here is a basic ImageProvider 
+	 * implementation:
+	 *
+	 *     //the provider function
+	 *     var ImageProvider = function(texture, path) {
+	 *     	   var img = new Image();
+	 *         img.onload = function() {
+	 *    	       texture.uploadImage(img);
+	 *         }.bind(this);
+	 *         img.src = path;
+	 *     };
+	 *
+	 *     //loads the image asynchronously
+	 *     var tex = new Texture(context, ImageProvider, "myimg.png");
+	 */
+
+	/**
+	 * Creates a new texture with the optional data provider.
+	 *
+	 * Note that a texture will not be renderable until some data has been uploaded to it.
+	 * To get around this, you can upload a very small null buffer to the uploadData function,
+	 * until your async load is complete. Or you can use a higher level provider that manages
+	 * multiple assets and dispatches a signal once all textures are renderable.
+	 *
+	 * @class  Texture
+	 * @param  {WebGLContext} gl the WebGL context
+	 * @param  {Function} provider [description]
+	 * @param  {[type]} args     [description]
+	 * @return {[type]}          [description]
+	 */
+	initialize: function(context) {
+		if (!context)
+			throw "GL context not specified";
+		this.context = context;
+		this.created = new Signal();
+
+		var providerArgs = [this];
+		var provider = null;
+
+		// e.g. --> new Texture(gl, "mypath.jpg")
+		// 			new Texture(gl, "mypath.jpg", gl.RGB)
+		//			new Texture(gl, myProvider, arg0, arg1)
+		//          new Texture(gl, Texture.ImageProvider, "mypath.jpg", gl.RGB)
+		//			new Texture(gl, Textuer.ArrayProvider, 256, 256)
+		//			new Texture(gl, 256, 256, gl.RGB, gl.UNSIGNED_BYTE, data);
+
+		//we are working with a provider of some kind...
+		if (arguments.length > 1) {
+			var slicedArgs = [];
+
+			//determine the provider, if any...
+			if (typeof arguments[1] === "string") {
+				provider = Texture.ImageProvider;
+				slicedArgs = Array.prototype.slice.call(arguments, 1)
+			} else if (typeof arguments[1] === "function") {
+				provider = arguments[1];
+				slicedArgs = Array.prototype.slice.call(arguments, 2);
+			} else if (arguments.length > 2 
+						&& typeof arguments[1] === "number" 
+						&& typeof arguments[2] === "number") {
+				provider = Texture.ArrayProvider;
+				slicedArgs = Array.prototype.slice.call(arguments, 1);
+			}
+
+			//concat with texture as first param
+			providerArgs = providerArgs.concat(slicedArgs);
+		}
+
+		this.wrapS = this.wrapT = Texture.DEFAULT_WRAP;
+		this.minFilter = this.magFilter = Texture.DEFAULT_FILTER;
+
+		//the provider and its args, may be null...
+		this.provider = provider;
+		this.providerArgs = providerArgs;
+
+		//This is maanged by WebGLContext
+		this.context.addManagedObject(this);
+		this.create();
+	},
+
+	//called after the context has been re-initialized
+	create: function() {
+		this.gl = this.context.gl; 
+		var gl = this.gl;
+
+		this.id = gl.createTexture(); //texture ID is recreated
+		this.width = this.height = 0; //size is reset to zero until loaded
+		this.target = gl.TEXTURE_2D;  //the provider can change this if necessary (e.g. cube maps)
+
+		this.bind();
+
+	 	//TODO: investigate this further
+	 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+
+	 	//setup wrap modes without binding redundantly
+	 	this.setWrap(this.wrapS, this.wrapT, false);
+	 	this.setFilter(this.minFilter, this.magFilter, false);
+	 	
+		//load the data
+		if (this.provider) {
+			this.provider.apply(this, this.providerArgs);
+		}
+	},
+
+
+	destroy: function() {
+		if (this.id && this.gl)
+			this.gl.deleteTexture(this.id);
+		if (this.context)
+			this.context.removeManagedObject(this);
+		this.width = this.height = 0;
+		this.id = null;
+		this.provider = null; 
+		this.providerArgs = null;
+	},
+
+	/**
+	 * Sets the wrap mode for this texture; if the second argument
+	 * is undefined or falsy, then both S and T wrap will use the first
+	 * argument.
+	 *
+	 * You can use Texture.Wrap constants for convenience, to avoid needing 
+	 * a GL reference.
+	 * 
+	 * @param {GLenum} s the S wrap mode
+	 * @param {GLenum} t the T wrap mode
+	 * @param {Boolean} ignoreBind (optional) if true, the bind will be ignored. 
+	 */
+	setWrap: function(s, t, ignoreBind) { //TODO: support R wrap mode
+		if (s && t) {
+			this.wrapS = s;
+			this.wrapT = t;
+		} else 
+			this.wrapS = this.wrapT = s;
+			
+		if (!ignoreBind)
+			this.bind();
+
+		var gl = this.gl;
+	 	gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, this.wrapS);
+		gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, this.wrapT);
+	},
+
+
+	/**
+	 * Sets the min and mag filter for this texture; 
+	 * if mag is undefined or falsy, then both min and mag will use the
+	 * filter specified for min.
+	 *
+	 * You can use Texture.Filter constants for convenience, to avoid needing 
+	 * a GL reference.
+	 * 
+	 * @param {GLenum} min the minification filter
+	 * @param {GLenum} mag the magnification filter
+	 * @param {Boolean} ignoreBind if true, the bind will be ignored. 
+	 */
+	setFilter: function(min, mag, ignoreBind) { 
+		if (min && mag) {
+			this.minFilter = min;
+			this.magFilter = mag;
+		} else 
+			this.minFilter = this.magFilter = min;
+			
+		if (!ignoreBind)
+			this.bind();
+
+		var gl = this.gl;
+		gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, this.minFilter);
+	 	gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, this.magFilter);
+	},
+
+	/**
+	 * A low-level method to upload the specified ArrayBufferView
+	 * to this texture. This will cause the width and height of this
+	 * texture to change.
+	 * 
+	 * @param  {Number} width          the new width of this texture,
+	 *                                 defaults to the last used width (or zero)
+	 * @param  {Number} height         the new height of this texture
+	 *                                 defaults to the last used height (or zero)
+	 * @param  {GLenum} format         the data format, default RGBA
+	 * @param  {GLenum} type           the data type, default UNSIGNED_BYTE (Uint8Array)
+	 * @param  {ArrayBufferView} data  the raw data for this texture, or null for an empty image
+	 */
+	uploadData: function(width, height, format, type, data) {
+		var gl = this.gl;
+
+		this.format = format || gl.RGBA;
+		type = type || gl.UNSIGNED_BYTE;
+		data = data || null; //make sure falsey value is null for texImage2D
+
+		this.width = (width || width==0) ? width : this.width;
+		this.height = (height || height==0) ? height : this.height;
+
+		this.bind();
+
+		gl.texImage2D(this.target, 0, this.format, 
+					  this.width, this.height, 0, this.format,
+					  type, data);
+	},
+
+	/**
+	 * Uploads ImageData, HTMLImageElement, HTMLCanvasElement or 
+	 * HTMLVideoElement.
+	 * 	
+	 * @param  {Object} domObject the DOM image container
+	 */
+	uploadImage: function(domObject, format, type) {
+		var gl = this.gl;
+
+		this.format = format || gl.RGBA;
+		type = type || gl.UNSIGNED_BYTE;
+		
+		this.width = domObject.width;
+		this.height = domObject.height;
+
+		this.bind();
+
+		gl.texImage2D(this.target, 0, this.format, this.format,
+					  type, domObject);
+	},
+
+	/**
+	 * Binds the texture. If unit is specified,
+	 * it will bind the texture at the given slot
+	 * (TEXTURE0, TEXTURE1, etc). If unit is not specified,
+	 * it will simply bind the texture at whichever slot
+	 * is currently active.
+	 * 
+	 * @param  {Number} unit the texture unit index, starting at 0
+	 */
+	bind: function(unit) {
+		var gl = this.gl;
+		if (unit || unit === 0)
+			gl.activeTexture(gl.TEXTURE0 + unit);
+		gl.bindTexture(this.target, this.id);
+	},
+
+	toString: function() {
+		return this.id + ":" + this.width + "x" + this.height + "";
+	}
+});
+
+Texture.Filter = {
+	NEAREST: 9728,
+	NEAREST_MIPMAP_LINEAR: 9986,
+	NEAREST_MIPMAP_NEAREST: 9984,
+	LINEAR: 9729,
+	LINEAR_MIPMAP_LINEAR: 9987,
+	LINEAR_MIPMAP_NEAREST: 9985
 };
 
-//TODO: Find a better way of handling this. maybe with a source transform.
-},{"./AbstractBatch":1,"./AssetManager":2,"./Point":3,"./SpriteBatch":4,"gl-matrix":6,"jsOOP":7,"kami-gl":16,"signals":23}],6:[function(require,module,exports){
+Texture.Wrap = {
+	CLAMP_TO_EDGE: 33071,
+	MIRRORED_REPEAT: 33648,
+	REPEAT: 10497
+};
+
+Texture.Format = {
+	DEPTH_COMPONENT: 6402,
+	ALPHA: 6406,
+	RGBA: 6408,
+	RGB: 6407,
+	LUMINANCE: 6409,
+	LUMINANCE_ALPHA: 6410
+};
+
+/**
+ * The default wrap mode when creating new textures. If a custom 
+ * provider was specified, it may choose to override this default mode.
+ * 
+ * @type {GLenum} the wrap mode for S and T coordinates
+ * @default  Texture.Wrap.CLAMP_TO_EDGE
+ */
+Texture.DEFAULT_WRAP = Texture.Wrap.CLAMP_TO_EDGE;
+
+
+/**
+ * The default filter mode when creating new textures. If a custom
+ * provider was specified, it may choose to override this default mode.
+ *
+ * @type {GLenum} the filter mode for min/mag
+ * @default  Texture.Filter.LINEAR
+ */
+Texture.DEFAULT_FILTER = Texture.Filter.NEAREST;
+
+/**
+ * This is a "provider" function for images, based on the given
+ * path (src) and optional callbacks, WebGL format and type options.
+ *
+ * The callbacks are called from the Texture scope; but also passed the
+ * texture to the first argument (in case the user wishes to re-bind the 
+ * functions to something else).
+ * 
+ * @param {Texture} texture the texture which is being acted on
+ * @param {String} path     the path to the image
+ * @param {Function} onLoad the callback after the image has been loaded and uploaded to GPU
+ * @param {Function} onErr  the callback if there was an error while loading the image
+ * @param {GLenum} format   the GL texture format (default RGBA)
+ * @param {GLenum} type     the GL texture type (default UNSIGNED_BYTE)
+ */
+Texture.ImageProvider = function(texture, path, onLoad, onErr, format, type) {
+	var img = new Image();
+
+	img.onload = function() {
+		texture.uploadImage(img, format, type);
+		if (onLoad && typeof onLoad === "function")
+			onLoad.call(texture, texture);
+	};
+	
+	img.onerror = function() {
+		if (onErr && typeof onErr === "function") 
+			onErr.call(texture, texture);
+	};
+
+	img.onabort = function() {
+		if (onErr && typeof onErr === "function")
+			onErr.call(texture, texture);
+	};
+
+	img.src = path;
+};
+
+/**
+ * This is a "provider" function for synchronous ArrayBufferView pixel uploads.
+ * 
+ * @param  {Texture} texture  	   the texture which is being acted on
+ * @param  {Number} width          the width of this texture,
+ * @param  {Number} height         the height of this texture
+ * @param  {GLenum} format         the data format, default RGBA
+ * @param  {GLenum} type           the data type, default UNSIGNED_BYTE (Uint8Array)
+ * @param  {ArrayBufferView} data  the raw data for this texture, or null for an empty image
+ */
+Texture.ArrayProvider = function(texture, width, height, format, type, data) {
+	texture.uploadData(width, height, format, type, data);
+};
+
+/**
+ * Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.
+ * Returns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,
+ * LUMINANCE_ALPHA, RGB, or RGBA.
+ * 
+ * @method getNumComponents
+ * @static
+ * @param  {GLenum} format a texture format, i.e. Texture.Format.RGBA
+ * @return {Number} the number of components for this format
+ */
+Texture.getNumComponents = function(format) {
+	switch (format) {
+		case Texture.Format.DEPTH_COMPONENT:
+		case Texture.Format.ALPHA:
+		case Texture.Format.LUMINANCE:
+			return 1;
+		case Texture.Format.LUMINANCE_ALPHA:
+			return 2;
+		case Texture.Format.RGB:
+			return 3;
+		case Texture.Format.RGBA:
+			return 4;
+	}
+	return null;
+};
+
+//Unmanaged textures:
+//	HTML elements like Image, Video, Canvas
+//	pixels buffer from Canvas
+//	pixels array
+
+//Need special handling:
+//  context.onContextLost.add(function() {
+//  	createDynamicTexture();
+//  }.bind(this));
+
+//Managed textures:
+//	images specified with a path
+//	this will use Image under the hood
+
+
+module.exports = Texture;
+},{"jsOOP":11,"signals":16}],6:[function(require,module,exports){
+/**
+ * @module kami
+ */
+
+var Class = require('jsOOP').Class;
+var Signal = require('signals');
+
+/**
+ * A thin wrapper around WebGLRenderingContext which handles
+ * context loss and restore with various rendering objects (textures,
+ * shaders and buffers). This also handles general viewport management.
+ *
+ * If the view is not specified, a canvas will be created.
+ * 
+ * @class  WebGLContext
+ * @param {Number} width the width of the GL canvas
+ * @param {Number} height the height of the GL canvas
+ * @param {HTMLCanvasElement} view the optional DOM canvas element
+ * @param {Object} contextAttribuets an object containing context attribs which
+ *                                   will be used during GL initialization
+ */
+var WebGLContext = new Class({
+		
+	/**
+	 * The list of rendering objects (shaders, VBOs, textures, etc) which are 
+	 * currently being managed. Any object with a "create" method can be added
+	 * to this list. Upon destroying the rendering object, it should be removed.
+	 * See addManagedObject and removeManagedObject.
+	 * 
+	 * @property {Array} managedObjects
+	 */
+	managedObjects: null,
+
+	/**
+	 * The actual GL context. You can use this for
+	 * raw GL calls or to access GLenum constants. This
+	 * will be updated on context restore. While the WebGLContext
+	 * is not `valid`, you should not try to access GL state.
+	 * 
+	 * @property gl
+	 * @type {WebGLRenderingContext}
+	 */
+	gl: null,
+
+	/**
+	 * The width of this canvas.
+	 *
+	 * @property width
+	 * @type {Number}
+	 */
+	width: null,
+
+	/**
+	 * The height of this canvas.
+	 * @property height
+	 * @type {Number}
+	 */
+	height: null,
+
+	/**
+	 * The canvas DOM element for this context.
+	 * @property {Number} view
+	 */
+	view: null,
+
+	/**
+	 * The context attributes for initializing the GL state. This might include
+	 * anti-aliasing, alpha settings, verison, and so forth.
+	 * 
+	 * @property {Object} contextAttributes 
+	 */
+	contextAttributes: null,
+	
+	/**
+	 * Whether this context is 'valid', i.e. renderable. A context that has been lost
+	 * (and not yet restored) is invalid.
+	 * 
+	 * @property {Boolean} valid
+	 */
+	valid: false,
+
+	/**
+	 * A signal dispatched when GL context is lost. 
+	 * 
+	 * The first argument passed to the listener is the WebGLContext
+	 * managing the context loss.
+	 * 
+	 * @event {Signal} lost
+	 */
+	lost: null,
+
+	/**
+	 * A signal dispatched when GL context is restored, after all the managed
+	 * objects have been recreated.
+	 *
+	 * The first argument passed to the listener is the WebGLContext
+	 * which managed the restoration.
+	 *
+	 * This does not gaurentee that all objects will be renderable.
+	 * For example, a Texture with an ImageProvider may still be loading
+	 * asynchronously.	 
+	 * 
+	 * @event {Signal} restored
+	 */
+	restored: null,
+
+	initialize: function(width, height, view, contextAttributes) {
+		this.lost = new Signal();
+		this.restored = new Signal();
+
+		//setup defaults
+		this.view = view || document.createElement("canvas");
+
+		//default size as per spec:
+		//http://www.w3.org/TR/2012/WD-html5-author-20120329/the-canvas-element.html#the-canvas-element
+		this.width = this.view.width = width || 300;
+		this.height = this.view.height = height || 150;
+		
+		//the list of managed objects...
+		this.managedObjects = [];
+
+		//setup context lost and restore listeners
+		this.view.addEventListener("webglcontextlost", function (ev) {
+			ev.preventDefault();
+			this._contextLost(ev);
+		}.bind(this));
+		this.view.addEventListener("webglcontextrestored", function (ev) {
+			ev.preventDefault();
+			this._contextRestored(ev);
+		}.bind(this));
+			
+		this.contextAttributes = contextAttributes;
+		this._initContext();
+
+		this.resize(this.width, this.height);
+	},
+
+	_initContext: function() {
+		var err = "";
+		this.valid = false;
+
+		try {
+	        this.gl = (this.view.getContext('webgl') || this.view.getContext('experimental-webgl'));
+	    } catch (e) {
+	    	this.gl = null;
+	    }
+
+		if (this.gl) {
+			this.valid = true;
+		} else {
+			throw "WebGL Context Not Supported -- try enabling it or using a different browser";
+		}	
+	},
+
+	/**
+	 * Updates the width and height of this WebGL context, resizes
+	 * the canvas view, and calls gl.viewport() with the new size.
+	 * 
+	 * @param  {Number} width  the new width
+	 * @param  {Number} height the new height
+	 */
+	resize: function(width, height) {
+		this.width = width;
+		this.height = height;
+
+		this.view.width = width;
+		this.view.height = height;
+
+		var gl = this.gl;
+		gl.viewport(0, 0, this.width, this.height);
+	},
+
+	/**
+	 * (internal use)
+	 * A managed object is anything with a "create" function, that will
+	 * restore GL state after context loss. 
+	 * 
+	 * @param {[type]} tex [description]
+	 */
+	addManagedObject: function(obj) {
+		this.managedObjects.push(obj);
+	},
+
+	/**
+	 * (internal use)
+	 * Removes a managed object from the cache. This is useful to destroy
+	 * a texture or shader, and have it no longer re-load on context restore.
+	 *
+	 * Returns the object that was removed, or null if it was not found in the cache.
+	 * 
+	 * @param  {Object} obj the object to be managed
+	 * @return {Object}     the removed object, or null
+	 */
+	removeManagedObject: function(obj) {
+		var idx = this.managedObjects.indexOf(obj);
+		if (idx > -1) {
+			this.managedObjects.splice(idx, 1);
+			return obj;
+		} 
+		return null;
+	},
+
+	_contextLost: function(ev) {
+		//all textures/shaders/buffers/FBOs have been deleted... 
+		//we need to re-create them on restore
+		this.valid = false;
+
+		this.lost.dispatch(this);
+	},
+
+	_contextRestored: function(ev) {
+		//If an asset manager is attached to this
+		//context, we need to invalidate it and re-load 
+		//the assets.
+		if (this.assetManager) {
+			this.assetManager.invalidate();
+		}
+
+		//first, initialize the GL context again
+		this._initContext();
+
+		//now we recreate our shaders and textures
+		for (var i=0; i<this.managedObjects.length; i++) {
+			this.managedObjects[i].create();
+		}
+
+		//update GL viewport
+		this.resize(this.width, this.height);
+
+		this.restored.dispatch(this);
+	}
+});
+
+module.exports = WebGLContext;
+},{"jsOOP":11,"signals":16}],7:[function(require,module,exports){
+var Class = require('jsOOP').Class;
+
+//TODO: decouple into VBO + IBO utilities 
+var Mesh = new Class({
+
+	context: null,
+	gl: null,
+
+	numVerts: null,
+	numIndices: null,
+	
+	vertices: null,
+	indices: null,
+	vertexBuffer: null,
+	indexBuffer: null,
+
+	verticesDirty: true,
+	indicesDirty: true,
+	indexUsage: null,
+	vertexUsage: null,
+
+	/** 
+	 * @property
+	 * @private
+	 */
+	_vertexAttribs: null,
+
+	/** 
+	 * @property
+	 * @private
+	 */
+	_vertexStride: null,
+
+	/**
+	 * A write-only property which sets both vertices and indices 
+	 * flag to dirty or not. 
+	 *
+	 * @property dirty
+	 * @type {Boolean}
+	 * @writeOnly
+	 */
+	dirty: {
+		set: function(val) {
+			this.verticesDirty = val;
+			this.indicesDirty = val;
+		}
+	},
+
+	/**
+	 * Creates a new Mesh with the provided parameters.
+	 *
+	 * If numIndices is 0 or falsy, no index buffer will be used
+	 * and indices will be an empty ArrayBuffer and a null indexBuffer.
+	 * 
+	 * If isStatic is true, then vertexUsage and indexUsage will
+	 * be set to gl.STATIC_DRAW. Otherwise they will use gl.DYNAMIC_DRAW.
+	 * You may want to adjust these after initialization for further control.
+	 * 
+	 * @param  {WebGLContext}  context the context for management
+	 * @param  {Boolean} isStatic      a hint as to whether this geometry is static
+	 * @param  {[type]}  numVerts      [description]
+	 * @param  {[type]}  numIndices    [description]
+	 * @param  {[type]}  vertexAttribs [description]
+	 * @return {[type]}                [description]
+	 */
+	initialize: function(context, isStatic, numVerts, numIndices, vertexAttribs) {
+		if (!context)
+			throw "GL context not specified";
+		if (!numVerts)
+			throw "numVerts not specified, must be > 0";
+
+		this.context = context;
+		this.gl = context.gl;
+		
+		this.numVerts = numVerts;
+		this.numIndices = numIndices || 0;
+		this.vertexUsage = isStatic ? this.gl.STATIC_DRAW : this.gl.DYNAMIC_DRAW;
+		this.indexUsage  = isStatic ? this.gl.STATIC_DRAW : this.gl.DYNAMIC_DRAW;
+		this._vertexAttribs = vertexAttribs || [];
+		
+		this.indicesDirty = true;
+		this.verticesDirty = true;
+
+		//determine the vertex stride based on given attributes
+		var totalNumComponents = 0;
+		for (var i=0; i<this._vertexAttribs.length; i++)
+			totalNumComponents += this._vertexAttribs[i].numComponents;
+		this._vertexStride = totalNumComponents * 4; // in bytes
+
+		this.vertices = new Float32Array(this.numVerts);
+		this.indices = new Uint16Array(this.numIndices);
+
+		//add this VBO to the managed cache
+		this.context.addManagedObject(this);
+
+		this.create();
+	},
+
+	//recreates the buffers on context loss
+	create: function() {
+		this.gl = this.context.gl;
+		var gl = this.gl;
+		this.vertexBuffer = gl.createBuffer();
+
+		//ignore index buffer if we haven't specified any
+		this.indexBuffer = this.numIndices > 0
+					? gl.createBuffer()
+					: null;
+
+		this.dirty = true;
+	},
+
+	destroy: function() {
+		this.vertices = [];
+		this.indices = [];
+		if (this.vertexBuffer)
+			this.gl.deleteBuffer(this.vertexBuffer);
+		if (this.indexBuffer)
+			this.gl.deleteBuffer(this.indexBuffer);
+		this.vertexBuffer = null;
+		this.indexBuffer = null;
+		if (this.context)
+			this.context.removeManagedObject(this);
+	},
+
+	_updateBuffers: function(ignoreBind) {
+		var gl = this.gl;
+
+		//bind our index data, if we have any
+		if (this.numIndices > 0) {
+			if (!ignoreBind)
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+
+			//update the index data
+			if (this.indicesDirty) {
+				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, this.indexUsage);
+				this.indicesDirty = false;
+			}
+		}
+
+		//bind our vertex data
+		if (!ignoreBind)
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+
+		//update our vertex data
+		if (this.verticesDirty) {
+			gl.bufferData(gl.ARRAY_BUFFER, this.vertices, this.vertexUsage);
+			this.verticesDirty = false;
+		}
+	},
+
+	draw: function(primitiveType, count, offset) {
+		if (count === 0)
+			return;
+
+		var gl = this.gl;
+		
+		offset = offset || 0;
+
+		//binds and updates our buffers. pass ignoreBind as true
+		//to avoid binding unnecessarily
+		this._updateBuffers(true);
+
+		if (this.numIndices > 0) { 
+			gl.drawElements(primitiveType, count, 
+						gl.UNSIGNED_SHORT, offset * 2); //* Uint16Array.BYTES_PER_ELEMENT
+		} else
+			gl.drawArrays(primitiveType, offset, count);
+	},
+
+	//binds this mesh's vertex attributes for the given shader
+	bind: function(shader) {
+		var gl = this.gl;
+
+		var offset = 0;
+		var stride = this._vertexStride;
+
+		//bind and update our vertex data before binding attributes
+		this._updateBuffers();
+
+		//for each attribtue
+		for (var i=0; i<this._vertexAttribs.length; i++) {
+			var a = this._vertexAttribs[i];
+
+			//location of the attribute
+			var loc = a.location === null 
+					? shader.getAttributeLocation(a.name)
+					: a.location;
+
+			//TODO: We may want to skip unfound attribs
+			// if (loc!==0 && !loc)
+			// 	console.warn("WARN:", a.name, "is not enabled");
+
+			//first, enable the vertex array
+			gl.enableVertexAttribArray(loc);
+
+			//then specify our vertex format
+			gl.vertexAttribPointer(loc, a.numComponents, a.type || gl.FLOAT, 
+								   a.normalize || false, stride, offset);
+
+
+			//and increase the offset...
+			offset += a.numComponents * 4; //in bytes
+		}
+	},
+
+	unbind: function(shader) {
+		var gl = this.gl;
+
+		//for each attribtue
+		for (var i=0; i<this._vertexAttribs.length; i++) {
+			var a = this._vertexAttribs[i];
+
+			//location of the attribute
+			var loc = a.location === null 
+					? shader.getAttributeLocation(a.name)
+					: a.location;
+
+			//first, enable the vertex array
+			gl.disableVertexAttribArray(loc);
+		}
+	}
+});
+
+Mesh.Attrib = new Class({
+
+	name: null,
+	numComponents: null,
+	location: null,
+	type: null,
+
+	/**
+	 * Location is optional and for advanced users that
+	 * want vertex arrays to match across shaders. Any non-numerical
+	 * value will be converted to null, and ignored. If a numerical
+	 * value is given, it will override the position of this attribute
+	 * when given to a mesh.
+	 * 
+	 * @param  {[type]} name          [description]
+	 * @param  {[type]} numComponents [description]
+	 * @param  {[type]} location      [description]
+	 * @return {[type]}               [description]
+	 */
+	initialize: function(name, numComponents, location, type, normalize) {
+		this.name = name;
+		this.numComponents = numComponents;
+		this.location = typeof location === "number" ? location : null;
+		this.type = type;
+		this.normalize = normalize;
+	}
+})
+
+
+module.exports = Mesh;
+
+
+//flow:
+//  
+
+
+
+// var attribs = [
+// 	new Mesh.Attribute("a_position", 2),
+// 	new Mesh.Attribute("a_color", 1)
+// ];
+// var mesh = new Mesh(context, 4, 6, Mesh.STATIC, attribs);
+
+
+//Constant Vertex Attrib:
+//	e.g. with instancing maybe?
+//Only enable vertex attrib if it's used?
+//	but we are still sending alpha so WTF
+//	would need another buffer, but that can get real ugly.
+//  
+},{"jsOOP":11}],8:[function(require,module,exports){
+var Class = require('jsOOP').Class;
+
+var ShaderProgram = new Class({
+	
+	vertSource: null,
+	fragSource: null, 
+ 
+	vertShader: null,
+	fragShader: null,
+
+	program: null,
+
+	log: "",
+
+	uniformCache: null,
+	attributeCache: null,
+
+	initialize: function(context, vertSource, fragSource, attributeLocations) {
+		if (!vertSource || !fragSource)
+			throw "vertex and fragment shaders must be defined";
+		if (!context)
+			throw "no GL context specified";
+		this.context = context;
+
+		this.attributeLocations = attributeLocations;
+
+		//We trim (ECMAScript5) so that the GLSL line numbers are
+		//accurate on shader log
+		this.vertSource = vertSource.trim();
+		this.fragSource = fragSource.trim();
+
+		//Adds this shader to the context, to be managed
+		this.context.addManagedObject(this);
+
+		this.create();
+	},
+
+	/** 
+	 * This is called during the ShaderProgram constructor,
+	 * and may need to be called again after context loss and restore.
+	 */
+	create: function() {
+		this.gl = this.context.gl;
+		this._compileShaders();
+	},
+
+	//Compiles the shaders, throwing an error if the program was invalid.
+	_compileShaders: function() {
+		var gl = this.gl; 
+		
+		this.log = "";
+
+		this.vertShader = this._loadShader(gl.VERTEX_SHADER, this.vertSource);
+		this.fragShader = this._loadShader(gl.FRAGMENT_SHADER, this.fragSource);
+
+		if (!this.vertShader || !this.fragShader)
+			throw "Error returned when calling createShader";
+
+		this.program = gl.createProgram();
+
+		gl.attachShader(this.program, this.vertShader);
+		gl.attachShader(this.program, this.fragShader);
+ 	
+ 		//TODO: This seems not to be working on my OSX -- maybe a driver bug?
+		if (this.attributeLocations) {
+			for (var key in this.attributeLocations) {
+				if (this.attributeLocations.hasOwnProperty(key)) {
+		    		gl.bindAttribLocation(this.program, Math.floor(this.attributeLocations[key]), key);
+	    		}
+			}
+		}
+
+		gl.linkProgram(this.program); 
+
+		this.log += gl.getProgramInfoLog(this.program) || "";
+
+		if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
+			throw "Error linking the shader program:\n"
+				+ this.log;
+		}
+
+		this._fetchUniforms();
+		this._fetchAttributes();
+	},
+
+	_fetchUniforms: function() {
+		var gl = this.gl;
+
+		this.uniformCache = {};
+
+		var len = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS);
+		if (!len) //null or zero
+			return;
+
+		for (var i=0; i<len; i++) {
+			var info = gl.getActiveUniform(this.program, i);
+			if (info === null) 
+				continue;
+			var name = info.name;
+			var location = gl.getUniformLocation(this.program, name);
+			
+			this.uniformCache[name] = {
+				size: info.size,
+				type: info.type,
+				location: location
+			};
+		}
+	},
+
+	_fetchAttributes: function() { 
+		var gl = this.gl; 
+
+		this.attributeCache = {};
+
+		var len = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES);
+		if (!len) //null or zero
+			return;	
+
+		for (var i=0; i<len; i++) {
+			var info = gl.getActiveAttrib(this.program, i);
+			if (info === null) 
+				continue;
+			var name = info.name;
+
+			//the attrib location is a simple index
+			var location = gl.getAttribLocation(this.program, name);
+			
+			this.attributeCache[name] = {
+				size: info.size,
+				type: info.type,
+				location: location
+			};
+		}
+	},
+
+	_loadShader: function(type, source) {
+		var gl = this.gl;
+
+		var shader = gl.createShader(type);
+		if (!shader) //should not occur...
+			return -1;
+
+		gl.shaderSource(shader, source);
+		gl.compileShader(shader);
+		
+		var logResult = gl.getShaderInfoLog(shader) || "";
+		if (logResult) {
+			//we do this so the user knows which shader has the error
+			var typeStr = (type === gl.VERTEX_SHADER) ? "vertex" : "fragment";
+			logResult = "Error compiling "+ typeStr+ " shader:\n"+logResult;
+		}
+
+		this.log += logResult;
+
+		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS) ) {
+			throw this.log;
+		}
+		return shader;
+	},
+
+	/**
+	 * Returns the cached uniform info (size, type, location).
+	 * If the uniform is not found in the cache, it is assumed
+	 * to not exist, and this method returns null.
+	 *
+	 * This may return null even if the uniform is defined in GLSL:
+	 * if it is _inactive_ (i.e. not used in the program) then it may
+	 * be optimized out.
+	 * 
+	 * @param  {String} name the uniform name as defined in GLSL
+	 * @return {Object} an object containing location, size, and type
+	 */
+	getUniformInfo: function(name) {
+		return this.uniformCache[name] || null; 
+	},
+
+	/**
+	 * Returns the cached attribute info (size, type, location).
+	 * If the attribute is not found in the cache, it is assumed
+	 * to not exist, and this method returns null.
+	 *
+	 * This may return null even if the attribute is defined in GLSL:
+	 * if it is _inactive_ (i.e. not used in the program or disabled) 
+	 * then it may be optimized out.
+	 * 
+	 * @param  {String} name the attribute name as defined in GLSL
+	 * @return {object} an object containing location, size and type
+	 */
+	getAttributeInfo: function(name) {
+		return this.attributeCache[name] || null; 
+	},
+
+
+	/**
+	 * Returns the cached uniform location object.
+	 * If the uniform is not found, this method returns null.
+	 * 
+	 * @param  {String} name the uniform name as defined in GLSL
+	 * @return {GLint} the location object
+	 */
+	getAttributeLocation: function(name) { //TODO: make faster, don't cache
+		var info = this.getAttributeInfo(name);
+		return info ? info.location : null;
+	},
+
+	/**
+	 * Returns the cached uniform location object.
+	 * 
+	 * @param  {String} name the uniform name as defined in GLSL
+	 * @return {WebGLUniformLocation} the location object
+	 */
+	getUniformLocation: function(name) {
+		var info = this.getUniformInfo(name);
+		return info ? info.location : null;
+	},
+
+	/**
+	 * Returns true if the uniform is active and found in this
+	 * compiled program.
+	 * 
+	 * @param  {String}  name the uniform name
+	 * @return {Boolean} true if the uniform is found and active
+	 */
+	hasUniform: function(name) {
+		return this.getUniformInfo(name) !== null;
+	},
+
+	/**
+	 * Returns true if the attribute is active and found in this
+	 * compiled program.
+	 * 
+	 * @param  {String}  name the attribute name
+	 * @return {Boolean} true if the attribute is found and active
+	 */
+	hasAttribute: function(name) {
+		return this.getAttributeInfo(name) !== null;
+	},
+
+	/**
+	 * Returns the uniform value by name.
+	 * 
+	 * @param  {String} name the uniform name as defined in GLSL
+	 * @return {any} The value of the WebGL uniform
+	 */
+	getUniform: function(name) {
+		return this.gl.getUniform(this.program, this.getUniformLocation(name));
+	},
+
+	/**
+	 * Returns the uniform value at the specified WebGLUniformLocation.
+	 * 
+	 * @param  {WebGLUniformLocation} location the location object
+	 * @return {any} The value of the WebGL uniform
+	 */
+	getUniformAt: function(location) {
+		return this.gl.getUniform(this.program, location);
+	},
+
+	bind: function() {
+		this.gl.useProgram(this.program);
+	},
+
+	destroy: function() {
+		var gl = this.gl;
+		gl.detachShader(this.vertShader);
+		gl.detachShader(this.fragShader);
+
+		gl.deleteShader(this.vertShader);
+		gl.deleteShader(this.fragShader);
+
+		gl.deleteProgram(this.program);
+		this.program = null;
+	},
+
+
+
+	setUniformi: function(name, x, y, z, w) {
+		var gl = this.gl;
+		var loc = this.getUniformLocation(name);
+		if (!loc) 
+			return false;
+		switch (arguments.length) {
+			case 2: gl.uniform1i(loc, x); return true;
+			case 3: gl.uniform2i(loc, x, y); return true;
+			case 4: gl.uniform3i(loc, x, y, z); return true;
+			case 5: gl.uniform4i(loc, x, y, z, w); return true;
+			default:
+				throw "invalid arguments to setUniformi"; 
+		}
+	},
+
+	setUniformf: function(name, x, y, z, w) {
+		var gl = this.gl;
+		var loc = this.getUniformLocation(name);
+		if (!loc) 
+			return false;
+		switch (arguments.length) {
+			case 2: gl.uniform1f(loc, x); return true;
+			case 3: gl.uniform2f(loc, x, y); return true;
+			case 4: gl.uniform3f(loc, x, y, z); return true;
+			case 5: gl.uniform4f(loc, x, y, z, w); return true;
+			default:
+				throw "invalid arguments to setUniformf"; 
+		}
+	},
+
+	//I guess we won't support sequence<GLfloat> .. whatever that is ??
+	
+	/**
+	 * A convenience method to set uniformNfv from the given ArrayBuffer.
+	 * We determine which GL call to make based on the length of the array 
+	 * buffer. 
+	 * 	
+	 * @param {String} name        		the name of the uniform
+	 * @param {ArrayBuffer} arrayBuffer the array buffer
+	 */
+	setUniformfv: function(name, arrayBuffer) {
+		var gl = this.gl;
+		var loc = this.getUniformLocation(name);
+		if (!loc) 
+			return false;
+		switch (arrayBuffer.length) {
+			case 1: gl.uniform1fv(loc, arrayBuffer); return true;
+			case 2: gl.uniform2fv(loc, arrayBuffer); return true;
+			case 3: gl.uniform3fv(loc, arrayBuffer); return true;
+			case 4: gl.uniform4fv(loc, arrayBuffer); return true;
+			default:
+				throw "invalid arguments to setUniformf"; 
+		}
+	},
+
+	/**
+	 * A convenience method to set uniformNfv from the given ArrayBuffer.
+	 * We determine which GL call to make based on the length of the array 
+	 * buffer. 
+	 * 	
+	 * @param {String} name        		the name of the uniform
+	 * @param {ArrayBuffer} arrayBuffer the array buffer
+	 */
+	setUniformiv: function(name, arrayBuffer) {
+		var gl = this.gl;
+		var loc = this.getUniformLocation(name);
+		if (!loc) 
+			return false;
+		switch (arrayBuffer.length) {
+			case 1: gl.uniform1iv(loc, arrayBuffer); return true;
+			case 2: gl.uniform2iv(loc, arrayBuffer); return true;
+			case 3: gl.uniform3iv(loc, arrayBuffer); return true;
+			case 4: gl.uniform4iv(loc, arrayBuffer); return true;
+			default:
+				throw "invalid arguments to setUniformf"; 
+		}
+	}
+});
+
+module.exports = ShaderProgram;
+},{"jsOOP":11}],9:[function(require,module,exports){
+/**
+    This is the auto-generated index for UMD builds.
+    Generated on: 2013-11-04
+*/
+module.exports = {
+    //core classes
+    'AbstractBatch':   require('./AbstractBatch.js'),
+    'AssetManager':    require('./AssetManager.js'),
+    'Point':           require('./Point.js'),
+    'SpriteBatch':     require('./SpriteBatch.js'),
+    'Texture':         require('./Texture.js'),
+    'WebGLContext':    require('./WebGLContext.js'),
+    'Mesh':            require('./glutils/Mesh.js'),
+    'ShaderProgram':   require('./glutils/ShaderProgram.js'),
+
+    //gl-matrix dependencies
+    'glMatrix':        require('gl-matrix').glMatrix,
+    'vec2':            require('gl-matrix').vec2,
+    'vec3':            require('gl-matrix').vec3,
+    'vec4':            require('gl-matrix').vec4,
+    'mat2':            require('gl-matrix').mat2,
+    'mat2d':           require('gl-matrix').mat2d,
+    'mat3':            require('gl-matrix').mat3,
+    'mat4':            require('gl-matrix').mat4,
+    'quat':            require('gl-matrix').quat,
+
+    //jsOOP dependencies
+    'Class':           require('jsOOP').Class,
+    'Enum':            require('jsOOP').Enum,
+    'Interface':       require('jsOOP').Interface,
+
+    //signals dependencies
+    'Signal':          require('signals').Signal
+};
+},{"./AbstractBatch.js":1,"./AssetManager.js":2,"./Point.js":3,"./SpriteBatch.js":4,"./Texture.js":5,"./WebGLContext.js":6,"./glutils/Mesh.js":7,"./glutils/ShaderProgram.js":8,"gl-matrix":10,"jsOOP":11,"signals":16}],10:[function(require,module,exports){
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -5138,7 +6853,7 @@ if(typeof(exports) !== 'undefined') {
   })(shim.exports);
 })(this);
 
-},{}],7:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var Class = require('./lib/Class'),
 	Enum = require('./lib/Enum'),
 	Interface = require('./lib/Interface');
@@ -5148,7 +6863,7 @@ module.exports = {
 	Enum: Enum,
 	Interface: Interface
 };
-},{"./lib/Class":8,"./lib/Enum":9,"./lib/Interface":10}],8:[function(require,module,exports){
+},{"./lib/Class":12,"./lib/Enum":13,"./lib/Interface":14}],12:[function(require,module,exports){
 var BaseClass = require('./baseClass');
 
 var Class = function( descriptor ) {
@@ -5213,7 +6928,7 @@ var Class = function( descriptor ) {
 };	
 
 exports = module.exports = Class;
-},{"./baseClass":11}],9:[function(require,module,exports){
+},{"./baseClass":15}],13:[function(require,module,exports){
 var Class = require('./Class');
 
 /**
@@ -5448,7 +7163,7 @@ Enum.Base = new Class({
 
 exports = module.exports = Enum;
 
-},{"./Class":8}],10:[function(require,module,exports){
+},{"./Class":12}],14:[function(require,module,exports){
 
 var Interface = function( descriptor ) {
 	this.descriptor = descriptor;
@@ -5483,7 +7198,7 @@ Interface.prototype.compare = function( classToCheck ) {
 };
 
 exports = module.exports = Interface;
-},{}],11:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 //Exports a function named 'parent'
 module.exports.parent = function() {
 	// if the current function calling is the constructor
@@ -5523,1257 +7238,7 @@ module.exports.parent = function() {
 
 	return parentFunction.apply( this, arguments );
 };
-},{}],12:[function(require,module,exports){
-var Class = require('jsOOP').Class;
-
-//TODO: decouple into VBO + IBO utilities 
-var Mesh = new Class({
-
-	context: null,
-	gl: null,
-
-	numVerts: null,
-	numIndices: null,
-	
-	vertices: null,
-	indices: null,
-	vertexBuffer: null,
-	indexBuffer: null,
-
-	verticesDirty: true,
-	indicesDirty: true,
-	indexUsage: null,
-	vertexUsage: null,
-
-	/** 
-	 * @property
-	 * @private
-	 */
-	_vertexAttribs: null,
-
-	/** 
-	 * @property
-	 * @private
-	 */
-	_vertexStride: null,
-
-	/**
-	 * A write-only property which sets both vertices and indices 
-	 * flag to dirty or not. 
-	 *
-	 * @property
-	 * @type {Boolean}
-	 * @writeOnly
-	 */
-	dirty: {
-		set: function(val) {
-			this.verticesDirty = val;
-			this.indicesDirty = val;
-		}
-	},
-
-	/**
-	 * Creates a new Mesh with the provided parameters.
-	 *
-	 * If numIndices is 0 or falsy, no index buffer will be used
-	 * and indices will be an empty ArrayBuffer and a null indexBuffer.
-	 * 
-	 * If isStatic is true, then vertexUsage and indexUsage will
-	 * be set to gl.STATIC_DRAW. Otherwise they will use gl.DYNAMIC_DRAW.
-	 * You may want to adjust these after initialization for further control.
-	 * 
-	 * @param  {WebGLContext}  context the context for management
-	 * @param  {Boolean} isStatic      a hint as to whether this geometry is static
-	 * @param  {[type]}  numVerts      [description]
-	 * @param  {[type]}  numIndices    [description]
-	 * @param  {[type]}  vertexAttribs [description]
-	 * @return {[type]}                [description]
-	 */
-	initialize: function(context, isStatic, numVerts, numIndices, vertexAttribs) {
-		if (!context)
-			throw "GL context not specified";
-		if (!numVerts)
-			throw "numVerts not specified, must be > 0";
-
-		this.context = context;
-		this.gl = context.gl;
-		
-		this.numVerts = numVerts;
-		this.numIndices = numIndices || 0;
-		this.vertexUsage = isStatic ? this.gl.STATIC_DRAW : this.gl.DYNAMIC_DRAW;
-		this.indexUsage  = isStatic ? this.gl.STATIC_DRAW : this.gl.DYNAMIC_DRAW;
-		this._vertexAttribs = vertexAttribs || [];
-		
-		this.indicesDirty = true;
-		this.verticesDirty = true;
-
-		//determine the vertex stride based on given attributes
-		var totalNumComponents = 0;
-		for (var i=0; i<this._vertexAttribs.length; i++)
-			totalNumComponents += this._vertexAttribs[i].numComponents;
-		this._vertexStride = totalNumComponents * 4; // in bytes
-
-		this.vertices = new Float32Array(this.numVerts);
-		this.indices = new Uint16Array(this.numIndices);
-
-		//add this VBO to the managed cache
-		this.context.addManagedObject(this);
-
-		this.create();
-	},
-
-	//recreates the buffers on context loss
-	create: function() {
-		this.gl = this.context.gl;
-		var gl = this.gl;
-		this.vertexBuffer = gl.createBuffer();
-
-		//ignore index buffer if we haven't specified any
-		this.indexBuffer = this.numIndices > 0
-					? gl.createBuffer()
-					: null;
-
-		this.dirty = true;
-	},
-
-	destroy: function() {
-		this.vertices = [];
-		this.indices = [];
-		if (this.vertexBuffer)
-			this.gl.deleteBuffer(this.vertexBuffer);
-		if (this.indexBuffer)
-			this.gl.deleteBuffer(this.indexBuffer);
-		this.vertexBuffer = null;
-		this.indexBuffer = null;
-		if (this.context)
-			this.context.removeManagedObject(this);
-	},
-
-	_updateBuffers: function(ignoreBind) {
-		var gl = this.gl;
-
-		//bind our index data, if we have any
-		if (this.numIndices > 0) {
-			if (!ignoreBind)
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-
-			//update the index data
-			if (this.indicesDirty) {
-				gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, this.indexUsage);
-				this.indicesDirty = false;
-			}
-		}
-
-		//bind our vertex data
-		if (!ignoreBind)
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-
-		//update our vertex data
-		if (this.verticesDirty) {
-			gl.bufferData(gl.ARRAY_BUFFER, this.vertices, this.vertexUsage);
-			this.verticesDirty = false;
-		}
-	},
-
-	draw: function(primitiveType, count, offset) {
-		if (count === 0)
-			return;
-
-		var gl = this.gl;
-		
-		offset = offset || 0;
-
-		//binds and updates our buffers. pass ignoreBind as true
-		//to avoid binding unnecessarily
-		this._updateBuffers(true);
-
-		if (this.numIndices > 0) { 
-			gl.drawElements(primitiveType, count, 
-						gl.UNSIGNED_SHORT, offset * 2); //* Uint16Array.BYTES_PER_ELEMENT
-		} else
-			gl.drawArrays(primitiveType, offset, count);
-	},
-
-	//binds this mesh's vertex attributes for the given shader
-	bind: function(shader) {
-		var gl = this.gl;
-
-		var offset = 0;
-		var stride = this._vertexStride;
-
-		//bind and update our vertex data before binding attributes
-		this._updateBuffers();
-
-		//for each attribtue
-		for (var i=0; i<this._vertexAttribs.length; i++) {
-			var a = this._vertexAttribs[i];
-
-			//location of the attribute
-			var loc = a.location === null 
-					? shader.getAttributeLocation(a.name)
-					: a.location;
-
-			//TODO: We may want to skip unfound attribs
-			// if (loc!==0 && !loc)
-			// 	console.warn("WARN:", a.name, "is not enabled");
-
-			//first, enable the vertex array
-			gl.enableVertexAttribArray(loc);
-
-			//then specify our vertex format
-			gl.vertexAttribPointer(loc, a.numComponents, a.type || gl.FLOAT, 
-								   a.normalize || false, stride, offset);
-
-
-			//and increase the offset...
-			offset += a.numComponents * 4; //in bytes
-		}
-	},
-
-	unbind: function(shader) {
-		var gl = this.gl;
-
-		//for each attribtue
-		for (var i=0; i<this._vertexAttribs.length; i++) {
-			var a = this._vertexAttribs[i];
-
-			//location of the attribute
-			var loc = a.location === null 
-					? shader.getAttributeLocation(a.name)
-					: a.location;
-
-			//first, enable the vertex array
-			gl.disableVertexAttribArray(loc);
-		}
-	}
-});
-
-Mesh.Attrib = new Class({
-
-	name: null,
-	numComponents: null,
-	location: null,
-	type: null,
-
-	/**
-	 * Location is optional and for advanced users that
-	 * want vertex arrays to match across shaders. Any non-numerical
-	 * value will be converted to null, and ignored. If a numerical
-	 * value is given, it will override the position of this attribute
-	 * when given to a mesh.
-	 * 
-	 * @param  {[type]} name          [description]
-	 * @param  {[type]} numComponents [description]
-	 * @param  {[type]} location      [description]
-	 * @return {[type]}               [description]
-	 */
-	initialize: function(name, numComponents, location, type, normalize) {
-		this.name = name;
-		this.numComponents = numComponents;
-		this.location = typeof location === "number" ? location : null;
-		this.type = type;
-		this.normalize = normalize;
-	}
-})
-
-
-module.exports = Mesh;
-
-
-//flow:
-//  
-
-
-
-// var attribs = [
-// 	new Mesh.Attribute("a_position", 2),
-// 	new Mesh.Attribute("a_color", 1)
-// ];
-// var mesh = new Mesh(context, 4, 6, Mesh.STATIC, attribs);
-
-
-//Constant Vertex Attrib:
-//	e.g. with instancing maybe?
-//Only enable vertex attrib if it's used?
-//	but we are still sending alpha so WTF
-//	would need another buffer, but that can get real ugly.
-//  
-},{"jsOOP":17}],13:[function(require,module,exports){
-var Class = require('jsOOP').Class;
-
-var ShaderProgram = new Class({
-	
-	vertSource: null,
-	fragSource: null, 
- 
-	vertShader: null,
-	fragShader: null,
-
-	program: null,
-
-	log: "",
-
-	uniformCache: null,
-	attributeCache: null,
-
-	initialize: function(context, vertSource, fragSource, attributeLocations) {
-		if (!vertSource || !fragSource)
-			throw "vertex and fragment shaders must be defined";
-		if (!context)
-			throw "no GL context specified";
-		this.context = context;
-
-		this.attributeLocations = attributeLocations;
-
-		//We trim (ECMAScript5) so that the GLSL line numbers are
-		//accurate on shader log
-		this.vertSource = vertSource.trim();
-		this.fragSource = fragSource.trim();
-
-		//Adds this shader to the context, to be managed
-		this.context.addManagedObject(this);
-
-		this.create();
-	},
-
-	/** 
-	 * This is called during the ShaderProgram constructor,
-	 * and may need to be called again after context loss and restore.
-	 */
-	create: function() {
-		this.gl = this.context.gl;
-		this._compileShaders();
-	},
-
-	//Compiles the shaders, throwing an error if the program was invalid.
-	_compileShaders: function() {
-		var gl = this.gl; 
-		
-		this.log = "";
-
-		this.vertShader = this._loadShader(gl.VERTEX_SHADER, this.vertSource);
-		this.fragShader = this._loadShader(gl.FRAGMENT_SHADER, this.fragSource);
-
-		if (!this.vertShader || !this.fragShader)
-			throw "Error returned when calling createShader";
-
-		this.program = gl.createProgram();
-
-		gl.attachShader(this.program, this.vertShader);
-		gl.attachShader(this.program, this.fragShader);
- 	
- 		//TODO: This seems not to be working on my OSX -- maybe a driver bug?
-		if (this.attributeLocations) {
-			for (var key in this.attributeLocations) {
-				if (this.attributeLocations.hasOwnProperty(key)) {
-		    		gl.bindAttribLocation(this.program, Math.floor(this.attributeLocations[key]), key);
-	    		}
-			}
-		}
-
-		gl.linkProgram(this.program); 
-
-		this.log += gl.getProgramInfoLog(this.program) || "";
-
-		if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
-			throw "Error linking the shader program:\n"
-				+ this.log;
-		}
-
-		this._fetchUniforms();
-		this._fetchAttributes();
-	},
-
-	_fetchUniforms: function() {
-		var gl = this.gl;
-
-		this.uniformCache = {};
-
-		var len = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS);
-		if (!len) //null or zero
-			return;
-
-		for (var i=0; i<len; i++) {
-			var info = gl.getActiveUniform(this.program, i);
-			if (info === null) 
-				continue;
-			var name = info.name;
-			var location = gl.getUniformLocation(this.program, name);
-			
-			this.uniformCache[name] = {
-				size: info.size,
-				type: info.type,
-				location: location
-			};
-		}
-	},
-
-	_fetchAttributes: function() { 
-		var gl = this.gl; 
-
-		this.attributeCache = {};
-
-		var len = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES);
-		if (!len) //null or zero
-			return;	
-
-		for (var i=0; i<len; i++) {
-			var info = gl.getActiveAttrib(this.program, i);
-			if (info === null) 
-				continue;
-			var name = info.name;
-
-			//the attrib location is a simple index
-			var location = gl.getAttribLocation(this.program, name);
-			
-			this.attributeCache[name] = {
-				size: info.size,
-				type: info.type,
-				location: location
-			};
-		}
-	},
-
-	_loadShader: function(type, source) {
-		var gl = this.gl;
-
-		var shader = gl.createShader(type);
-		if (!shader) //should not occur...
-			return -1;
-
-		gl.shaderSource(shader, source);
-		gl.compileShader(shader);
-		
-		var logResult = gl.getShaderInfoLog(shader) || "";
-		if (logResult) {
-			//we do this so the user knows which shader has the error
-			var typeStr = (type === gl.VERTEX_SHADER) ? "vertex" : "fragment";
-			logResult = "Error compiling "+ typeStr+ " shader:\n"+logResult;
-		}
-
-		this.log += logResult;
-
-		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS) ) {
-			throw this.log;
-		}
-		return shader;
-	},
-
-	/**
-	 * Returns the cached uniform info (size, type, location).
-	 * If the uniform is not found in the cache, it is assumed
-	 * to not exist, and this method returns null.
-	 *
-	 * This may return null even if the uniform is defined in GLSL:
-	 * if it is _inactive_ (i.e. not used in the program) then it may
-	 * be optimized out.
-	 * 
-	 * @param  {String} name the uniform name as defined in GLSL
-	 * @return {Object} an object containing location, size, and type
-	 */
-	getUniformInfo: function(name) {
-		return this.uniformCache[name] || null; 
-	},
-
-	/**
-	 * Returns the cached attribute info (size, type, location).
-	 * If the attribute is not found in the cache, it is assumed
-	 * to not exist, and this method returns null.
-	 *
-	 * This may return null even if the attribute is defined in GLSL:
-	 * if it is _inactive_ (i.e. not used in the program or disabled) 
-	 * then it may be optimized out.
-	 * 
-	 * @param  {String} name the attribute name as defined in GLSL
-	 * @return {object} an object containing location, size and type
-	 */
-	getAttributeInfo: function(name) {
-		return this.attributeCache[name] || null; 
-	},
-
-
-	/**
-	 * Returns the cached uniform location object.
-	 * If the uniform is not found, this method returns null.
-	 * 
-	 * @param  {String} name the uniform name as defined in GLSL
-	 * @return {GLint} the location object
-	 */
-	getAttributeLocation: function(name) { //TODO: make faster, don't cache
-		var info = this.getAttributeInfo(name);
-		return info ? info.location : null;
-	},
-
-	/**
-	 * Returns the cached uniform location object.
-	 * 
-	 * @param  {String} name the uniform name as defined in GLSL
-	 * @return {WebGLUniformLocation} the location object
-	 */
-	getUniformLocation: function(name) {
-		var info = this.getUniformInfo(name);
-		return info ? info.location : null;
-	},
-
-	/**
-	 * Returns true if the uniform is active and found in this
-	 * compiled program.
-	 * 
-	 * @param  {String}  name the uniform name
-	 * @return {Boolean} true if the uniform is found and active
-	 */
-	hasUniform: function(name) {
-		return this.getUniformInfo(name) !== null;
-	},
-
-	/**
-	 * Returns true if the attribute is active and found in this
-	 * compiled program.
-	 * 
-	 * @param  {String}  name the attribute name
-	 * @return {Boolean} true if the attribute is found and active
-	 */
-	hasAttribute: function(name) {
-		return this.getAttributeInfo(name) !== null;
-	},
-
-	/**
-	 * Returns the uniform value by name.
-	 * 
-	 * @param  {String} name the uniform name as defined in GLSL
-	 * @return {any} The value of the WebGL uniform
-	 */
-	getUniform: function(name) {
-		return this.gl.getUniform(this.program, this.getUniformLocation(name));
-	},
-
-	/**
-	 * Returns the uniform value at the specified WebGLUniformLocation.
-	 * 
-	 * @param  {WebGLUniformLocation} location the location object
-	 * @return {any} The value of the WebGL uniform
-	 */
-	getUniformAt: function(location) {
-		return this.gl.getUniform(this.program, location);
-	},
-
-	bind: function() {
-		this.gl.useProgram(this.program);
-	},
-
-	destroy: function() {
-		var gl = this.gl;
-		gl.detachShader(this.vertShader);
-		gl.detachShader(this.fragShader);
-
-		gl.deleteShader(this.vertShader);
-		gl.deleteShader(this.fragShader);
-
-		gl.deleteProgram(this.program);
-		this.program = null;
-	},
-
-
-
-	setUniformi: function(name, x, y, z, w) {
-		var gl = this.gl;
-		var loc = this.getUniformLocation(name);
-		if (!loc) 
-			return false;
-		switch (arguments.length) {
-			case 2: gl.uniform1i(loc, x); return true;
-			case 3: gl.uniform2i(loc, x, y); return true;
-			case 4: gl.uniform3i(loc, x, y, z); return true;
-			case 5: gl.uniform4i(loc, x, y, z, w); return true;
-			default:
-				throw "invalid arguments to setUniformi"; 
-		}
-	},
-
-	setUniformf: function(name, x, y, z, w) {
-		var gl = this.gl;
-		var loc = this.getUniformLocation(name);
-		if (!loc) 
-			return false;
-		switch (arguments.length) {
-			case 2: gl.uniform1f(loc, x); return true;
-			case 3: gl.uniform2f(loc, x, y); return true;
-			case 4: gl.uniform3f(loc, x, y, z); return true;
-			case 5: gl.uniform4f(loc, x, y, z, w); return true;
-			default:
-				throw "invalid arguments to setUniformf"; 
-		}
-	},
-
-	//I guess we won't support sequence<GLfloat> .. whatever that is ??
-	
-	/**
-	 * A convenience method to set uniformNfv from the given ArrayBuffer.
-	 * We determine which GL call to make based on the length of the array 
-	 * buffer. 
-	 * 	
-	 * @param {String} name        		the name of the uniform
-	 * @param {ArrayBuffer} arrayBuffer the array buffer
-	 */
-	setUniformfv: function(name, arrayBuffer) {
-		var gl = this.gl;
-		var loc = this.getUniformLocation(name);
-		if (!loc) 
-			return false;
-		switch (arrayBuffer.length) {
-			case 1: gl.uniform1fv(loc, arrayBuffer); return true;
-			case 2: gl.uniform2fv(loc, arrayBuffer); return true;
-			case 3: gl.uniform3fv(loc, arrayBuffer); return true;
-			case 4: gl.uniform4fv(loc, arrayBuffer); return true;
-			default:
-				throw "invalid arguments to setUniformf"; 
-		}
-	},
-
-	/**
-	 * A convenience method to set uniformNfv from the given ArrayBuffer.
-	 * We determine which GL call to make based on the length of the array 
-	 * buffer. 
-	 * 	
-	 * @param {String} name        		the name of the uniform
-	 * @param {ArrayBuffer} arrayBuffer the array buffer
-	 */
-	setUniformiv: function(name, arrayBuffer) {
-		var gl = this.gl;
-		var loc = this.getUniformLocation(name);
-		if (!loc) 
-			return false;
-		switch (arrayBuffer.length) {
-			case 1: gl.uniform1iv(loc, arrayBuffer); return true;
-			case 2: gl.uniform2iv(loc, arrayBuffer); return true;
-			case 3: gl.uniform3iv(loc, arrayBuffer); return true;
-			case 4: gl.uniform4iv(loc, arrayBuffer); return true;
-			default:
-				throw "invalid arguments to setUniformf"; 
-		}
-	}
-});
-
-module.exports = ShaderProgram;
-},{"jsOOP":17}],14:[function(require,module,exports){
-var Class = require('jsOOP').Class;
-var Signal = require('signals');
-
-var Texture = new Class({
-
-	id: null,
-	target: null,
-	width: 0,
-	height: 0,
-	wrap: null,
-	filter: null,
-
-	/**
-	 * Creates a new texture with the optional data provider.
-	 *
-	 * A data provider is a function which is called by Texture
-	 * on intiialization, and subsequently on any context restoration.
-	 * This allows images to be re-loaded without the need to keep
-	 * them hanging around in memory. This also means that procedural
-	 * textures will be re-created properly on context restore.
-	 *
-	 * Calling this constructor with no arguments will result in an Error.
-	 *
-	 * If this constructor is called with only the context (one argument),
-	 * then no provider is used and the texture will be unmanaged and its width
-	 * and height will be zero.
-	 * 
-	 * If the second argument is a string, we will use the default ImageProvider 
-	 * to load the texture into the GPU asynchronously. Usage:
-	 *
-	 *     new Texture(context, "path/img.png");
-	 *     new Texture(context, "path/img.png", onloadCallback, onerrorCallback);
-	 *
-	 * The callbacks will be fired every time the image is re-loaded, even on context
-	 * restore.
-	 *
-	 * If the second and third arguments are Numbers, we will use the default
-	 * ArrayProvider, which takes in a ArrayBufferView of pixels. This allows
-	 * us to create textures synchronously like so:
-	 *
-	 *     new Texture(context, 256, 256); //uses empty data, transparent black
-	 *     new Texture(context, 256, 256, gl.LUMINANCE); //empty data and LUMINANCE format
-	 *     new Texture(context, 256, 256, gl.LUMINANCE, gl.UNSIGNED_BYTE, byteArray); //custom data
-	 *
-	 * Otherwise, we will assume that a custom provider is specified. In this case, the second
-	 * argument is a provider function, and the subsequent arguments are those which will be passed 
-	 * to the provider. The provider function always receives the texture object as the first argument,
-	 * and then any others that may have been passed to it. For example, here is a basic ImageProvider 
-	 * implementation:
-	 *
-	 *     //the provider function
-	 *     var ImageProvider = function(texture, path) {
-	 *     	   var img = new Image();
-	 *         img.onload = function() {
-	 *    	       texture.uploadImage(img);
-	 *         }.bind(this);
-	 *         img.src = path;
-	 *     };
-	 *
-	 *     //loads the image asynchronously
-	 *     var tex = new Texture(context, ImageProvider, "myimg.png");
-	 *
-	 * Note that a texture will not be renderable until some data has been uploaded to it.
-	 * To get around this, you can upload a very small null buffer to the uploadData function,
-	 * until your async load is complete. Or you can use a higher level provider that manages
-	 * multiple assets and dispatches a signal once all textures are renderable.
-	 * 
-	 * @param  {WebGLContext} gl the WebGL context
-	 * @param  {Function} provider [description]
-	 * @param  {[type]} args     [description]
-	 * @return {[type]}          [description]
-	 */
-	initialize: function(context) {
-		if (!context)
-			throw "GL context not specified";
-		this.context = context;
-		this.created = new Signal();
-
-		var providerArgs = [this];
-		var provider = null;
-
-		// e.g. --> new Texture(gl, "mypath.jpg")
-		// 			new Texture(gl, "mypath.jpg", gl.RGB)
-		//			new Texture(gl, myProvider, arg0, arg1)
-		//          new Texture(gl, Texture.ImageProvider, "mypath.jpg", gl.RGB)
-		//			new Texture(gl, Textuer.ArrayProvider, 256, 256)
-		//			new Texture(gl, 256, 256, gl.RGB, gl.UNSIGNED_BYTE, data);
-
-		//we are working with a provider of some kind...
-		if (arguments.length > 1) {
-			var slicedArgs = [];
-
-			//determine the provider, if any...
-			if (typeof arguments[1] === "string") {
-				provider = Texture.ImageProvider;
-				slicedArgs = Array.prototype.slice.call(arguments, 1)
-			} else if (typeof arguments[1] === "function") {
-				provider = arguments[1];
-				slicedArgs = Array.prototype.slice.call(arguments, 2);
-			} else if (arguments.length > 2 
-						&& typeof arguments[1] === "number" 
-						&& typeof arguments[2] === "number") {
-				provider = Texture.ArrayProvider;
-				slicedArgs = Array.prototype.slice.call(arguments, 1);
-			}
-
-			//concat with texture as first param
-			providerArgs = providerArgs.concat(slicedArgs);
-		}
-
-		this.wrapS = this.wrapT = Texture.DEFAULT_WRAP;
-		this.minFilter = this.magFilter = Texture.DEFAULT_FILTER;
-
-		//the provider and its args, may be null...
-		this.provider = provider;
-		this.providerArgs = providerArgs;
-
-		//This is maanged by WebGLContext
-		this.context.addManagedObject(this);
-		this.create();
-	},
-
-	//called after the context has been re-initialized
-	create: function() {
-		this.gl = this.context.gl; 
-		var gl = this.gl;
-
-		this.id = gl.createTexture(); //texture ID is recreated
-		this.width = this.height = 0; //size is reset to zero until loaded
-		this.target = gl.TEXTURE_2D;  //the provider can change this if necessary (e.g. cube maps)
-
-		this.bind();
-
-	 	//TODO: investigate this further
-	 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-
-	 	//setup wrap modes without binding redundantly
-	 	this.setWrap(this.wrapS, this.wrapT, false);
-	 	this.setFilter(this.minFilter, this.magFilter, false);
-	 	
-		//load the data
-		if (this.provider) {
-			this.provider.apply(this, this.providerArgs);
-		}
-	},
-
-
-	destroy: function() {
-		if (this.id && this.gl)
-			this.gl.deleteTexture(this.id);
-		if (this.context)
-			this.context.removeManagedObject(this);
-		this.width = this.height = 0;
-		this.id = null;
-		this.provider = null; 
-		this.providerArgs = null;
-	},
-
-	/**
-	 * Sets the wrap mode for this texture; if the second argument
-	 * is undefined or falsy, then both S and T wrap will use the first
-	 * argument.
-	 *
-	 * You can use Texture.Wrap constants for convenience, to avoid needing 
-	 * a GL reference.
-	 * 
-	 * @param {GLenum} s the S wrap mode
-	 * @param {GLenum} t the T wrap mode
-	 * @param {Boolean} ignoreBind (optional) if true, the bind will be ignored. 
-	 */
-	setWrap: function(s, t, ignoreBind) { //TODO: support R wrap mode
-		if (s && t) {
-			this.wrapS = s;
-			this.wrapT = t;
-		} else 
-			this.wrapS = this.wrapT = s;
-			
-		if (!ignoreBind)
-			this.bind();
-
-		var gl = this.gl;
-	 	gl.texParameteri(this.target, gl.TEXTURE_WRAP_S, this.wrapS);
-		gl.texParameteri(this.target, gl.TEXTURE_WRAP_T, this.wrapT);
-	},
-
-
-	/**
-	 * Sets the min and mag filter for this texture; 
-	 * if mag is undefined or falsy, then both min and mag will use the
-	 * filter specified for min.
-	 *
-	 * You can use Texture.Filter constants for convenience, to avoid needing 
-	 * a GL reference.
-	 * 
-	 * @param {GLenum} min the minification filter
-	 * @param {GLenum} mag the magnification filter
-	 * @param {Boolean} ignoreBind if true, the bind will be ignored. 
-	 */
-	setFilter: function(min, mag, ignoreBind) { 
-		if (min && mag) {
-			this.minFilter = min;
-			this.magFilter = mag;
-		} else 
-			this.minFilter = this.magFilter = min;
-			
-		if (!ignoreBind)
-			this.bind();
-
-		var gl = this.gl;
-		gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, this.minFilter);
-	 	gl.texParameteri(this.target, gl.TEXTURE_MAG_FILTER, this.magFilter);
-	},
-
-	/**
-	 * A low-level method to upload the specified ArrayBufferView
-	 * to this texture. This will cause the width and height of this
-	 * texture to change.
-	 * 
-	 * @param  {Number} width          the new width of this texture,
-	 *                                 defaults to the last used width (or zero)
-	 * @param  {Number} height         the new height of this texture
-	 *                                 defaults to the last used height (or zero)
-	 * @param  {GLenum} format         the data format, default RGBA
-	 * @param  {GLenum} type           the data type, default UNSIGNED_BYTE (Uint8Array)
-	 * @param  {ArrayBufferView} data  the raw data for this texture, or null for an empty image
-	 */
-	uploadData: function(width, height, format, type, data) {
-		var gl = this.gl;
-
-		this.format = format || gl.RGBA;
-		type = type || gl.UNSIGNED_BYTE;
-		data = data || null; //make sure falsey value is null for texImage2D
-
-		this.width = (width || width==0) ? width : this.width;
-		this.height = (height || height==0) ? height : this.height;
-
-		this.bind();
-
-		gl.texImage2D(this.target, 0, this.format, 
-					  this.width, this.height, 0, this.format,
-					  type, data);
-	},
-
-	/**
-	 * Uploads ImageData, HTMLImageElement, HTMLCanvasElement or 
-	 * HTMLVideoElement.
-	 * 	
-	 * @param  {Object} domObject the DOM image container
-	 */
-	uploadImage: function(domObject, format, type) {
-		var gl = this.gl;
-
-		this.format = format || gl.RGBA;
-		type = type || gl.UNSIGNED_BYTE;
-		
-		this.width = domObject.width;
-		this.height = domObject.height;
-
-		this.bind();
-
-		gl.texImage2D(this.target, 0, this.format, this.format,
-					  type, domObject);
-	},
-
-	/**
-	 * Binds the texture. If unit is specified,
-	 * it will bind the texture at the given slot
-	 * (TEXTURE0, TEXTURE1, etc). If unit is not specified,
-	 * it will simply bind the texture at whichever slot
-	 * is currently active.
-	 * 
-	 * @param  {Number} unit the texture unit index, starting at 0
-	 */
-	bind: function(unit) {
-		var gl = this.gl;
-		if (unit || unit === 0)
-			gl.activeTexture(gl.TEXTURE0 + unit);
-		gl.bindTexture(this.target, this.id);
-	},
-
-	toString: function() {
-		return this.id + ":" + this.width + "x" + this.height + "";
-	}
-});
-
-Texture.Filter = {
-	NEAREST: 9728,
-	NEAREST_MIPMAP_LINEAR: 9986,
-	NEAREST_MIPMAP_NEAREST: 9984,
-	LINEAR: 9729,
-	LINEAR_MIPMAP_LINEAR: 9987,
-	LINEAR_MIPMAP_NEAREST: 9985
-};
-
-Texture.Wrap = {
-	CLAMP_TO_EDGE: 33071,
-	MIRRORED_REPEAT: 33648,
-	REPEAT: 10497
-};
-
-Texture.Format = {
-	DEPTH_COMPONENT: 6402,
-	ALPHA: 6406,
-	RGBA: 6408,
-	RGB: 6407,
-	LUMINANCE: 6409,
-	LUMINANCE_ALPHA: 6410
-};
-
-/**
- * The default wrap mode when creating new textures. If a custom 
- * provider was specified, it may choose to override this default mode.
- * 
- * @type {GLenum} the wrap mode for S and T coordinates
- * @default  Texture.Wrap.CLAMP_TO_EDGE
- */
-Texture.DEFAULT_WRAP = Texture.Wrap.CLAMP_TO_EDGE;
-
-
-/**
- * The default filter mode when creating new textures. If a custom
- * provider was specified, it may choose to override this default mode.
- *
- * @type {GLenum} the filter mode for min/mag
- * @default  Texture.Filter.LINEAR
- */
-Texture.DEFAULT_FILTER = Texture.Filter.NEAREST;
-
-/**
- * This is a "provider" function for images, based on the given
- * path (src) and optional callbacks, WebGL format and type options.
- *
- * The callbacks are called from the Texture scope; but also passed the
- * texture to the first argument (in case the user wishes to re-bind the 
- * functions to something else).
- * 
- * @param {Texture} texture the texture which is being acted on
- * @param {String} path     the path to the image
- * @param {Function} onLoad the callback after the image has been loaded and uploaded to GPU
- * @param {Function} onErr  the callback if there was an error while loading the image
- * @param {GLenum} format   the GL texture format (default RGBA)
- * @param {GLenum} type     the GL texture type (default UNSIGNED_BYTE)
- */
-Texture.ImageProvider = function(texture, path, onLoad, onErr, format, type) {
-	var img = new Image();
-
-	img.onload = function() {
-		texture.uploadImage(img, format, type);
-		if (onLoad && typeof onLoad === "function")
-			onLoad.call(texture, texture);
-	};
-	
-	img.onerror = function() {
-		if (onErr && typeof onErr === "function") 
-			onErr.call(texture, texture);
-	};
-
-	img.onabort = function() {
-		if (onErr && typeof onErr === "function")
-			onErr.call(texture, texture);
-	};
-
-	img.src = path;
-};
-
-/**
- * This is a "provider" function for synchronous ArrayBufferView pixel uploads.
- * 
- * @param  {Texture} texture  	   the texture which is being acted on
- * @param  {Number} width          the width of this texture,
- * @param  {Number} height         the height of this texture
- * @param  {GLenum} format         the data format, default RGBA
- * @param  {GLenum} type           the data type, default UNSIGNED_BYTE (Uint8Array)
- * @param  {ArrayBufferView} data  the raw data for this texture, or null for an empty image
- */
-Texture.ArrayProvider = function(texture, width, height, format, type, data) {
-	texture.uploadData(width, height, format, type, data);
-};
-
-/**
- * Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.
- * Returns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,
- * LUMINANCE_ALPHA, RGB, or RGBA.
- *
- * @method
- * @static
- * @param  {GLenum} format a texture format, i.e. Texture.Format.RGBA
- * @return {Number} the number of components for this format
- */
-Texture.getNumComponents = function(format) {
-	switch (format) {
-		case Texture.Format.DEPTH_COMPONENT:
-		case Texture.Format.ALPHA:
-		case Texture.Format.LUMINANCE:
-			return 1;
-		case Texture.Format.LUMINANCE_ALPHA:
-			return 2;
-		case Texture.Format.RGB:
-			return 3;
-		case Texture.Format.RGBA:
-			return 4;
-	}
-	return null;
-};
-
-//Unmanaged textures:
-//	HTML elements like Image, Video, Canvas
-//	pixels buffer from Canvas
-//	pixels array
-
-//Need special handling:
-//  context.onContextLost.add(function() {
-//  	createDynamicTexture();
-//  }.bind(this));
-
-//Managed textures:
-//	images specified with a path
-//	this will use Image under the hood
-
-
-module.exports = Texture;
-},{"jsOOP":17,"signals":22}],15:[function(require,module,exports){
-var Class = require('jsOOP').Class;
-var Signal = require('signals');
-/**
- * A thin wrapper around WebGLRenderingContext which handles
- * context loss and restore with other Kami rendering objects.
- */
-var WebGLContext = new Class({
-	
-	managedObjects: null,
-
-	gl: null,
-	width: null,
-	height: null,
-	view: null,
-
-	contextAttributes: null,
-	
-	/**
-	 * Whether this context is 'valid', i.e. renderable. A context that has been lost
-	 * (and not yet restored) is invalid.
-	 * 
-	 * @type {Boolean}
-	 */
-	valid: false,
-
-	/**
-	 * Called when GL context is lost. 
-	 * 
-	 * The first argument passed to the listener is the WebGLContext
-	 * managing the context loss.
-	 * 
-	 * @type {Signal}
-	 */
-	lost: null,
-
-	/**
-	 * Called when GL context is restored, after all the managed
-	 * objects have been recreated.
-	 *
-	 * The first argument passed to the listener is the WebGLContext
-	 * which managed the restoration.
-	 *
-	 * This does not gaurentee that all objects will be renderable.
-	 * For example, a Texture with an ImageProvider may still be loading
-	 * asynchronously.	 
-	 * 
-	 * @type {Signal}
-	 */
-	restored: null,
-
-	initialize: function(width, height, view, contextAttributes) {
-		this.lost = new Signal();
-		this.restored = new Signal();
-
-		//setup defaults
-		this.view = view || document.createElement("canvas");
-
-		//default size as per spec:
-		//http://www.w3.org/TR/2012/WD-html5-author-20120329/the-canvas-element.html#the-canvas-element
-		this.width = this.view.width = width || 300;
-		this.height = this.view.height = height || 150;
-		
-		//the list of managed objects...
-		this.managedObjects = [];
-
-		//setup context lost and restore listeners
-		this.view.addEventListener("webglcontextlost", function (ev) {
-			ev.preventDefault();
-			this._contextLost(ev);
-		}.bind(this));
-		this.view.addEventListener("webglcontextrestored", function (ev) {
-			ev.preventDefault();
-			this._contextRestored(ev);
-		}.bind(this));
-			
-		this.contextAttributes = contextAttributes;
-		this._initContext();
-
-		this.resize(this.width, this.height);
-	},
-
-	_initContext: function() {
-		var err = "";
-		this.valid = false;
-
-		try {
-	        this.gl = (this.view.getContext('webgl') || this.view.getContext('experimental-webgl'));
-	    } catch (e) {
-	    	this.gl = null;
-	    }
-
-		if (this.gl) {
-			this.valid = true;
-		} else {
-			throw "WebGL Context Not Supported -- try enabling it or using a different browser";
-		}	
-	},
-
-	/**
-	 * Updates the width and height of this WebGL context, resizes
-	 * the canvas view, and calls gl.viewport() with the new size.
-	 * 
-	 * @param  {Number} width  the new width
-	 * @param  {Number} height the new height
-	 */
-	resize: function(width, height) {
-		this.width = width;
-		this.height = height;
-
-		this.view.width = width;
-		this.view.height = height;
-
-		var gl = this.gl;
-		gl.viewport(0, 0, this.width, this.height);
-	},
-
-	/**
-	 * (internal use)
-	 * A managed object is anything with a "create" function, that will
-	 * restore GL state after context loss. 
-	 * 
-	 * @param {[type]} tex [description]
-	 */
-	addManagedObject: function(obj) {
-		this.managedObjects.push(obj);
-	},
-
-	/**
-	 * (internal use)
-	 * Removes a managed object from the cache. This is useful to destroy
-	 * a texture or shader, and have it no longer re-load on context restore.
-	 *
-	 * Returns the object that was removed, or null if it was not found in the cache.
-	 * 
-	 * @param  {Object} obj the object to be managed
-	 * @return {Object}     the removed object, or null
-	 */
-	removeManagedObject: function(obj) {
-		var idx = this.managedObjects.indexOf(obj);
-		if (idx > -1) {
-			this.managedObjects.splice(idx, 1);
-			return obj;
-		} 
-		return null;
-	},
-
-	_contextLost: function(ev) {
-		//all textures/shaders/buffers/FBOs have been deleted... 
-		//we need to re-create them on restore
-		this.valid = false;
-
-		this.lost.dispatch(this);
-	},
-
-	_contextRestored: function(ev) {
-		//If an asset manager is attached to this
-		//context, we need to invalidate it and re-load 
-		//the assets.
-		if (this.assetManager) {
-			this.assetManager.invalidate();
-		}
-
-		//first, initialize the GL context again
-		this._initContext();
-
-		//now we recreate our shaders and textures
-		for (var i=0; i<this.managedObjects.length; i++) {
-			this.managedObjects[i].create();
-		}
-
-		//update GL viewport
-		this.resize(this.width, this.height);
-
-		this.restored.dispatch(this);
-	}
-});
-
-module.exports = WebGLContext;
-},{"jsOOP":17,"signals":22}],16:[function(require,module,exports){
-module.exports = {
-	ShaderProgram: require('./ShaderProgram'),
-	WebGLContext: require('./WebGLContext'),
-	Texture: require('./Texture'),
-	Mesh: require('./Mesh')
-};
-},{"./Mesh":12,"./ShaderProgram":13,"./Texture":14,"./WebGLContext":15}],17:[function(require,module,exports){
-arguments[4][7][0].apply(exports,arguments)
-},{"./lib/Class":18,"./lib/Enum":19,"./lib/Interface":20}],18:[function(require,module,exports){
-module.exports=require(8)
-},{"./baseClass":21}],19:[function(require,module,exports){
-arguments[4][9][0].apply(exports,arguments)
-},{"./Class":18}],20:[function(require,module,exports){
-module.exports=require(10)
-},{}],21:[function(require,module,exports){
-module.exports=require(11)
-},{}],22:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /*jslint onevar:true, undef:true, newcap:true, regexp:true, bitwise:true, maxerr:50, indent:4, white:false, nomen:false, plusplus:false */
 /*global define:false, require:false, exports:false, module:false, signals:false */
 
@@ -7220,9 +7685,7 @@ module.exports=require(11)
 
 }(this));
 
-},{}],23:[function(require,module,exports){
-module.exports=require(22)
-},{}]},{},[5])
-(5)
+},{}]},{},[9])
+(9)
 });
 ;

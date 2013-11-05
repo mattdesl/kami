@@ -2,10 +2,6 @@
 
 Kami is a fast and lightweight WebGL sprite rendering framework. It can be used for 2D or 3D purposes, and aims to support modern WebGL features like compressed textures.
 
-### kami-gl
-
-The low-level WebGL utilities are maintained in the [kami-gl](https://github.com/mattdesl/kami-gl/) module. The `kami` module is higher-level, and geared more specifically toward 2D.
-
 ## Usage
 
 Here is an example using Node style requires and browserify:
@@ -64,20 +60,24 @@ function render() {
 }
 ```
 
-See the `demos` folder for more. Also look at the `demos` folder in the kami-gl module.
+See the `demos` folder for more. 
 
 ## Using without Node
 
-If you aren't using Node and `require()` statements, you can grab the file at `build/kami.umd.js`. This is less ideal if you are working on a large project or if you already use the dependencies that Kami needs (gl-matrix, jsOOP, and signals-js).
+If you aren't using Node and `require()` statements, you can grab the file at `build/kami.umd.js`. 
 
-Most of the code looks exactly the same, except all of Kami's objects are exported onto a global `kami` namespace. See here:
+Most of the code looks exactly the same, except all of Kami's objects are exported onto a global `kami` namespace. The dependencies are also exported on the namespace, for convenience. See here:
 
 ```javascript
 <script src="kami.umd.js"></script>
 <script>
 	var context = new kami.WebGLContext(width, height);
 	var batch = new kami.SpriteBatch(context);
-	//etc..
+
+	//Dependencies (gl-matrix, signals-js, jsOOP) are all top-level, too:
+	var point = kami.vec2.create();
+	var Signal = new kami.Signal();
+	//etc...
 </script>
 ```
 
@@ -86,6 +86,6 @@ Most of the code looks exactly the same, except all of Kami's objects are export
 - WebGL2 utils: compressed textures, texture arrays, float textures, instanced draws, etc.
 - Cube maps, mipmaps, and other Texture utils
 - more AssetManager loader plugins
-- FrameBufferObject utility for render-to-texture (should support MRTs for WebGL2)
+- FrameBuffer utility for render-to-texture (should support MRTs for WebGL2)
 - Advanced batcher that batches up to 4 textures in a single draw call
 - More shader examples

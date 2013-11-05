@@ -61,8 +61,6 @@
             
                 <li><a href="../modules/kami.html">kami</a></li>
             
-                <li><a href="../modules/kami-gl.html">kami-gl</a></li>
-            
             </ul>
         </div>
     </div>
@@ -403,6 +401,7 @@ var AssetManager = new Class({
 		this.__loadCount++;
 		this.__totalItems++;
 
+
 		//if we can process the arguments and get a return value...
 		if (loader.processArguments) {
 			return loader.processArguments.call(this, name, params);
@@ -474,12 +473,12 @@ var AssetManager = new Class({
 		var nextTask = this.tasks.shift();
 
 		//apply the loading step
-		var loaderFunc = nextTask.loadAsset;
+		var loader = nextTask.loader;
 
 		var cb = this.__loadCallbackFunc;
 
 		var newParams = [ nextTask.name, cb ].concat(nextTask.params);
-		loaderFunc.apply(this, newParams);
+		loader.loadAsset.apply(this, newParams);
 
 		return (this.__loadCount === 0);
 	}

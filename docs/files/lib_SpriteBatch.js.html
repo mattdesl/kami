@@ -61,8 +61,6 @@
             
                 <li><a href="../modules/kami.html">kami</a></li>
             
-                <li><a href="../modules/kami-gl.html">kami-gl</a></li>
-            
             </ul>
         </div>
     </div>
@@ -112,8 +110,8 @@ var Class         = require(&#x27;jsOOP&#x27;).Class;
 var AbstractBatch = require(&#x27;./AbstractBatch&#x27;);
 var Point         = require(&#x27;./Point&#x27;);
 
-var Mesh          = require(&#x27;kami-gl&#x27;).Mesh;
-var ShaderProgram = require(&#x27;kami-gl&#x27;).ShaderProgram;
+var Mesh          = require(&#x27;./glutils/Mesh&#x27;);
+var ShaderProgram = require(&#x27;./glutils/ShaderProgram&#x27;);
 
 /**
  * A basic implementation of a batcher which draws 2D sprites.

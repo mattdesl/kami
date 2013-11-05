@@ -1,8 +1,8 @@
 //We use browserify to alias the kami-gl namespace,
 //this way the code looks exactly the same in regular Node projects
 
-var WebGLContext = require('kami-gl').WebGLContext;
-var Texture = require('kami-gl').Texture;
+var WebGLContext = require('kami').WebGLContext;
+var Texture = require('kami').Texture;
 var AssetManager = require('kami').AssetManager;
 var SpriteBatch = require('kami').SpriteBatch;
 
