@@ -1,7 +1,10 @@
 ## Running the Demos
 
-The bundled files are already included for you; this allows you to run the demos without needing to pull in any dependencies. Just run the "index.html" file. 
+The bundled files are already included for you; this allows you to run and modify the demos without needing to pull in any dependencies or build any bundles.
 
-## Modifying the Demos
+Serve up the folder with `http-server` or a similar tool and open one of the HTML pages.
 
-If you want to modify the demo code, you simply need to change `index.js` in the `src` folder of the demos and refresh the HTML page.
+```
+cd kami/demos
+http-server
+```

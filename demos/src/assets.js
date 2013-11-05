@@ -1,4 +1,4 @@
-//We use browserify to alias the kami-gl namespace,
+//We use browserify to alias the kami namespace,
 //this way the code looks exactly the same in regular Node projects
 
 var WebGLContext = require('kami').WebGLContext;

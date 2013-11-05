@@ -20,12 +20,13 @@ module.exports = function(grunt) {
 
 		browserify: {
 			//We include a UMD build for non-Node people...
-			UMD: {
+			umd: {
 				src: ['<%= dirs.src %>/index-umd.js'],
 				dest: '<%= dirs.build %>/kami.umd.js',
 				
 				options: {
-					standalone: "kami"
+					standalone: "kami",
+					// debug: true
 				}
 			},
 			
@@ -56,6 +57,20 @@ module.exports = function(grunt) {
 					livereload: true
 				},
 			},
+		},
+
+
+		uglify: {
+			umd: {
+		      	files: {
+		        	'<%= dirs.build %>/kami.umd.min.js': ['<%= dirs.build %>/kami.umd.js']
+		      	}
+		    },
+		    demos: {
+		      	files: {
+		        	'<%= dirs.demo_build %>/kami.umd.min.js': ['<%= dirs.build %>/kami.umd.js']
+		      	}
+		    }
 		},
 
 		//Builds the documentation; do not run this task directly
@@ -161,8 +176,14 @@ module.exports = function(grunt) {
 		fs.writeFileSync(file, text)
 	});
 
-	// grunt.registerTask('doc', ['copy:docDependencies', 'yuidoc', 'clean:docDependencies']);
-	grunt.registerTask('build-umd', ['umd-index', 'browserify:UMD'])
-	grunt.registerTask('default', ['build-all']);
+	//Builds core library
+	grunt.registerTask('build-umd', ['umd-index', 'browserify:umd', 'uglify:umd']);
+
+	//Depends on build-umd
+	grunt.registerTask('build-demos', ['browserify:demos', 'uglify:demos'])
+
+	//
+	grunt.registerTask('build', ['build-umd', 'build-demos']);
+	grunt.registerTask('default', ['build']);
 
 };
