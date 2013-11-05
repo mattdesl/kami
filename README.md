@@ -7,11 +7,11 @@ Kami is a fast and lightweight WebGL sprite rendering framework. It can be used 
 Here is an example using Node style requires and browserify:
 
 ```javascript
-//require the necessary modules from 'kami' and 'kami-gl' packages
+//require the necessary classes from the 'kami' module
 var AssetManager = require('kami').AssetManager;
 var SpriteBatch = require('kami').SpriteBatch;
 
-var WebGLContext = require('kami-gl').WebGLContext;
+var WebGLContext = require('kami').WebGLContext;
 
 var width = 256;
 var height = 256;
