@@ -232,11 +232,11 @@ var WebGLContext = new Class({
 		this.valid = false;
 
 		try {
-	        this.gl = (this.view.getContext(&#x27;webgl&#x27;, this.contextAttributes) 
-	        			|| this.view.getContext(&#x27;experimental-webgl&#x27;, this.contextAttributes));
-	    } catch (e) {
-	    	this.gl = null;
-	    }
+			this.gl = (this.view.getContext(&#x27;webgl&#x27;, this.contextAttributes) 
+						|| this.view.getContext(&#x27;experimental-webgl&#x27;, this.contextAttributes));
+		} catch (e) {
+			this.gl = null;
+		}
 
 		if (this.gl) {
 			this.valid = true;

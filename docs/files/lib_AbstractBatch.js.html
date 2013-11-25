@@ -161,31 +161,31 @@ var AbstractBatch = new Class({
 		this.mesh = this._createMesh(this.size);
 
 
-        /**
-         * The ABGR packed color, as a single float. The default
-         * value is the color white (255, 255, 255, 255).
-         *
-         * @property {Number} color
-         * @readOnly 
-         */
-        this.color = colorToFloat(255, 255, 255, 255);
-        
-        /**
-         * Whether to premultiply alpha on calls to setColor. 
-         * This is true by default, so that we can conveniently write:
-         *
-         *     batch.setColor(1, 0, 0, 0.25); //tints red with 25% opacity
-         *
-         * If false, you must premultiply the colors yourself to achieve
-         * the same tint, like so:
-         *
-         *     batch.setColor(0.25, 0, 0, 0.25);
-         * 
-         * @property premultiplyColor
-         * @type {Boolean}
-         * @default  true
-         */
-        this.premultiplied = true;
+		/**
+		 * The ABGR packed color, as a single float. The default
+		 * value is the color white (255, 255, 255, 255).
+		 *
+		 * @property {Number} color
+		 * @readOnly 
+		 */
+		this.color = colorToFloat(255, 255, 255, 255);
+		
+		/**
+		 * Whether to premultiply alpha on calls to setColor. 
+		 * This is true by default, so that we can conveniently write:
+		 *
+		 *     batch.setColor(1, 0, 0, 0.25); //tints red with 25% opacity
+		 *
+		 * If false, you must premultiply the colors yourself to achieve
+		 * the same tint, like so:
+		 *
+		 *     batch.setColor(0.25, 0, 0, 0.25);
+		 * 
+		 * @property premultiplyColor
+		 * @type {Boolean}
+		 * @default  true
+		 */
+		this.premultiplied = true;
 	},
 
 	/**
@@ -377,20 +377,20 @@ var AbstractBatch = new Class({
 		if (this.idx===0)
 			return;
 
-	    var gl = this.gl;
-	    
+		var gl = this.gl;
+		
 		this._preRender();
 
 		//number of sprites in batch
 		var numComponents = this.getVertexSize();
 		var spriteCount = (this.idx / (numComponents * 4));
-	 	
-	 	//draw the sprites
-	    var gl = this.context.gl;
-	    this.mesh.verticesDirty = true;
-	    this.mesh.draw(gl.TRIANGLES, spriteCount * 6, 0, this.idx);
+		
+		//draw the sprites
+		var gl = this.context.gl;
+		this.mesh.verticesDirty = true;
+		this.mesh.draw(gl.TRIANGLES, spriteCount * 6, 0, this.idx);
 
-	    this.idx = 0;
+		this.idx = 0;
 	},
 
 	/**
