@@ -102,6 +102,12 @@ module.exports = function(grunt) {
 						//Export this module with the name 'Class'
 						'klasse': {
 							standalone: 'Class'
+						},
+
+						//We want to export the NumberUtils too..
+						//we'll use the same naming style as the rest of Kami
+						'number-util': {
+							standalone: 'NumberUtil'
 						}
 					}
 				},

@@ -17,15 +17,6 @@
             "fors": {},
             "namespaces": {}
         },
-        "lib/glutils/NumberUtils.js": {
-            "name": "lib/glutils/NumberUtils.js",
-            "modules": {},
-            "classes": {
-                "NumberUtils": 1
-            },
-            "fors": {},
-            "namespaces": {}
-        },
         "lib/glutils/ShaderProgram.js": {
             "name": "lib/glutils/ShaderProgram.js",
             "modules": {},
@@ -100,7 +91,6 @@
             "submodules": {},
             "classes": {
                 "Mesh": 1,
-                "NumberUtils": 1,
                 "AbstractBatch": 1,
                 "AssetManager": 1,
                 "AssetManager.ImageLoader": 1,
@@ -129,20 +119,6 @@
             "file": "lib/glutils/Mesh.js",
             "line": 8,
             "description": "A mesh class that wraps VBO and IBO."
-        },
-        "NumberUtils": {
-            "name": "NumberUtils",
-            "shortname": "NumberUtils",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "kami",
-            "namespace": "",
-            "file": "lib/glutils/NumberUtils.js",
-            "line": 11,
-            "description": "A singleton for number utilities."
         },
         "AbstractBatch": {
             "name": "AbstractBatch",
@@ -420,101 +396,6 @@
                 "type": "[type]"
             },
             "class": "Mesh",
-            "module": "kami"
-        },
-        {
-            "file": "lib/glutils/NumberUtils.js",
-            "line": 20,
-            "description": "Returns a float representation of the given int bits. ArrayBuffer\nis used for the conversion.",
-            "itemtype": "method",
-            "name": "intBitsToFloat",
-            "static": 1,
-            "params": [
-                {
-                    "name": "i",
-                    "description": "the int to cast",
-                    "type": "Number"
-                }
-            ],
-            "return": {
-                "description": "the float",
-                "type": "Number"
-            },
-            "class": "NumberUtils",
-            "module": "kami"
-        },
-        {
-            "file": "lib/glutils/NumberUtils.js",
-            "line": 34,
-            "description": "Returns the int bits from the given float. ArrayBuffer is used\nfor the conversion.",
-            "itemtype": "method",
-            "name": "floatToIntBits",
-            "static": 1,
-            "params": [
-                {
-                    "name": "f",
-                    "description": "the float to cast",
-                    "type": "Number"
-                }
-            ],
-            "return": {
-                "description": "the int bits",
-                "type": "Number"
-            },
-            "class": "NumberUtils",
-            "module": "kami"
-        },
-        {
-            "file": "lib/glutils/NumberUtils.js",
-            "line": 48,
-            "description": "Encodes ABGR int as a float, with slight precision loss.",
-            "itemtype": "method",
-            "name": "intToFloatColor",
-            "static": 1,
-            "params": [
-                {
-                    "name": "value",
-                    "description": "an ABGR packed integer",
-                    "type": "Number"
-                }
-            ],
-            "class": "NumberUtils",
-            "module": "kami"
-        },
-        {
-            "file": "lib/glutils/NumberUtils.js",
-            "line": 59,
-            "description": "Returns a float encoded ABGR value from the given RGBA\nbytes (0 - 255). Useful for saving bandwidth in vertex data.",
-            "itemtype": "method",
-            "name": "colorToFloat",
-            "static": 1,
-            "params": [
-                {
-                    "name": "r",
-                    "description": "the Red byte (0 - 255)",
-                    "type": "Number"
-                },
-                {
-                    "name": "g",
-                    "description": "the Green byte (0 - 255)",
-                    "type": "Number"
-                },
-                {
-                    "name": "b",
-                    "description": "the Blue byte (0 - 255)",
-                    "type": "Number"
-                },
-                {
-                    "name": "a",
-                    "description": "the Alpha byte (0 - 255)",
-                    "type": "Number"
-                }
-            ],
-            "return": {
-                "description": "a Float32 of the RGBA color",
-                "type": "Float32"
-            },
-            "class": "NumberUtils",
             "module": "kami"
         },
         {
@@ -1906,14 +1787,14 @@
         {
             "file": "lib/index-umd.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-11-24",
+            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-11-25",
             "class": "",
             "module": "kami"
         },
         {
             "file": "lib/index.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nCreated on 2013-11-24",
+            "description": "Auto-generated Kami index file.\nCreated on 2013-11-25",
             "class": "",
             "module": "kami"
         }
@@ -2016,11 +1897,11 @@
             "line": " lib/WebGLContext.js:175"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-11-24",
+            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-11-25",
             "line": " lib/index-umd.js:1"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2013-11-24",
+            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2013-11-25",
             "line": " lib/index.js:1"
         }
     ]

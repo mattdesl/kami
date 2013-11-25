@@ -10,6 +10,8 @@ return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requi
 var Class = require('klasse');
 var Mesh = require('./glutils/Mesh');
 
+var colorToFloat = require('number-util').colorToFloat;
+
 /**
  * An abstract batcher composed of quads (two tris, indexed). 
  *
@@ -57,6 +59,72 @@ var AbstractBatch = new Class({
 		this.drawing = false;
 
 		this.mesh = this._createMesh(this.size);
+
+
+        /**
+         * The ABGR packed color, as a single float. The default
+         * value is the color white (255, 255, 255, 255).
+         *
+         * @property {Number} color
+         * @readOnly 
+         */
+        this.color = colorToFloat(255, 255, 255, 255);
+        
+        /**
+         * Whether to premultiply alpha on calls to setColor. 
+         * This is true by default, so that we can conveniently write:
+         *
+         *     batch.setColor(1, 0, 0, 0.25); //tints red with 25% opacity
+         *
+         * If false, you must premultiply the colors yourself to achieve
+         * the same tint, like so:
+         *
+         *     batch.setColor(0.25, 0, 0, 0.25);
+         * 
+         * @property premultiplyColor
+         * @type {Boolean}
+         * @default  true
+         */
+        this.premultiplied = true;
+	},
+
+	/**
+	 * Sets the color of this sprite batcher, which is used in subsequent draw
+	 * calls. This does not flush the batch.
+	 *
+	 * If three or more arguments are specified, this method assumes that RGB 
+	 * or RGBA float values (0.0 to 1.0) are being passed. 
+	 * 
+	 * If less than three arguments are specified, we only consider the first 
+	 * and assign it to all four components -- this is useful for setting transparency 
+	 * in a premultiplied alpha stage.
+	 *
+	 * @method  setColor
+	 * @param {Number} r the red component, normalized
+	 * @param {Number} g the green component, normalized
+	 * @param {Number} b the blue component, normalized
+	 * @param {Number} a the alpha component, normalized
+	 */
+	setColor: function(r, g, b, a) {
+		if (arguments.length >= 3) {
+			//default alpha to one 
+			a = (a || a === 0) ? a : 1.0;
+		} else {
+			r = g = b = a = arguments[0];
+		}
+
+		if (this.premultiplied) {
+			r *= a;
+			g *= a;
+			b *= a;
+		}
+		
+		this.color = colorToFloat(
+			~~(r * 255),
+			~~(g * 255),
+			~~(b * 255),
+			~~(a * 255)
+		);
 	},
 
 	/**
@@ -220,7 +288,7 @@ var AbstractBatch = new Class({
 	 	//draw the sprites
 	    var gl = this.context.gl;
 	    this.mesh.verticesDirty = true;
-	    this.mesh.draw(gl.TRIANGLES, spriteCount * 6, 0);
+	    this.mesh.draw(gl.TRIANGLES, spriteCount * 6, 0, this.idx);
 
 	    this.idx = 0;
 	},
@@ -235,13 +303,12 @@ var AbstractBatch = new Class({
 	 * @param  {Number} y       the y position, defaults to zero
 	 * @param  {Number} width   the width, defaults to the texture width
 	 * @param  {Number} height  the height, defaults to the texture height
-	 * @param  {Number} color   the color float (alpha), default zero
 	 * @param  {Number} u1      the first U coordinate, default zero
 	 * @param  {Number} v1      the first V coordinate, default zero
 	 * @param  {Number} u2      the second U coordinate, default one
 	 * @param  {Number} v2      the second V coordinate, default one
 	 */
-	draw: function(texture, x, y, width, height, color, u1, v1, u2, v2) {
+	draw: function(texture, x, y, width, height, u1, v1, u2, v2) {
 	},
 
 	/**
@@ -275,7 +342,7 @@ var AbstractBatch = new Class({
 
 module.exports = AbstractBatch;
 
-},{"./glutils/Mesh":6,"klasse":10}],2:[function(require,module,exports){
+},{"./glutils/Mesh":6,"klasse":9,"number-util":10}],2:[function(require,module,exports){
 /**
  * @module kami
  */
@@ -843,7 +910,7 @@ AssetManager.registerLoader(AssetManager.ImageLoader, "png", "gif", "jpg", "jpeg
 
 module.exports = AssetManager;
 
-},{"klasse":10,"signals":11}],3:[function(require,module,exports){
+},{"klasse":9,"signals":11}],3:[function(require,module,exports){
 /**
  * @module kami
  */
@@ -856,11 +923,16 @@ var AbstractBatch = require('./AbstractBatch');
 var Mesh          = require('./glutils/Mesh');
 var ShaderProgram = require('./glutils/ShaderProgram');
 
+
 /**
  * A basic implementation of a batcher which draws 2D sprites.
  * This uses two triangles (quads) with indexed and interleaved
  * vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).
  *
+ * The color is packed into a single float to reduce vertex bandwidth, and
+ * the data is interleaved for best performance. We use a static index buffer,
+ * and a dynamic vertex buffer that is updated with bufferSubData. 
+ * 
  * @example
  *      var SpriteBatch = require('kami').SpriteBatch;  
  *      
@@ -876,8 +948,9 @@ var ShaderProgram = require('./glutils/ShaderProgram');
  * 
  *          batch.end();
  *      }
- *
+ * 
  * @class  SpriteBatch
+ * @extends AbstractBatch
  * @constructor
  * @param {WebGLContext} context the context for this batch
  * @param {Number} size the max number of sprites to fit in a single batch
@@ -885,11 +958,11 @@ var ShaderProgram = require('./glutils/ShaderProgram');
 var SpriteBatch = new Class({
 
     Extends: AbstractBatch,
-    
+
     //Constructor
     initialize: function SpriteBatch(context, size) {
         AbstractBatch.call(this, context, size);
-        
+
         /**
          * SpriteBatch uploads a vec2 for projection
          * transform in the shader. A custom shader might
@@ -903,16 +976,16 @@ var SpriteBatch = new Class({
         this.useProjectionVector = true;
 
         /**
-         * The projection Vector2 which is
+         * The projection Float32Array vec2 which is
          * used to avoid some matrix calculations. A 3D 
          * batcher might want to replace this and 
          * {{#crossLink "SpriteBatch/setProjection:method"}}{{/crossLink}} 
          * entirely. 
          *
          * @property projection
-         * @type {Vector2}
+         * @type {Float32Array}
          */
-        this.projection = null;
+        this.projection = new Float32Array(2);
 
         /**
          * The currently bound texture. Do not modify.
@@ -921,15 +994,6 @@ var SpriteBatch = new Class({
          * @readOnly
          */
         this.texture = null;
-
-        /** 
-         * A Float32Array, the projection vector i.e. center of your 2D
-         * stage. 
-         *
-         * @property projection
-         * @type {Float32Array}
-         */
-        this.projection = new Float32Array(2);
     },
 
     /**
@@ -951,9 +1015,12 @@ var SpriteBatch = new Class({
      * @return {[type]} [description]
      */
     _createVertexAttributes: function() {
+        var gl = this.context.gl;
+
         return [ 
             new Mesh.Attrib("Position", 2),
-            new Mesh.Attrib("Color", 1),
+             //pack the color using some crazy wizardry 
+            new Mesh.Attrib("Color", 4, null, gl.UNSIGNED_BYTE, true, 1),
             new Mesh.Attrib("TexCoord0", 2)
         ];
     },
@@ -1096,7 +1163,6 @@ var SpriteBatch = new Class({
         SpriteBatch.totalRenderCalls++;
     },
 
-
     /**
      * Adds a sprite to this batch. The sprite is drawn in 
      * screen-space with the origin at the upper-left corner (y-down).
@@ -1107,13 +1173,12 @@ var SpriteBatch = new Class({
      * @param  {Number} y       the y position in pixels, defaults to zero
      * @param  {Number} width   the width in pixels, defaults to the texture width
      * @param  {Number} height  the height in pixels, defaults to the texture height
-     * @param  {Number} color   the color float (alpha), default zero
      * @param  {Number} u1      the first U coordinate, default zero
      * @param  {Number} v1      the first V coordinate, default zero
      * @param  {Number} u2      the second U coordinate, default one
      * @param  {Number} v2      the second V coordinate, default one
      */
-    draw: function(texture, x, y, width, height, color, u1, v1, u2, v2) {
+    draw: function(texture, x, y, width, height, u1, v1, u2, v2) {
         if (!this.drawing)
             throw "Illegal State: trying to draw a batch before begin()";
         
@@ -1144,7 +1209,7 @@ var SpriteBatch = new Class({
         v1 = v1 || 0;
         v2 = (v2===0) ? v2 : (v2 || 1);
 
-        var c = (color===0) ? color : (color || 1.0);
+        var c = this.color;
 
         //xy
         this.vertices[this.idx++] = x1;
@@ -1284,7 +1349,7 @@ SpriteBatch.totalRenderCalls = 0;
 SpriteBatch.DEFAULT_FRAG_SHADER = [
     "precision mediump float;",
     "varying vec2 vTexCoord0;",
-    "varying float vColor;",
+    "varying vec4 vColor;",
     "uniform sampler2D u_texture0;",
 
     "void main(void) {",
@@ -1294,12 +1359,12 @@ SpriteBatch.DEFAULT_FRAG_SHADER = [
 
 SpriteBatch.DEFAULT_VERT_SHADER = [
     "attribute vec2 Position;",
-    "attribute float Color;",
+    "attribute vec4 Color;",
     "attribute vec2 TexCoord0;",
 
     "uniform vec2 u_projection;",
     "varying vec2 vTexCoord0;",
-    "varying float vColor;",
+    "varying vec4 vColor;",
 
     "void main(void) {",
     "   gl_Position = vec4( Position.x / u_projection.x - 1.0, Position.y / -u_projection.y + 1.0 , 0.0, 1.0);",
@@ -1310,7 +1375,7 @@ SpriteBatch.DEFAULT_VERT_SHADER = [
 
 module.exports = SpriteBatch;
 
-},{"./AbstractBatch":1,"./glutils/Mesh":6,"./glutils/ShaderProgram":8,"klasse":10}],4:[function(require,module,exports){
+},{"./AbstractBatch":1,"./glutils/Mesh":6,"./glutils/ShaderProgram":7,"klasse":9}],4:[function(require,module,exports){
 /**
  * @module kami
  */
@@ -1321,68 +1386,34 @@ var Signal = require('signals');
 var Texture = new Class({
 
 
-	//TODO: Get rid of provider stuff since it is better for AssetManager to handle it.
-	 /** A data provider is a function which is called by Texture
-	 * on intiialization, and subsequently on any context restoration.
-	 * This allows images to be re-loaded without the need to keep
-	 * them hanging around in memory. This also means that procedural
-	 * textures will be re-created properly on context restore.
-	 *
-	 * Calling this constructor with no arguments will result in an Error.
-	 *
-	 * If this constructor is called with only the context (one argument),
-	 * then no provider is used and the texture will be unmanaged and its width
-	 * and height will be zero.
-	 * 
-	 * If the second argument is a string, we will use the default ImageProvider 
-	 * to load the texture into the GPU asynchronously. Usage:
-	 *
-	 *     new Texture(context, "path/img.png");
-	 *     new Texture(context, "path/img.png", onloadCallback, onerrorCallback);
-	 *
-	 * The callbacks will be fired every time the image is re-loaded, even on context
-	 * restore.
-	 *
-	 * If the second and third arguments are Numbers, we will use the default
-	 * ArrayProvider, which takes in a ArrayBufferView of pixels. This allows
-	 * us to create textures synchronously like so:
-	 *
-	 *     new Texture(context, 256, 256); //uses empty data, transparent black
-	 *     new Texture(context, 256, 256, gl.LUMINANCE); //empty data and LUMINANCE format
-	 *     new Texture(context, 256, 256, gl.LUMINANCE, gl.UNSIGNED_BYTE, byteArray); //custom data
-	 *
-	 * Otherwise, we will assume that a custom provider is specified. In this case, the second
-	 * argument is a provider function, and the subsequent arguments are those which will be passed 
-	 * to the provider. The provider function always receives the texture object as the first argument,
-	 * and then any others that may have been passed to it. For example, here is a basic ImageProvider 
-	 * implementation:
-	 *
-	 *     //the provider function
-	 *     var ImageProvider = function(texture, path) {
-	 *     	   var img = new Image();
-	 *         img.onload = function() {
-	 *    	       texture.uploadImage(img);
-	 *         }.bind(this);
-	 *         img.src = path;
-	 *     };
-	 *
-	 *     //loads the image asynchronously
-	 *     var tex = new Texture(context, ImageProvider, "myimg.png");
-	 */
-
 	/**
-	 * Creates a new texture with the optional data provider.
+	 * Creates a new texture with the optional width, height, and data.
 	 *
-	 * Note that a texture will not be renderable until some data has been uploaded to it.
-	 * To get around this, you can upload a very small null buffer to the uploadData function,
-	 * until your async load is complete. Or you can use a higher level provider that manages
-	 * multiple assets and dispatches a signal once all textures are renderable.
+	 * If the constructor is passed no parameters other than WebGLContext, then
+	 * it will not be initialized and will be non-renderable. You will need to manually
+	 * uploadData or uploadImage yourself.
+	 *
+	 * If you pass a width and height, the texture will be initialized with that size
+	 * and null data (e.g. transparent black). If you also pass the format and data, 
+	 * it will be uploaded to the texture. 
+	 *
+	 * The arguments are kept in memory for future context restoration events. If
+	 * this is undesirable (e.g. huge buffers which need to be GC'd), you should not
+	 * pass the data in the constructor, but instead upload it after creating an uninitialized 
+	 * texture. You will need to manage it yourself, either by extending the create() method, 
+	 * or listening to restored events in WebGLContext.
+	 *
+	 * Most users will want to use the AssetManager to create and manage their textures
+	 * with asynchronous loading and context loss. 
 	 *
 	 * @class  Texture
-	 * @param  {WebGLContext} gl the WebGL context
-	 * @param  {Number} provider [description]
-	 * @param  {[type]} args     [description]
-	 * @return {[type]}          [description]
+	 * @constructor
+	 * @param  {WebGLContext} context the WebGL context
+	 * @param  {Number} width the width of this texture
+	 * @param  {Number} height the height of this texture
+	 * @param  {GLenum} format e.g. Texture.Format.RGBA
+	 * @param  {GLenum} dataType e.g. Texture.DataType.UNSIGNED_BYTE (Uint8Array)
+	 * @param  {GLenum} data the array buffer, e.g. a Uint8Array view
 	 */
 	initialize: function Texture(context, width, height, format, dataType, data) {
 		if (!context)
@@ -1472,10 +1503,13 @@ var Texture = new Class({
 
 		this.bind();
 
-	 	//TODO: investigate this further
+		//TODO: clean these up a little. 
 	 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, Texture.UNPACK_PREMULTIPLY_ALPHA);
 	 	gl.pixelStorei(gl.UNPACK_ALIGNMENT, Texture.UNPACK_ALIGNMENT);
 	 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, Texture.UNPACK_FLIP_Y);
+	 	
+	 	var colorspace = Texture.UNPACK_COLORSPACE_CONVERSION || gl.BROWSER_DEFAULT_WEBGL;
+	 	gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, colorspace);
 
 	 	//setup wrap modes without binding redundantly
 	 	this.setWrap(this.wrapS, this.wrapT, false);
@@ -1753,7 +1787,8 @@ Texture.DEFAULT_FILTER = Texture.Filter.NEAREST;
 //default pixel store operations. Used in create()
 Texture.UNPACK_FLIP_Y = false;
 Texture.UNPACK_ALIGNMENT = 1;
-Texture.UNPACK_PREMULTIPLY_ALPHA = true;
+Texture.UNPACK_PREMULTIPLY_ALPHA = true; 
+Texture.UNPACK_COLORSPACE_CONVERSION = undefined;
 
 /**
  * Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.
@@ -1797,7 +1832,7 @@ Texture.getNumComponents = function(format) {
 
 
 module.exports = Texture;
-},{"klasse":10,"signals":11}],5:[function(require,module,exports){
+},{"klasse":9,"signals":11}],5:[function(require,module,exports){
 /**
  * @module kami
  */
@@ -1813,6 +1848,7 @@ var Signal = require('signals');
  * If the view is not specified, a canvas will be created.
  * 
  * @class  WebGLContext
+ * @constructor
  * @param {Number} width the width of the GL canvas
  * @param {Number} height the height of the GL canvas
  * @param {HTMLCanvasElement} view the optional DOM canvas element
@@ -1874,7 +1910,7 @@ var WebGLContext = new Class({
 		 * 
 		 * @property {Object} contextAttributes 
 		 */
-		this.contextAttributes = null;
+		this.contextAttributes = contextAttributes;
 		
 		/**
 		 * Whether this context is 'valid', i.e. renderable. A context that has been lost
@@ -1919,7 +1955,6 @@ var WebGLContext = new Class({
 			this._contextRestored(ev);
 		}.bind(this));
 			
-		this.contextAttributes = contextAttributes;
 		this._initContext();
 
 		this.resize(this.width, this.height);
@@ -1930,7 +1965,8 @@ var WebGLContext = new Class({
 		this.valid = false;
 
 		try {
-	        this.gl = (this.view.getContext('webgl') || this.view.getContext('experimental-webgl'));
+	        this.gl = (this.view.getContext('webgl', this.contextAttributes) 
+	        			|| this.view.getContext('experimental-webgl', this.contextAttributes));
 	    } catch (e) {
 	    	this.gl = null;
 	    }
@@ -2022,10 +2058,19 @@ var WebGLContext = new Class({
 });
 
 module.exports = WebGLContext;
-},{"klasse":10,"signals":11}],6:[function(require,module,exports){
+},{"klasse":9,"signals":11}],6:[function(require,module,exports){
+/**
+ * @module kami
+ */
+
 var Class = require('klasse');
 
 //TODO: decouple into VBO + IBO utilities 
+/**
+ * A mesh class that wraps VBO and IBO.
+ *
+ * @class  Mesh
+ */
 var Mesh = new Class({
 
 
@@ -2070,8 +2115,6 @@ var Mesh = new Class({
 		this.context = context;
 		this.gl = context.gl;
 		
-
-
 		this.numVerts = null;
 		this.numIndices = null;
 		
@@ -2109,7 +2152,7 @@ var Mesh = new Class({
 		//determine the vertex stride based on given attributes
 		var totalNumComponents = 0;
 		for (var i=0; i<this._vertexAttribs.length; i++)
-			totalNumComponents += this._vertexAttribs[i].numComponents;
+			totalNumComponents += this._vertexAttribs[i].offsetCount;
 		this._vertexStride = totalNumComponents * 4; // in bytes
 
 		this.vertices = new Float32Array(this.numVerts);
@@ -2148,7 +2191,7 @@ var Mesh = new Class({
 			this.context.removeManagedObject(this);
 	},
 
-	_updateBuffers: function(ignoreBind) {
+	_updateBuffers: function(ignoreBind, subDataLength) {
 		var gl = this.gl;
 
 		//bind our index data, if we have any
@@ -2169,12 +2212,20 @@ var Mesh = new Class({
 
 		//update our vertex data
 		if (this.verticesDirty) {
-			gl.bufferData(gl.ARRAY_BUFFER, this.vertices, this.vertexUsage);
+			if (subDataLength) {
+				// TODO: When decoupling VBO/IBO be sure to give better subData support..
+				var view = this.vertices.subarray(0, subDataLength);
+				gl.bufferSubData(gl.ARRAY_BUFFER, 0, view);
+			} else {
+				gl.bufferData(gl.ARRAY_BUFFER, this.vertices, this.vertexUsage);	
+			}
+
+			
 			this.verticesDirty = false;
 		}
 	},
 
-	draw: function(primitiveType, count, offset) {
+	draw: function(primitiveType, count, offset, subDataLength) {
 		if (count === 0)
 			return;
 
@@ -2184,7 +2235,7 @@ var Mesh = new Class({
 
 		//binds and updates our buffers. pass ignoreBind as true
 		//to avoid binding unnecessarily
-		this._updateBuffers(true);
+		this._updateBuffers(true, subDataLength);
 
 		if (this.numIndices > 0) { 
 			gl.drawElements(primitiveType, count, 
@@ -2221,11 +2272,10 @@ var Mesh = new Class({
 
 			//then specify our vertex format
 			gl.vertexAttribPointer(loc, a.numComponents, a.type || gl.FLOAT, 
-								   a.normalize || false, stride, offset);
-
+								   a.normalize, stride, offset);
 
 			//and increase the offset...
-			offset += a.numComponents * 4; //in bytes
+			offset += a.offsetCount * 4; //in bytes
 		}
 	},
 
@@ -2266,35 +2316,23 @@ Mesh.Attrib = new Class({
 	 * @param  {[type]} location      [description]
 	 * @return {[type]}               [description]
 	 */
-	initialize: function(name, numComponents, location, type, normalize) {
+	initialize: function(name, numComponents, location, type, normalize, offsetCount) {
 		this.name = name;
 		this.numComponents = numComponents;
 		this.location = typeof location === "number" ? location : null;
 		this.type = type;
-		this.normalize = normalize;
+		this.normalize = Boolean(normalize);
+		this.offsetCount = typeof offsetCount === "number" ? offsetCount : this.numComponents;
 	}
 })
 
 
 module.exports = Mesh;
-},{"klasse":10}],7:[function(require,module,exports){
-var int8 = new Int8Array(4);
-var int32 = new Int32Array(int8.buffer, 0, 1);
-var float32 = new Float32Array(int8.buffer, 0, 1);
+},{"klasse":9}],7:[function(require,module,exports){
+/**
+ * @module kami
+ */
 
-module.exports = {
-	intBitsToFloat: function(i) {
-		int32[0] = i;
-		return float32[0];
-	},
-
-	floatToIntBits: function(f) {
-		float32[0] = f;
-		return int32[0];
-	}
-};
-
-},{}],8:[function(require,module,exports){
 var Class = require('klasse');
 
 var ShaderProgram = new Class({
@@ -2564,8 +2602,6 @@ var ShaderProgram = new Class({
 		this.program = null;
 	},
 
-
-
 	setUniformi: function(name, x, y, z, w) {
 		var gl = this.gl;
 		var loc = this.getUniformLocation(name);
@@ -2646,11 +2682,11 @@ var ShaderProgram = new Class({
 });
 
 module.exports = ShaderProgram;
-},{"klasse":10}],9:[function(require,module,exports){
+},{"klasse":9}],8:[function(require,module,exports){
 /**
   Auto-generated Kami index file.
   Dependencies are placed on the top-level namespace, for convenience.
-  Created on 2013-11-24
+  Created on 2013-11-25
 */
 module.exports = {
     //core classes
@@ -2660,16 +2696,18 @@ module.exports = {
     'Texture':         require('./Texture.js'),
     'WebGLContext':    require('./WebGLContext.js'),
     'Mesh':            require('./glutils/Mesh.js'),
-    'NumberUtils':     require('./glutils/NumberUtils.js'),
     'ShaderProgram':   require('./glutils/ShaderProgram.js'),
 
     //signals dependencies
     'Signal':          require('signals').Signal,
 
     //klasse dependencies
-    'Class':           require('klasse')
+    'Class':           require('klasse'),
+
+    //number-util dependencies
+    'NumberUtil':      require('number-util')
 };
-},{"./AbstractBatch.js":1,"./AssetManager.js":2,"./SpriteBatch.js":3,"./Texture.js":4,"./WebGLContext.js":5,"./glutils/Mesh.js":6,"./glutils/NumberUtils.js":7,"./glutils/ShaderProgram.js":8,"klasse":10,"signals":11}],10:[function(require,module,exports){
+},{"./AbstractBatch.js":1,"./AssetManager.js":2,"./SpriteBatch.js":3,"./Texture.js":4,"./WebGLContext.js":5,"./glutils/Mesh.js":6,"./glutils/ShaderProgram.js":7,"klasse":9,"number-util":10,"signals":11}],9:[function(require,module,exports){
 function hasGetterOrSetter(def) {
 	return (!!def.get && typeof def.get === "function") || (!!def.set && typeof def.set === "function");
 }
@@ -2829,6 +2867,77 @@ Class.mixin = mixin;
 Class.ignoreFinals = false;
 
 module.exports = Class;
+},{}],10:[function(require,module,exports){
+var int8 = new Int8Array(4);
+var int32 = new Int32Array(int8.buffer, 0, 1);
+var float32 = new Float32Array(int8.buffer, 0, 1);
+
+/**
+ * A singleton for number utilities. 
+ * @class NumberUtil
+ */
+var NumberUtil = function() {
+
+};
+
+
+/**
+ * Returns a float representation of the given int bits. ArrayBuffer
+ * is used for the conversion.
+ *
+ * @method  intBitsToFloat
+ * @static
+ * @param  {Number} i the int to cast
+ * @return {Number}   the float
+ */
+NumberUtil.intBitsToFloat = function(i) {
+	int32[0] = i;
+	return float32[0];
+};
+
+/**
+ * Returns the int bits from the given float. ArrayBuffer is used
+ * for the conversion.
+ *
+ * @method  floatToIntBits
+ * @static
+ * @param  {Number} f the float to cast
+ * @return {Number}   the int bits
+ */
+NumberUtil.floatToIntBits = function(f) {
+	float32[0] = f;
+	return int32[0];
+};
+
+/**
+ * Encodes ABGR int as a float, with slight precision loss.
+ *
+ * @method  intToFloatColor
+ * @static
+ * @param {Number} value an ABGR packed integer
+ */
+NumberUtil.intToFloatColor = function(value) {
+	return NumberUtil.intBitsToFloat( value & 0xfeffffff );
+};
+
+/**
+ * Returns a float encoded ABGR value from the given RGBA
+ * bytes (0 - 255). Useful for saving bandwidth in vertex data.
+ *
+ * @method  colorToFloat
+ * @static
+ * @param {Number} r the Red byte (0 - 255)
+ * @param {Number} g the Green byte (0 - 255)
+ * @param {Number} b the Blue byte (0 - 255)
+ * @param {Number} a the Alpha byte (0 - 255)
+ * @return {Float32}  a Float32 of the RGBA color
+ */
+NumberUtil.colorToFloat = function(r, g, b, a) {
+	var bits = (a << 24 | b << 16 | g << 8 | r);
+	return NumberUtil.intToFloatColor(bits);
+};
+
+module.exports = NumberUtil;
 },{}],11:[function(require,module,exports){
 /*jslint onevar:true, undef:true, newcap:true, regexp:true, bitwise:true, maxerr:50, indent:4, white:false, nomen:false, plusplus:false */
 /*global define:false, require:false, exports:false, module:false, signals:false */
@@ -3276,7 +3385,7 @@ module.exports = Class;
 
 }(this));
 
-},{}]},{},[9])
-(9)
+},{}]},{},[8])
+(8)
 });
 ;

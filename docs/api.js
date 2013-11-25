@@ -5,7 +5,6 @@ YUI.add("yuidoc-meta", function(Y) {
         "AssetManager",
         "AssetManager.ImageLoader",
         "Mesh",
-        "NumberUtils",
         "SpriteBatch",
         "Texture",
         "WebGLContext"
