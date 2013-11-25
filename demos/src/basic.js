@@ -1,5 +1,6 @@
 //We use browserify to alias the kami namespace,
 //this way the code looks exactly the same in regular Node projects
+ 
 
 var WebGLContext = require('kami').WebGLContext;
 var Texture = require('kami').Texture;
@@ -11,25 +12,45 @@ $(function() {
 		background: "#343434"
 	});
 
-	var text = $("<span>some dom text...</span>").css({
+	var css = {
 		position: "absolute",
 		top: 20, 
-		left: 20,
-		zIndex: -1
-	});
-	mainContainer.append(text);
+		left: 50,
+		zIndex: 0,
+		fontSize: "40px",
+		textTransform: "uppercase",
+		color: "white", 
+		fontWeight: "bold"
+	};
 
+	
 	var width = 256;
 	var height = 256;
 
 	//create our webGL context..
 	//this will manage viewport and context loss/restore
-	var context = new WebGLContext(width, height);
+	var context = new WebGLContext(width, height, null, {
+		alpha: true,
+	});
+	$(context.view).css({
+		position: "absolute",
+		top: 0,
+		left: 0
+	});
 
+	//setup some text below & above
+	$("<span>below text</span>")
+		.css(css)
+		.appendTo(mainContainer);
 
 	//add the view to the body
 	mainContainer.append(context.view);
 
+	//setup some text below & above
+	$("<span>above text</span>")
+		.css(css)
+		.css("top", 100)
+		.appendTo(mainContainer);
 	
 	//We use this for rendering 2D sprites
 	var batch = new SpriteBatch(context);
@@ -47,7 +68,27 @@ $(function() {
 	//Start our render loop
 	requestAnimationFrame(render);
 
+
+	/// A procedurally-created texture. We could use this for things like
+	/// lookup tables in a shader, or some cool graphics that aren't worth 
+	/// doing in a shader.
+	var fmt = Texture.Format.RGB;
+	var type = Texture.DataType.UNSIGNED_BYTE;
+	var texWidth = 1;
+	var texHeight = 3;
+	var data = new Uint8Array([
+		255, 255, 255,
+		255, 0, 0,
+		255, 255, 255,
+	]);
+
+	var proceduralTex = new Texture(context, texWidth, texHeight, fmt, type, data);
+	
+	var NumberUtils = require('kami').NumberUtils;
+	
 	function render() {
+		var gl = context.gl;
+
 		requestAnimationFrame(render);
 
 		//We update the assets every frame. This method returns
@@ -59,19 +100,26 @@ $(function() {
 			//start the batch...
 			batch.begin();
 
+			//Set the alpha to 50%
+			batch.setColor(0.5);
 			batch.draw(tex0, 
 						0, 0, 		  //x, y
 						width, height,//width, height
-						0.25, 		  //alpha 
 						0, 0, 2, 2);  //we can adjust UVs to repeat easily
 
+			//by default, we can specify colors as non-premultiplied:
+			//Here we use red (R=1, G=0, B=0) with 50% opacity
+			batch.setColor(1, 0, 0, 0.5);
 			batch.draw(tex1, 75, 75, 100, 100);
+
+			//Set the alpha back to 1.0
+			batch.setColor(1)
+			batch.draw(proceduralTex, 5, 5, 100, 100);
 
 			//flush to GPU
 			batch.end();
 		} else {
-			//The images are loading... here might render a loading bar.
+			//The images are loading... here we might render a loading bar.
 		}
 	}
-	
 });

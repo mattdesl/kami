@@ -47,7 +47,9 @@
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
-                <li><a href="../classes/Point.html">Point</a></li>
+                <li><a href="../classes/Mesh.html">Mesh</a></li>
+            
+                <li><a href="../classes/NumberUtils.html">NumberUtils</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
@@ -104,133 +106,119 @@
  * @module kami
  */
 
-var Class = require(&#x27;jsOOP&#x27;).Class;
+var Class = require(&#x27;klasse&#x27;);
 var Signal = require(&#x27;signals&#x27;);
 
 var Texture = new Class({
 
-	id: null,
-	target: null,
-	width: 0,
-	height: 0,
-	wrap: null,
-	filter: null,
-
-
-	//TODO: Get rid of provider stuff since it is better for AssetManager to handle it.
-	 /** A data provider is a function which is called by Texture
-	 * on intiialization, and subsequently on any context restoration.
-	 * This allows images to be re-loaded without the need to keep
-	 * them hanging around in memory. This also means that procedural
-	 * textures will be re-created properly on context restore.
-	 *
-	 * Calling this constructor with no arguments will result in an Error.
-	 *
-	 * If this constructor is called with only the context (one argument),
-	 * then no provider is used and the texture will be unmanaged and its width
-	 * and height will be zero.
-	 * 
-	 * If the second argument is a string, we will use the default ImageProvider 
-	 * to load the texture into the GPU asynchronously. Usage:
-	 *
-	 *     new Texture(context, &quot;path/img.png&quot;);
-	 *     new Texture(context, &quot;path/img.png&quot;, onloadCallback, onerrorCallback);
-	 *
-	 * The callbacks will be fired every time the image is re-loaded, even on context
-	 * restore.
-	 *
-	 * If the second and third arguments are Numbers, we will use the default
-	 * ArrayProvider, which takes in a ArrayBufferView of pixels. This allows
-	 * us to create textures synchronously like so:
-	 *
-	 *     new Texture(context, 256, 256); //uses empty data, transparent black
-	 *     new Texture(context, 256, 256, gl.LUMINANCE); //empty data and LUMINANCE format
-	 *     new Texture(context, 256, 256, gl.LUMINANCE, gl.UNSIGNED_BYTE, byteArray); //custom data
-	 *
-	 * Otherwise, we will assume that a custom provider is specified. In this case, the second
-	 * argument is a provider function, and the subsequent arguments are those which will be passed 
-	 * to the provider. The provider function always receives the texture object as the first argument,
-	 * and then any others that may have been passed to it. For example, here is a basic ImageProvider 
-	 * implementation:
-	 *
-	 *     //the provider function
-	 *     var ImageProvider = function(texture, path) {
-	 *     	   var img = new Image();
-	 *         img.onload = function() {
-	 *    	       texture.uploadImage(img);
-	 *         }.bind(this);
-	 *         img.src = path;
-	 *     };
-	 *
-	 *     //loads the image asynchronously
-	 *     var tex = new Texture(context, ImageProvider, &quot;myimg.png&quot;);
-	 */
 
 	/**
-	 * Creates a new texture with the optional data provider.
+	 * Creates a new texture with the optional width, height, and data.
 	 *
-	 * Note that a texture will not be renderable until some data has been uploaded to it.
-	 * To get around this, you can upload a very small null buffer to the uploadData function,
-	 * until your async load is complete. Or you can use a higher level provider that manages
-	 * multiple assets and dispatches a signal once all textures are renderable.
+	 * If the constructor is passed no parameters other than WebGLContext, then
+	 * it will not be initialized and will be non-renderable. You will need to manually
+	 * uploadData or uploadImage yourself.
+	 *
+	 * If you pass a width and height, the texture will be initialized with that size
+	 * and null data (e.g. transparent black). If you also pass the format and data, 
+	 * it will be uploaded to the texture. 
+	 *
+	 * The arguments are kept in memory for future context restoration events. If
+	 * this is undesirable (e.g. huge buffers which need to be GC&#x27;d), you should not
+	 * pass the data in the constructor, but instead upload it after creating an uninitialized 
+	 * texture. You will need to manage it yourself, either by extending the create() method, 
+	 * or listening to restored events in WebGLContext.
+	 *
+	 * Most users will want to use the AssetManager to create and manage their textures
+	 * with asynchronous loading and context loss. 
 	 *
 	 * @class  Texture
-	 * @param  {WebGLContext} gl the WebGL context
-	 * @param  {Function} provider [description]
-	 * @param  {[type]} args     [description]
-	 * @return {[type]}          [description]
+	 * @constructor
+	 * @param  {WebGLContext} context the WebGL context
+	 * @param  {Number} width the width of this texture
+	 * @param  {Number} height the height of this texture
+	 * @param  {GLenum} format e.g. Texture.Format.RGBA
+	 * @param  {GLenum} dataType e.g. Texture.DataType.UNSIGNED_BYTE (Uint8Array)
+	 * @param  {GLenum} data the array buffer, e.g. a Uint8Array view
 	 */
-	initialize: function(context) {
+	initialize: function Texture(context, width, height, format, dataType, data) {
 		if (!context)
 			throw &quot;GL context not specified&quot;;
 		this.context = context;
-		this.created = new Signal();
 
-		var providerArgs = [this];
-		var provider = null;
+		/**
+		 * The WebGLTexture which backs this Texture object. This
+		 * can be used for low-level GL calls.
+		 * 
+		 * @type {WebGLTexture}
+		 */
+		this.id = null; //initialized in create()
 
-		// e.g. --&gt; new Texture(gl, &quot;mypath.jpg&quot;)
-		// 			new Texture(gl, &quot;mypath.jpg&quot;, gl.RGB)
-		//			new Texture(gl, myProvider, arg0, arg1)
-		//          new Texture(gl, Texture.ImageProvider, &quot;mypath.jpg&quot;, gl.RGB)
-		//			new Texture(gl, Textuer.ArrayProvider, 256, 256)
-		//			new Texture(gl, 256, 256, gl.RGB, gl.UNSIGNED_BYTE, data);
+		/**
+		 * The target for this texture unit, i.e. TEXTURE_2D. Subclasses
+		 * should override the create() method to change this, for correct
+		 * usage with context restore.
+		 * 
+		 * @property target
+		 * @type {GLenum}
+		 * @default  gl.TEXTURE_2D
+		 */
+		this.target = null; //initialized in create()
 
-		//we are working with a provider of some kind...
-		if (arguments.length &gt; 1) {
-			var slicedArgs = [];
+		/**
+		 * The width of this texture, in pixels.
+		 * 
+		 * @property width
+		 * @readOnly
+		 * @type {Number} the width
+		 */
+		this.width = 0; //initialized in create()
 
-			//determine the provider, if any...
-			if (typeof arguments[1] === &quot;string&quot;) {
-				provider = Texture.ImageProvider;
-				slicedArgs = Array.prototype.slice.call(arguments, 1)
-			} else if (typeof arguments[1] === &quot;function&quot;) {
-				provider = arguments[1];
-				slicedArgs = Array.prototype.slice.call(arguments, 2);
-			} else if (arguments.length &gt; 2 
-						&amp;&amp; typeof arguments[1] === &quot;number&quot; 
-						&amp;&amp; typeof arguments[2] === &quot;number&quot;) {
-				provider = Texture.ArrayProvider;
-				slicedArgs = Array.prototype.slice.call(arguments, 1);
-			}
+		/**
+		 * The height of this texture, in pixels.
+		 * 
+		 * @property height
+		 * @readOnly
+		 * @type {Number} the height
+		 */
+		this.height = 0; //initialized in create()
 
-			//concat with texture as first param
-			providerArgs = providerArgs.concat(slicedArgs);
-		}
+		// e.g. --&gt; new Texture(gl, 256, 256, gl.RGB, gl.UNSIGNED_BYTE, data);
+		//		      creates a new empty texture, 256x256
+		//		--&gt; new Texture(gl);
+		//			  creates a new texture but WITHOUT uploading any data. 
 
-		this.wrapS = this.wrapT = Texture.DEFAULT_WRAP;
-		this.minFilter = this.magFilter = Texture.DEFAULT_FILTER;
+		this.wrapS = Texture.DEFAULT_WRAP;
+		this.wrapT = Texture.DEFAULT_WRAP;
+		this.minFilter = Texture.DEFAULT_FILTER;
+		this.magFilter = Texture.DEFAULT_FILTER;
 
-		//the provider and its args, may be null...
-		this.provider = provider;
-		this.providerArgs = providerArgs;
+		/**
+		 * When a texture is created, we keep track of the arguments provided to 
+		 * its constructor. On context loss and restore, these arguments are re-supplied
+		 * to the Texture, so as to re-create it in its correct form.
+		 *
+		 * This is mainly useful if you are procedurally creating textures and passing
+		 * their data directly (e.g. for generic lookup tables in a shader). For image
+		 * or media based textures, it would be better to use an AssetManager to manage
+		 * the asynchronous texture upload.
+		 *
+		 * Upon destroying a texture, a reference to this is also lost.
+		 * 
+		 * @type {Array} the array of arguments, shifted to exclude the WebGLContext parameter
+		 */
+		this.managedArgs = Array.prototype.slice.call(arguments, 1);
 
 		//This is maanged by WebGLContext
 		this.context.addManagedObject(this);
 		this.create();
 	},
 
-	//called after the context has been re-initialized
+	/**
+	 * Called in the Texture constructor, and after the GL context has been re-initialized. 
+	 * Subclasses can override this to provide a custom data upload, e.g. cubemaps or compressed
+	 * textures.
+	 */
 	create: function() {
 		this.gl = this.context.gl; 
 		var gl = this.gl;
@@ -241,20 +229,30 @@ var Texture = new Class({
 
 		this.bind();
 
-	 	//TODO: investigate this further
-	 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+		//TODO: clean these up a little. 
+	 	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, Texture.UNPACK_PREMULTIPLY_ALPHA);
+	 	gl.pixelStorei(gl.UNPACK_ALIGNMENT, Texture.UNPACK_ALIGNMENT);
+	 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, Texture.UNPACK_FLIP_Y);
+	 	
+	 	var colorspace = Texture.UNPACK_COLORSPACE_CONVERSION || gl.BROWSER_DEFAULT_WEBGL;
+	 	gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, colorspace);
 
 	 	//setup wrap modes without binding redundantly
 	 	this.setWrap(this.wrapS, this.wrapT, false);
 	 	this.setFilter(this.minFilter, this.magFilter, false);
 	 	
-		//load the data
-		if (this.provider) {
-			this.provider.apply(this, this.providerArgs);
-		}
+	 	if (this.managedArgs.length !== 0) {
+	 		this.uploadData.apply(this, this.managedArgs);
+	 	}
 	},
 
-
+	/**
+	 * Destroys this texture by deleting the GL resource,
+	 * removing it from the WebGLContext management stack,
+	 * setting its size to zero, and id and managed arguments to null.
+	 * 
+	 * Generally a destroyed texture is no longer usable.
+	 */
 	destroy: function() {
 		if (this.id &amp;&amp; this.gl)
 			this.gl.deleteTexture(this.id);
@@ -262,8 +260,7 @@ var Texture = new Class({
 			this.context.removeManagedObject(this);
 		this.width = this.height = 0;
 		this.id = null;
-		this.provider = null; 
-		this.providerArgs = null;
+		this.managedArgs = null;
 	},
 
 	/**
@@ -273,7 +270,8 @@ var Texture = new Class({
 	 *
 	 * You can use Texture.Wrap constants for convenience, to avoid needing 
 	 * a GL reference.
-	 * 
+	 *
+	 * @method  setWrap
 	 * @param {GLenum} s the S wrap mode
 	 * @param {GLenum} t the T wrap mode
 	 * @param {Boolean} ignoreBind (optional) if true, the bind will be ignored. 
@@ -325,7 +323,8 @@ var Texture = new Class({
 	 * A low-level method to upload the specified ArrayBufferView
 	 * to this texture. This will cause the width and height of this
 	 * texture to change.
-	 * 
+	 *
+	 * @method  uploadData
 	 * @param  {Number} width          the new width of this texture,
 	 *                                 defaults to the last used width (or zero)
 	 * @param  {Number} height         the new height of this texture
@@ -354,7 +353,8 @@ var Texture = new Class({
 	/**
 	 * Uploads ImageData, HTMLImageElement, HTMLCanvasElement or 
 	 * HTMLVideoElement.
-	 * 	
+	 *
+	 * @method  uploadImage
 	 * @param  {Object} domObject the DOM image container
 	 */
 	uploadImage: function(domObject, format, type) {
@@ -378,7 +378,8 @@ var Texture = new Class({
 	 * (TEXTURE0, TEXTURE1, etc). If unit is not specified,
 	 * it will simply bind the texture at whichever slot
 	 * is currently active.
-	 * 
+	 *
+	 * @method  bind
 	 * @param  {Number} unit the texture unit index, starting at 0
 	 */
 	bind: function(unit) {
@@ -393,6 +394,23 @@ var Texture = new Class({
 	}
 });
 
+/** 
+ * A set of Filter constants that match their GL counterparts.
+ * This is for convenience, to avoid the need for a GL rendering context.
+ *
+ * @example
+ * &#x60;&#x60;&#x60;
+ *     Texture.Filter.NEAREST
+ *     Texture.Filter.NEAREST_MIPMAP_LINEAR
+ *     Texture.Filter.NEAREST_MIPMAP_NEAREST
+ *     Texture.Filter.LINEAR
+ *     Texture.Filter.LINEAR_MIPMAP_LINEAR
+ *     Texture.Filter.LINEAR_MIPMAP_NEAREST
+ * &#x60;&#x60;&#x60;
+ * @attribute Filter
+ * @static
+ * @type {Object}
+ */
 Texture.Filter = {
 	NEAREST: 9728,
 	NEAREST_MIPMAP_LINEAR: 9986,
@@ -402,12 +420,40 @@ Texture.Filter = {
 	LINEAR_MIPMAP_NEAREST: 9985
 };
 
+/** 
+ * A set of Wrap constants that match their GL counterparts.
+ * This is for convenience, to avoid the need for a GL rendering context.
+ *
+ * @example
+ * &#x60;&#x60;&#x60;
+ *     Texture.Wrap.CLAMP_TO_EDGE
+ *     Texture.Wrap.MIRRORED_REPEAT
+ *     Texture.Wrap.REPEAT
+ * &#x60;&#x60;&#x60;
+ * @attribute Wrap
+ * @static
+ * @type {Object}
+ */
 Texture.Wrap = {
 	CLAMP_TO_EDGE: 33071,
 	MIRRORED_REPEAT: 33648,
 	REPEAT: 10497
 };
 
+/** 
+ * A set of Format constants that match their GL counterparts.
+ * This is for convenience, to avoid the need for a GL rendering context.
+ *
+ * @example
+ * &#x60;&#x60;&#x60;
+ *     Texture.Format.RGB
+ *     Texture.Format.RGBA
+ *     Texture.Format.LUMINANCE_ALPHA
+ * &#x60;&#x60;&#x60;
+ * @attribute Format
+ * @static
+ * @type {Object}
+ */
 Texture.Format = {
 	DEPTH_COMPONENT: 6402,
 	ALPHA: 6406,
@@ -417,11 +463,38 @@ Texture.Format = {
 	LUMINANCE_ALPHA: 6410
 };
 
+/** 
+ * A set of DataType constants that match their GL counterparts.
+ * This is for convenience, to avoid the need for a GL rendering context.
+ *
+ * @example
+ * &#x60;&#x60;&#x60;
+ *     Texture.DataType.UNSIGNED_BYTE 
+ *     Texture.DataType.FLOAT 
+ * &#x60;&#x60;&#x60;
+ * @attribute DataType
+ * @static
+ * @type {Object}
+ */
+Texture.DataType = {
+	BYTE: 5120,
+	SHORT: 5122,
+	INT: 5124,
+	FLOAT: 5126,
+	UNSIGNED_BYTE: 5121,
+	UNSIGNED_INT: 5125,
+	UNSIGNED_SHORT: 5123,
+	UNSIGNED_SHORT_4_4_4_4: 32819,
+	UNSIGNED_SHORT_5_5_5_1: 32820,
+	UNSIGNED_SHORT_5_6_5: 33635
+}
+
 /**
  * The default wrap mode when creating new textures. If a custom 
  * provider was specified, it may choose to override this default mode.
  * 
- * @type {GLenum} the wrap mode for S and T coordinates
+ * @attribute {GLenum} DEFAULT_WRAP
+ * @static 
  * @default  Texture.Wrap.CLAMP_TO_EDGE
  */
 Texture.DEFAULT_WRAP = Texture.Wrap.CLAMP_TO_EDGE;
@@ -431,61 +504,17 @@ Texture.DEFAULT_WRAP = Texture.Wrap.CLAMP_TO_EDGE;
  * The default filter mode when creating new textures. If a custom
  * provider was specified, it may choose to override this default mode.
  *
- * @type {GLenum} the filter mode for min/mag
+ * @attribute {GLenum} DEFAULT_FILTER
+ * @static
  * @default  Texture.Filter.LINEAR
  */
 Texture.DEFAULT_FILTER = Texture.Filter.NEAREST;
 
-/**
- * This is a &quot;provider&quot; function for images, based on the given
- * path (src) and optional callbacks, WebGL format and type options.
- *
- * The callbacks are called from the Texture scope; but also passed the
- * texture to the first argument (in case the user wishes to re-bind the 
- * functions to something else).
- * 
- * @param {Texture} texture the texture which is being acted on
- * @param {String} path     the path to the image
- * @param {Function} onLoad the callback after the image has been loaded and uploaded to GPU
- * @param {Function} onErr  the callback if there was an error while loading the image
- * @param {GLenum} format   the GL texture format (default RGBA)
- * @param {GLenum} type     the GL texture type (default UNSIGNED_BYTE)
- */
-Texture.ImageProvider = function(texture, path, onLoad, onErr, format, type) {
-	var img = new Image();
-
-	img.onload = function() {
-		texture.uploadImage(img, format, type);
-		if (onLoad &amp;&amp; typeof onLoad === &quot;function&quot;)
-			onLoad.call(texture, texture);
-	};
-	
-	img.onerror = function() {
-		if (onErr &amp;&amp; typeof onErr === &quot;function&quot;) 
-			onErr.call(texture, texture);
-	};
-
-	img.onabort = function() {
-		if (onErr &amp;&amp; typeof onErr === &quot;function&quot;)
-			onErr.call(texture, texture);
-	};
-
-	img.src = path;
-};
-
-/**
- * This is a &quot;provider&quot; function for synchronous ArrayBufferView pixel uploads.
- * 
- * @param  {Texture} texture  	   the texture which is being acted on
- * @param  {Number} width          the width of this texture,
- * @param  {Number} height         the height of this texture
- * @param  {GLenum} format         the data format, default RGBA
- * @param  {GLenum} type           the data type, default UNSIGNED_BYTE (Uint8Array)
- * @param  {ArrayBufferView} data  the raw data for this texture, or null for an empty image
- */
-Texture.ArrayProvider = function(texture, width, height, format, type, data) {
-	texture.uploadData(width, height, format, type, data);
-};
+//default pixel store operations. Used in create()
+Texture.UNPACK_FLIP_Y = false;
+Texture.UNPACK_ALIGNMENT = 1;
+Texture.UNPACK_PREMULTIPLY_ALPHA = true; 
+Texture.UNPACK_COLORSPACE_CONVERSION = undefined;
 
 /**
  * Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.

@@ -47,7 +47,9 @@
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
-                <li><a href="../classes/Point.html">Point</a></li>
+                <li><a href="../classes/Mesh.html">Mesh</a></li>
+            
+                <li><a href="../classes/NumberUtils.html">NumberUtils</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
@@ -104,7 +106,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/lib_Texture.js.html#l67"><code>lib&#x2F;Texture.js:67</code></a>
+            Defined in: <a href="../files/lib_Texture.js.html#l11"><code>lib&#x2F;Texture.js:11</code></a>
         </div>
     
 
@@ -120,14 +122,224 @@
 
 
 <div class="box intro">
-    <p>Creates a new texture with the optional data provider.</p>
-<p>Note that a texture will not be renderable until some data has been uploaded to it.
-To get around this, you can upload a very small null buffer to the uploadData function,
-until your async load is complete. Or you can use a higher level provider that manages
-multiple assets and dispatches a signal once all textures are renderable.</p>
+    <p>Creates a new texture with the optional width, height, and data.</p>
+<p>If the constructor is passed no parameters other than WebGLContext, then
+it will not be initialized and will be non-renderable. You will need to manually
+uploadData or uploadImage yourself.</p>
+<p>If you pass a width and height, the texture will be initialized with that size
+and null data (e.g. transparent black). If you also pass the format and data, 
+it will be uploaded to the texture. </p>
+<p>The arguments are kept in memory for future context restoration events. If
+this is undesirable (e.g. huge buffers which need to be GC&#39;d), you should not
+pass the data in the constructor, but instead upload it after creating an uninitialized 
+texture. You will need to manage it yourself, either by extending the create() method, 
+or listening to restored events in WebGLContext.</p>
+<p>Most users will want to use the AssetManager to create and manage their textures
+with asynchronous loading and context loss.</p>
 
 </div>
 
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+        <div id="method_Texture" class="method item">
+    <h3 class="name"><code>Texture</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>context</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>width</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>height</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>format</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>dataType</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>data</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l11"><code>lib&#x2F;Texture.js:11</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">context</code>
+                        <span class="type"><a href="../classes/WebGLContext.html" class="crosslink">WebGLContext</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the WebGL context</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">width</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the width of this texture</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">height</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the height of this texture</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">format</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>e.g. Texture.Format.RGBA</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">dataType</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>e.g. Texture.DataType.UNSIGNED_BYTE (Uint8Array)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">data</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the array buffer, e.g. a Uint8Array view</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+    </div>
 
 
 <div id="classdocs" class="tabview">
@@ -138,6 +350,10 @@ multiple assets and dispatches a signal once all textures are renderable.</p>
             <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
         
         
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+        
+        
+            <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
         
         
     </ul>
@@ -153,10 +369,38 @@ multiple assets and dispatches a signal once all textures are renderable.</p>
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
+                                <a href="#method_bind">bind</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
                                 <a href="#method_getNumComponents">getNumComponents</a>
 
                                 
                                     <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_setWrap">setWrap</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_uploadData">uploadData</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_uploadImage">uploadImage</a>
+
                                 
                                 
                             </li>
@@ -166,7 +410,68 @@ multiple assets and dispatches a signal once all textures are renderable.</p>
             
 
             
+                <div class="index-section properties">
+                    <h3>Properties</h3>
 
+                    <ul class="index-list properties">
+                        
+                            <li class="index-item property">
+                                <a href="#property_height">height</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_target">target</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_width">width</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section attrs">
+                    <h3>Attributes</h3>
+
+                    <ul class="index-list attrs">
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_DataType">DataType</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_DEFAULT_FILTER">DEFAULT_FILTER</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_DEFAULT_WRAP">DEFAULT_WRAP</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_Filter">Filter</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_Format">Format</a>
+                            </li>
+                        
+                            <li class="index-item attr">
+                                <a href="#attr_Wrap">Wrap</a>
+                            </li>
+                        
+                    </ul>
+                </div>
             
 
             
@@ -175,6 +480,99 @@ multiple assets and dispatches a signal once all textures are renderable.</p>
         
             <div id="methods" class="api-class-tabpanel">
                 <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_bind" class="method item">
+    <h3 class="name"><code>bind</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>unit</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l271"><code>lib&#x2F;Texture.js:271</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Binds the texture. If unit is specified,
+it will bind the texture at the given slot
+(TEXTURE0, TEXTURE1, etc). If unit is not specified,
+it will simply bind the texture at whichever slot
+is currently active.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">unit</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the texture unit index, starting at 0</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
 
                 
                     <div id="method_getNumComponents" class="method item">
@@ -225,7 +623,7 @@ multiple assets and dispatches a signal once all textures are renderable.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l388"><code>lib&#x2F;Texture.js:388</code></a>
+        <a href="../files/lib_Texture.js.html#l415"><code>lib&#x2F;Texture.js:415</code></a>
         
         </p>
 
@@ -288,11 +686,950 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
 </div>
 
                 
+                    <div id="method_setWrap" class="method item">
+    <h3 class="name"><code>setWrap</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>s</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>t</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>ignoreBind</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l162"><code>lib&#x2F;Texture.js:162</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the wrap mode for this texture; if the second argument
+is undefined or falsy, then both S and T wrap will use the first
+argument.</p>
+<p>You can use Texture.Wrap constants for convenience, to avoid needing 
+a GL reference.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">s</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the S wrap mode</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">t</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the T wrap mode</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">ignoreBind</code>
+                        <span class="type">Boolean</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>(optional) if true, the bind will be ignored.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_uploadData" class="method item">
+    <h3 class="name"><code>uploadData</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>width</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>height</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>format</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>data</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l218"><code>lib&#x2F;Texture.js:218</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A low-level method to upload the specified ArrayBufferView
+to this texture. This will cause the width and height of this
+texture to change.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">width</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the new width of this texture,
+                                defaults to the last used width (or zero)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">height</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the new height of this texture
+                                defaults to the last used height (or zero)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">format</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the data format, default RGBA</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the data type, default UNSIGNED_BYTE (Uint8Array)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">data</code>
+                        <span class="type">ArrayBufferView</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the raw data for this texture, or null for an empty image</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_uploadImage" class="method item">
+    <h3 class="name"><code>uploadImage</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>domObject</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l249"><code>lib&#x2F;Texture.js:249</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Uploads ImageData, HTMLImageElement, HTMLCanvasElement or 
+HTMLVideoElement.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">domObject</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the DOM image container</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
             </div>
         
 
         
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
 
+                
+                    <div id="property_height" class="property item">
+    <h3 class="name"><code>height</code></h3>
+    <span class="type">Number the height</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l73"><code>lib&#x2F;Texture.js:73</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The height of this texture, in pixels.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_target" class="property item">
+    <h3 class="name"><code>target</code></h3>
+    <span class="type">GLenum</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l53"><code>lib&#x2F;Texture.js:53</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The target for this texture unit, i.e. TEXTURE_2D. Subclasses
+should override the create() method to change this, for correct
+usage with context restore.</p>
+
+    </div>
+
+    
+        <p><strong>Default:</strong> gl.TEXTURE_2D</p>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_width" class="property item">
+    <h3 class="name"><code>width</code></h3>
+    <span class="type">Number the width</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l64"><code>lib&#x2F;Texture.js:64</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The width of this texture, in pixels.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+            <div id="attrs" class="api-class-tabpanel">
+                <h2 class="off-left">Attributes</h2>
+
+                
+                    <div id="attr_DataType" class="attr item">
+    <a name="config_DataType"></a> 
+    <h3 class="name"><code>DataType</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l362"><code>lib&#x2F;Texture.js:362</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A set of DataType constants that match their GL counterparts.
+This is for convenience, to avoid the need for a GL rendering context.</p>
+
+    </div>
+
+    
+
+    
+
+    
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <pre class="code prettyprint"><code>    Texture.DataType.UNSIGNED_BYTE 
+    Texture.DataType.FLOAT</code></pre>
+
+            </div>
+        </div>
+    
+</div>
+
+                
+                    <div id="attr_DEFAULT_FILTER" class="attr item">
+    <a name="config_DEFAULT_FILTER"></a> 
+    <h3 class="name"><code>DEFAULT_FILTER</code></h3>
+    <span class="type">GLenum</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l399"><code>lib&#x2F;Texture.js:399</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The default filter mode when creating new textures. If a custom
+provider was specified, it may choose to override this default mode.</p>
+
+    </div>
+
+    
+        <p><strong>Default:</strong> Texture.Filter.LINEAR</p>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_DEFAULT_WRAP" class="attr item">
+    <a name="config_DEFAULT_WRAP"></a> 
+    <h3 class="name"><code>DEFAULT_WRAP</code></h3>
+    <span class="type">GLenum</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l388"><code>lib&#x2F;Texture.js:388</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The default wrap mode when creating new textures. If a custom 
+provider was specified, it may choose to override this default mode.</p>
+
+    </div>
+
+    
+        <p><strong>Default:</strong> Texture.Wrap.CLAMP_TO_EDGE</p>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="attr_Filter" class="attr item">
+    <a name="config_Filter"></a> 
+    <h3 class="name"><code>Filter</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l293"><code>lib&#x2F;Texture.js:293</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A set of Filter constants that match their GL counterparts.
+This is for convenience, to avoid the need for a GL rendering context.</p>
+
+    </div>
+
+    
+
+    
+
+    
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <pre class="code prettyprint"><code>    Texture.Filter.NEAREST
+    Texture.Filter.NEAREST_MIPMAP_LINEAR
+    Texture.Filter.NEAREST_MIPMAP_NEAREST
+    Texture.Filter.LINEAR
+    Texture.Filter.LINEAR_MIPMAP_LINEAR
+    Texture.Filter.LINEAR_MIPMAP_NEAREST</code></pre>
+
+            </div>
+        </div>
+    
+</div>
+
+                
+                    <div id="attr_Format" class="attr item">
+    <a name="config_Format"></a> 
+    <h3 class="name"><code>Format</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l339"><code>lib&#x2F;Texture.js:339</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A set of Format constants that match their GL counterparts.
+This is for convenience, to avoid the need for a GL rendering context.</p>
+
+    </div>
+
+    
+
+    
+
+    
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <pre class="code prettyprint"><code>    Texture.Format.RGB
+    Texture.Format.RGBA
+    Texture.Format.LUMINANCE_ALPHA</code></pre>
+
+            </div>
+        </div>
+    
+</div>
+
+                
+                    <div id="attr_Wrap" class="attr item">
+    <a name="config_Wrap"></a> 
+    <h3 class="name"><code>Wrap</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l319"><code>lib&#x2F;Texture.js:319</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A set of Wrap constants that match their GL counterparts.
+This is for convenience, to avoid the need for a GL rendering context.</p>
+
+    </div>
+
+    
+
+    
+
+    
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <pre class="code prettyprint"><code>    Texture.Wrap.CLAMP_TO_EDGE
+    Texture.Wrap.MIRRORED_REPEAT
+    Texture.Wrap.REPEAT</code></pre>
+
+            </div>
+        </div>
+    
+</div>
+
+                
+            </div>
         
 
         

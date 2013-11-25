@@ -64,19 +64,23 @@ See the `demos` folder for more.
 
 ## Using without Node
 
-If you aren't using Node and `require()` statements, you can grab the file at `build/kami.umd.js`. 
+If you aren't using Node and `require()` statements, you can grab the UMD build at `build/kami.js`. 
 
 Most of the code looks exactly the same, except all of Kami's objects are exported onto a global `kami` namespace. The dependencies are also exported on the namespace, for convenience. See here:
 
 ```javascript
-<script src="kami.umd.js"></script>
+<script src="kami.js"></script>
 <script>
 	var context = new kami.WebGLContext(width, height);
 	var batch = new kami.SpriteBatch(context);
 
-	//Dependencies (gl-matrix, signals-js, jsOOP) are all top-level, too:
-	var point = kami.vec2.create();
+	//js-signals dependency is on Kami namespace, too:
 	var Signal = new kami.Signal();
+
+	//so is "klasse" utility library, but aliased to Class:
+	var MyClass = new kami.Class({
+		//... class definition ...//
+	});
 	//etc...
 </script>
 ```

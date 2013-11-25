@@ -47,7 +47,9 @@
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
-                <li><a href="../classes/Point.html">Point</a></li>
+                <li><a href="../classes/Mesh.html">Mesh</a></li>
+            
+                <li><a href="../classes/NumberUtils.html">NumberUtils</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
@@ -100,29 +102,28 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-var Class = require(&#x27;jsOOP&#x27;).Class;
+/**
+ * @module kami
+ */
+
+var Class = require(&#x27;klasse&#x27;);
 
 var ShaderProgram = new Class({
 	
-	vertSource: null,
-	fragSource: null, 
- 
-	vertShader: null,
-	fragShader: null,
-
-	program: null,
-
-	log: &quot;&quot;,
-
-	uniformCache: null,
-	attributeCache: null,
-
-	initialize: function(context, vertSource, fragSource, attributeLocations) {
+	initialize: function ShaderProgram(context, vertSource, fragSource, attributeLocations) {
 		if (!vertSource || !fragSource)
 			throw &quot;vertex and fragment shaders must be defined&quot;;
 		if (!context)
 			throw &quot;no GL context specified&quot;;
 		this.context = context;
+
+	 	this.vertShader = null;
+	 	this.fragShader = null;
+	 	this.program = null;
+	 	this.log = &quot;&quot;;
+
+		this.uniformCache = null;
+		this.attributeCache = null;
 
 		this.attributeLocations = attributeLocations;
 
@@ -373,8 +374,6 @@ var ShaderProgram = new Class({
 		gl.deleteProgram(this.program);
 		this.program = null;
 	},
-
-
 
 	setUniformi: function(name, x, y, z, w) {
 		var gl = this.gl;

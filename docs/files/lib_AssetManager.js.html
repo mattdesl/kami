@@ -47,7 +47,9 @@
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
-                <li><a href="../classes/Point.html">Point</a></li>
+                <li><a href="../classes/Mesh.html">Mesh</a></li>
+            
+                <li><a href="../classes/NumberUtils.html">NumberUtils</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
@@ -104,9 +106,8 @@
  * @module kami
  */
 
-var Class = require(&#x27;jsOOP&#x27;).Class;
+var Class = require(&#x27;klasse&#x27;);
 var Signal = require(&#x27;signals&#x27;);
-
 
 /**
  * This is a utility which makes asset loading cleaner
@@ -148,90 +149,6 @@ var Signal = require(&#x27;signals&#x27;);
  */
 var AssetManager = new Class({
 	
-	/**
-	 * An array of assets that this AssetManager is handling.
-	 * This should not be modified directly.
-	 * 
-	 * @property assets
-	 * @type {Array}
-	 */
-	assets: null,
-
-	/**
-	 * The queue of tasks to load. Each contains
-	 * an
-	 * {{#crossLink &quot;AssetManager.Descriptor&quot;}}{{/crossLink}}.
-	 *
-	 * Loading a task will pop it off this list and fire the async
-	 * or synchronous process.
-	 *
-	 * This should not be modified directly.
-	 *
-	 * @property tasks
-	 * @protected
-	 * @type {Array}
-	 */
-	tasks: null,
-
-	//Private stuff... do not touch!
-
-	__loadCount: 0,
-	__totalItems: 0,
-	__loadCallbackFunc: null,
-	__invalidateFunc: null,
-
-	// Signals 
-	
-	/**
-	 * A signal dispatched when loading first begins, 
-	 * i.e. when update() is called and the loading queue is the
-	 * same size as the total asset list.
-	 *
-	 * @event loadStarted
-	 * @type {Signal}
-	 */
-	loadStarted: null,
-
-	/**
-	 * A signal dispatched when all assets have been loaded
-	 * (i.e. their async tasks finished).
-	 *
-	 * @event loadFinished
-	 * @type {Signal}
-	 */
-	loadFinished: null,
-
-	/**
-	 * A signal dispatched on progress updates, once an asset
-	 * has been loaded in full (i.e. its async task finished).
-	 *
-	 * This passes three arguments to the listener function:
-	 * 
-	 * - &#x60;current&#x60; number of assets that have been loaded
-	 * - &#x60;total&#x60; number of assets to loaded
-	 * - &#x60;name&#x60; of the asset which was just loaded
-	 *  
-	 * @event loadProgress
-	 * @type {[type]}
-	 */
-	loadProgress: null,
-
-	/**
-	 * A signal dispatched on problematic load; e.g. if
-	 * the image was not found and &quot;onerror&quot; was triggered. 
-	 * The first argument passed to the listener will be 
-	 * the string name of the asset.
-	 *
-	 * The asset manager will continue loading subsequent assets.
-	 *
-	 * This is dispatched after the status of the asset is
-	 * set to Status.LOAD_FAIL, and before the loadProgress
-	 * signal is dispatched.
-	 *
-	 * @event loadError
-	 * @type {Signal}
-	 */
-	loadError: null,
 
 	/**
 	 * A read-only property that describes the number of 
@@ -262,18 +179,96 @@ var AssetManager = new Class({
 	},
 
 	//Constructor
-	initialize: function(context) {
+	initialize: function AssetManager(context) {
 		if (!context)
 			throw &quot;no context defined for AssetManager&quot;;
 
+		/**
+		 * An array of assets that this AssetManager is handling.
+		 * This should not be modified directly.
+		 * 
+		 * @property assets
+		 * @type {Array}
+		 */
 		this.assets = [];
-		this.loaders = {};
-		this.tasks = [];
-		this.__loadCount = this.__totalItems = 0;
 
+		/**
+		 * The queue of tasks to load. Each contains
+		 * an
+		 * {{#crossLink &quot;AssetManager.Descriptor&quot;}}{{/crossLink}}.
+		 *
+		 * Loading a task will pop it off this list and fire the async
+		 * or synchronous process.
+		 *
+		 * This should not be modified directly.
+		 *
+		 * @property tasks
+		 * @protected
+		 * @type {Array}
+		 */
+		this.tasks = [];
+
+		//Private stuff... do not touch!
+
+		this.__loadCount = 0;
+		this.__totalItems = 0;
+		this.__loadCallbackFunc = null;
+		this.__invalidateFunc = null;
+
+		// Signals 
+		
+		/**
+		 * A signal dispatched when loading first begins, 
+		 * i.e. when update() is called and the loading queue is the
+		 * same size as the total asset list.
+		 *
+		 * @event loadStarted
+		 * @type {Signal}
+		 */
 		this.loadStarted = new Signal();
+
+		/**
+		 * A signal dispatched when all assets have been loaded
+		 * (i.e. their async tasks finished).
+		 *
+		 * @event loadFinished
+		 * @type {Signal}
+		 */
 		this.loadFinished = new Signal();
+
+		/**
+		 * A signal dispatched on progress updates, once an asset
+		 * has been loaded in full (i.e. its async task finished).
+		 *
+		 * This passes three arguments to the listener function:
+		 * 
+		 * - &#x60;current&#x60; number of assets that have been loaded
+		 * - &#x60;total&#x60; number of assets to loaded
+		 * - &#x60;name&#x60; of the asset which was just loaded
+		 *  
+		 * @event loadProgress
+		 * @type {[type]}
+		 */
 		this.loadProgress = new Signal();
+
+		/**
+		 * A signal dispatched on problematic load; e.g. if
+		 * the image was not found and &quot;onerror&quot; was triggered. 
+		 * The first argument passed to the listener will be 
+		 * the string name of the asset.
+		 *
+		 * The asset manager will continue loading subsequent assets.
+		 *
+		 * This is dispatched after the status of the asset is
+		 * set to Status.LOAD_FAIL, and before the loadProgress
+		 * signal is dispatched.
+		 *
+		 * @event loadError
+		 * @type {Signal}
+		 */
+		this.loadError = new Signal();
+
+		this.loaders = {};
 
 		this.__invalidateFunc = this.invalidate.bind(this);
 		this.__loadCallbackFunc = this.__loadCallback.bind(this);
@@ -562,7 +557,7 @@ AssetManager.Status = {
  * texture. You will not need to deal with this class directly, unless you want
  * to write your own AssetManager loaders.
  *
- * A &#x60;Loader&#x60; type for AssetManager is simply an object which defines two (static) methods:
+ * A &#x60;Loader&#x60; type for AssetManager is simply an object which defines two methods:
  *
  * - &#x60;loadAsset&#x60;: this is the loading function, which handles the asynchronous load.
  * - &#x60;processArguments&#x60;: this is for the user&#x27;s convenience, handling default arguments

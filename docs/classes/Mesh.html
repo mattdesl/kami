@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Point - kami</title>
+    <title>Mesh - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -47,7 +47,9 @@
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
-                <li><a href="../classes/Point.html">Point</a></li>
+                <li><a href="../classes/Mesh.html">Mesh</a></li>
+            
+                <li><a href="../classes/NumberUtils.html">NumberUtils</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
@@ -96,7 +98,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>Point Class</h1>
+                        <h1>Mesh Class</h1>
 <div class="box meta">
     
 
@@ -104,7 +106,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/lib_Point.js.html#l11"><code>lib&#x2F;Point.js:11</code></a>
+            Defined in: <a href="../files/lib_glutils_Mesh.js.html#l8"><code>lib&#x2F;glutils&#x2F;Mesh.js:8</code></a>
         </div>
     
 
@@ -120,128 +122,10 @@
 
 
 <div class="box intro">
-    <p>This is a convenience wrapper around <a href="http://glmatrix.net/">gl-matrix</a> &quot;vec2&quot;
-type. It is backed by a Float32Array, and the <code>x</code> and <code>y</code> properties are included
-for convenience.</p>
-<p>For performance, or when performing gl-matrix operations, 
-you should access the <code>items</code> array directly. 
-For convenience and clarity, the <code>x</code> and <code>y</code> properties are encouraged.</p>
+    <p>A mesh class that wraps VBO and IBO.</p>
 
 </div>
 
-
-    <div class="constructor">
-        <h2>Constructor</h2>
-        <div id="method_Point" class="method item">
-    <h3 class="name"><code>Point</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>x</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>y</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_Point.js.html#l11"><code>lib&#x2F;Point.js:11</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">x</code>
-                        <span class="type">Number</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the x position</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">y</code>
-                        <span class="type">Number</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the y position</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-    </div>
 
 
 <div id="classdocs" class="tabview">
@@ -252,8 +136,6 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
         
             <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
         
-        
-            <li class="api-class-tab attrs"><a href="#attrs">Attributes</a></li>
         
         
     </ul>
@@ -271,7 +153,21 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
                     <ul class="index-list properties">
                         
                             <li class="index-item property">
-                                <a href="#property_items">items</a>
+                                <a href="#property_dirty">dirty</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property private">
+                                <a href="#property_"></a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property private">
+                                <a href="#property_"></a>
 
                                 
                                 
@@ -281,22 +177,6 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
                 </div>
             
 
-            
-                <div class="index-section attrs">
-                    <h3>Attributes</h3>
-
-                    <ul class="index-list attrs">
-                        
-                            <li class="index-item attr">
-                                <a href="#attr_"></a>
-                            </li>
-                        
-                            <li class="index-item attr">
-                                <a href="#attr_"></a>
-                            </li>
-                        
-                    </ul>
-                </div>
             
 
             
@@ -309,9 +189,9 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
                 <h2 class="off-left">Properties</h2>
 
                 
-                    <div id="property_items" class="property item">
-    <h3 class="name"><code>items</code></h3>
-    <span class="type">Float32Array</span>
+                    <div id="property_dirty" class="property item">
+    <h3 class="name"><code>dirty</code></h3>
+    <span class="type">Boolean</span>
 
     
 
@@ -332,7 +212,7 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
             
         
         
-        <a href="../files/lib_Point.js.html#l29"><code>lib&#x2F;Point.js:29</code></a>
+        <a href="../files/lib_glutils_Mesh.js.html#l16"><code>lib&#x2F;glutils&#x2F;Mesh.js:16</code></a>
         
         </p>
 
@@ -342,9 +222,101 @@ For convenience and clarity, the <code>x</code> and <code>y</code> properties ar
     </div>
 
     <div class="description">
-        <p>This is the Float32Array which can be accessed
-directly for better performance or gl-matrix operations.</p>
+        <p>A write-only property which sets both vertices and indices 
+flag to dirty or not.</p>
 
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_" class="property item private">
+    <h3 class="name"><code></code></h3>
+    <span class="type">Unknown</span>
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_glutils_Mesh.js.html#l70"><code>lib&#x2F;glutils&#x2F;Mesh.js:70</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_" class="property item private">
+    <h3 class="name"><code></code></h3>
+    <span class="type">Unknown</span>
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_glutils_Mesh.js.html#l76"><code>lib&#x2F;glutils&#x2F;Mesh.js:76</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
     </div>
 
     
@@ -358,120 +330,6 @@ directly for better performance or gl-matrix operations.</p>
             </div>
         
 
-        
-            <div id="attrs" class="api-class-tabpanel">
-                <h2 class="off-left">Attributes</h2>
-
-                
-                    <div id="attr_" class="attr item">
-    <a name="config_"></a> 
-    <h3 class="name"><code></code></h3>
-    <span class="type">Number</span>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_Point.js.html#l46"><code>lib&#x2F;Point.js:46</code></a>
-        
-        </p>
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Reads or writes the &quot;x&quot; value in the backing array (the first element).</p>
-
-    </div>
-
-    
-        <p><strong>Default:</strong> 0</p>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="attr_" class="attr item">
-    <a name="config_"></a> 
-    <h3 class="name"><code></code></h3>
-    <span class="type">Number</span>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_Point.js.html#l62"><code>lib&#x2F;Point.js:62</code></a>
-        
-        </p>
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Reads or writes the &quot;y&quot; value in the backing array (the second element).</p>
-
-    </div>
-
-    
-        <p><strong>Default:</strong> 0</p>
-    
-
-    
-
-    
-</div>
-
-                
-            </div>
         
 
         

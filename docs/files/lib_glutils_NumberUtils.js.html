@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>kami - kami</title>
+    <title>lib/glutils/NumberUtils.js - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -98,91 +98,87 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>kami Module</h1>
-<div class="box clearfix meta">
-    
+                        <h1 class="file-heading">File: lib/glutils/NumberUtils.js</h1>
 
-    
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+ * @module kami
+ */
 
-    
-        <div class="foundat">
-            Defined in: <a href="../files/lib_WebGLContext.js.html#l8"><code>lib&#x2F;WebGLContext.js:8</code></a>
-        </div>
-    
-
-    
-</div>
+var int8 = new Int8Array(4);
+var int32 = new Int32Array(int8.buffer, 0, 1);
+var float32 = new Float32Array(int8.buffer, 0, 1);
 
 
 
-<div class="box intro">
-    
-</div>
+/**
+ * A singleton for number utilities. 
+ * @class NumberUtils
+ */
+var NumberUtils = function() {
+
+};
 
 
+/**
+ * Returns a float representation of the given int bits. ArrayBuffer
+ * is used for the conversion.
+ *
+ * @method  intBitsToFloat
+ * @static
+ * @param  {Number} i the int to cast
+ * @return {Number}   the float
+ */
+NumberUtils.intBitsToFloat = function(i) {
+	int32[0] = i;
+	return float32[0];
+};
 
-<div class="yui3-g">
-    <div class="yui3-u-1-2">
-        
-            <p>This module provides the following classes:</p>
+/**
+ * Returns the int bits from the given float. ArrayBuffer is used
+ * for the conversion.
+ *
+ * @method  floatToIntBits
+ * @static
+ * @param  {Number} f the float to cast
+ * @return {Number}   the int bits
+ */
+NumberUtils.floatToIntBits = function(f) {
+	float32[0] = f;
+	return int32[0];
+};
 
-            <ul class="module-classes">
-            
-                <li class="module-class">
-                    <a href="../classes/AbstractBatch.html">
-                        AbstractBatch
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/AssetManager.html">
-                        AssetManager
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/AssetManager.ImageLoader.html">
-                        AssetManager.ImageLoader
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/Mesh.html">
-                        Mesh
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/NumberUtils.html">
-                        NumberUtils
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/SpriteBatch.html">
-                        SpriteBatch
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/Texture.html">
-                        Texture
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/WebGLContext.html">
-                        WebGLContext
-                    </a>
-                </li>
-            
-            </ul>
-        
-    </div>
+/**
+ * Encodes ABGR int as a float, with slight precision loss.
+ *
+ * @method  intToFloatColor
+ * @static
+ * @param {Number} value an ABGR packed integer
+ */
+NumberUtils.intToFloatColor = function(value) {
+	return NumberUtils.intBitsToFloat( value &amp; 0xfeffffff );
+};
 
-    <div class="yui3-u-1-2">
-        
-    </div>
+/**
+ * Returns a float encoded ABGR value from the given RGBA
+ * bytes (0 - 255). Useful for saving bandwidth in vertex data.
+ *
+ * @method  colorToFloat
+ * @static
+ * @param {Number} r the Red byte (0 - 255)
+ * @param {Number} g the Green byte (0 - 255)
+ * @param {Number} b the Blue byte (0 - 255)
+ * @param {Number} a the Alpha byte (0 - 255)
+ * @return {Float32}  a Float32 of the RGBA color
+ */
+NumberUtils.colorToFloat = function(r, g, b, a) {
+	var bits = (a &lt;&lt; 24 | b &lt;&lt; 16 | g &lt;&lt; 8 | r);
+	return NumberUtils.intToFloatColor(bits);
+};
+
+module.exports = NumberUtils;
+    </pre>
 </div>
 
                     </div>

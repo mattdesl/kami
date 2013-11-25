@@ -4,7 +4,8 @@ YUI.add("yuidoc-meta", function(Y) {
         "AbstractBatch",
         "AssetManager",
         "AssetManager.ImageLoader",
-        "Point",
+        "Mesh",
+        "NumberUtils",
         "SpriteBatch",
         "Texture",
         "WebGLContext"
@@ -15,8 +16,7 @@ YUI.add("yuidoc-meta", function(Y) {
     "allModules": [
         {
             "displayName": "kami",
-            "name": "kami",
-            "description": "The core kami module provides basic 2D sprite batching and \nasset management."
+            "name": "kami"
         }
     ]
 } };

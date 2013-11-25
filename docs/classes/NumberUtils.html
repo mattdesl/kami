@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>AssetManager.ImageLoader - kami</title>
+    <title>NumberUtils - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -98,7 +98,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>AssetManager.ImageLoader Class</h1>
+                        <h1>NumberUtils Class</h1>
 <div class="box meta">
     
 
@@ -106,7 +106,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/lib_AssetManager.js.html#l450"><code>lib&#x2F;AssetManager.js:450</code></a>
+            Defined in: <a href="../files/lib_glutils_NumberUtils.js.html#l11"><code>lib&#x2F;glutils&#x2F;NumberUtils.js:11</code></a>
         </div>
     
 
@@ -122,16 +122,7 @@
 
 
 <div class="box intro">
-    <p>This is the default implementation of an image loader plugin for AssetManager.
-This uses a DOM Image object to upload PNG, GIF and JPG images to a WebGL
-texture. You will not need to deal with this class directly, unless you want
-to write your own AssetManager loaders.</p>
-<p>A <code>Loader</code> type for AssetManager is simply an object which defines two methods:</p>
-<ul>
-<li><code>loadAsset</code>: this is the loading function, which handles the asynchronous load.</li>
-<li><code>processArguments</code>: this is for the user&#39;s convenience, handling default arguments
-and giving a meaningful return value.</li>
-</ul>
+    <p>A singleton for number utilities.</p>
 
 </div>
 
@@ -160,7 +151,7 @@ and giving a meaningful return value.</li>
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
-                                <a href="#method_loadAsset">loadAsset</a>
+                                <a href="#method_colorToFloat">colorToFloat</a>
 
                                 
                                     <span class="flag static">static</span>
@@ -169,7 +160,25 @@ and giving a meaningful return value.</li>
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_processArguments">processArguments</a>
+                                <a href="#method_floatToIntBits">floatToIntBits</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_intBitsToFloat">intBitsToFloat</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_intToFloatColor">intToFloatColor</a>
 
                                 
                                     <span class="flag static">static</span>
@@ -193,8 +202,8 @@ and giving a meaningful return value.</li>
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method_loadAsset" class="method item">
-    <h3 class="name"><code>loadAsset</code></h3>
+                    <div id="method_colorToFloat" class="method item">
+    <h3 class="name"><code>colorToFloat</code></h3>
 
     
         <div class="args">
@@ -202,182 +211,25 @@ and giving a meaningful return value.</li>
             
                 <li class="arg">
                     
-                        <code>name</code>
+                        <code>r</code>
                     
                 </li>
             
                 <li class="arg">
                     
-                        <code>finished</code>
+                        <code>g</code>
                     
                 </li>
             
                 <li class="arg">
                     
-                        <code>texture</code>
+                        <code>b</code>
                     
                 </li>
             
                 <li class="arg">
                     
-                        <code>path</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="flag static">static</span>
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_AssetManager.js.html#l466"><code>lib&#x2F;AssetManager.js:466</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>This is a "loader function" which handles the asynchronous
-loading for an asset. The function must be implemented in a very
-strict manner for the asset manager to work correctly.</p>
-<p>The first parameter passed to this function is the name of the
-asset being loaded. The second parameter is a callback that must
-be invoked after the async task is completed.
-Any subsequent parameters are those that came from the inital call
-to <a href="../classes/AssetManager.html#method_load" class="crosslink">AssetManager.load</a>. </p>
-<p>Once the synchronous or asynchronous loading task is completed, the
-<code>finished</code> callback must be invoked with two parameters: first, the
-<code>name</code> of the asset as passed to this loader. And second, a boolean indicating
-the <code>success</code> of the load operation. </p>
-<p>If you don&#39;t invoke the callback, the asset manager may never finish loading.</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">name</code>
-                        <span class="type">String</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the name of the asset to load</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">finished</code>
-                        <span class="type">Function</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the function to call when async loading is complete</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">texture</code>
-                        <span class="type"><a href="../classes/Texture.html" class="crosslink">Texture</a></span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the texture to operate on for this asset</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">path</code>
-                        <span class="type">String</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the optional image path to use instead of the <code>name</code> parameter</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_processArguments" class="method item">
-    <h3 class="name"><code>processArguments</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>name</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>params</code>
+                        <code>a</code>
                     
                 </li>
             
@@ -387,7 +239,7 @@ the <code>success</code> of the load operation. </p>
 
     
         <span class="returns-inline">
-            <span class="type">Any</span>
+            <span class="type">Float32</span>
         </span>
     
 
@@ -416,7 +268,7 @@ the <code>success</code> of the load operation. </p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l528"><code>lib&#x2F;AssetManager.js:528</code></a>
+        <a href="../files/lib_glutils_NumberUtils.js.html#l59"><code>lib&#x2F;glutils&#x2F;NumberUtils.js:59</code></a>
         
         </p>
 
@@ -427,17 +279,8 @@ the <code>success</code> of the load operation. </p>
     </div>
 
     <div class="description">
-        <p>This method is called from 
-<a href="../classes/AssetManager.html#method_load" class="crosslink">AssetManager.load</a> to
-process the arguments and setup any default values. This is also responsible for
-determining the appropriate return value for the load function. In the case of
-<code>ImageLoader</code>, we return the Texture that was passed to the load() function, or
-a new Texture object if none was given. This way, the user can write code like this:</p>
-<pre class="code prettyprint"><code>  var texture = assetManager.load("img.png"); //returns new Texture</code></pre>
-<p>The first argument is the name of the asset being processed. The second argument
-is an array of arguments that will be passed to the loader function.</p>
-<p>The method is called bound to the AssetManager, so we can access WebGLContext
-with "this.context".</p>
+        <p>Returns a float encoded ABGR value from the given RGBA
+bytes (0 - 255). Useful for saving bandwidth in vertex data.</p>
 
     </div>
 
@@ -449,14 +292,14 @@ with "this.context".</p>
             
                 <li class="param">
                     
-                        <code class="param-name">name</code>
-                        <span class="type">String</span>
+                        <code class="param-name">r</code>
+                        <span class="type">Number</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>the asset name</p>
+                        <p>the Red byte (0 - 255)</p>
 
                     </div>
 
@@ -465,14 +308,46 @@ with "this.context".</p>
             
                 <li class="param">
                     
-                        <code class="param-name">params</code>
-                        <span class="type">Array</span>
+                        <code class="param-name">g</code>
+                        <span class="type">Number</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>an array of parameters that will be used to load the asset</p>
+                        <p>the Green byte (0 - 255)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">b</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the Blue byte (0 - 255)</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">a</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the Alpha byte (0 - 255)</p>
 
                     </div>
 
@@ -490,13 +365,324 @@ with "this.context".</p>
             <div class="returns-description">
                 
                     
-                        <span class="type">Any</span>:
+                        <span class="type">Float32</span>:
                     
-                    <p>the object the user may expect from the loader, in this case a Texture object</p>
+                    <p>a Float32 of the RGBA color</p>
 
                 
             </div>
         </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_floatToIntBits" class="method item">
+    <h3 class="name"><code>floatToIntBits</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>f</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Number</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_glutils_NumberUtils.js.html#l34"><code>lib&#x2F;glutils&#x2F;NumberUtils.js:34</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Returns the int bits from the given float. ArrayBuffer is used
+for the conversion.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">f</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the float to cast</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Number</span>:
+                    
+                    <p>the int bits</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_intBitsToFloat" class="method item">
+    <h3 class="name"><code>intBitsToFloat</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>i</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Number</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_glutils_NumberUtils.js.html#l20"><code>lib&#x2F;glutils&#x2F;NumberUtils.js:20</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Returns a float representation of the given int bits. ArrayBuffer
+is used for the conversion.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">i</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the int to cast</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Number</span>:
+                    
+                    <p>the float</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_intToFloatColor" class="method item">
+    <h3 class="name"><code>intToFloatColor</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>value</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_glutils_NumberUtils.js.html#l48"><code>lib&#x2F;glutils&#x2F;NumberUtils.js:48</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Encodes ABGR int as a float, with slight precision loss.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">value</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>an ABGR packed integer</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
     
 
     

@@ -47,7 +47,9 @@
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
-                <li><a href="../classes/Point.html">Point</a></li>
+                <li><a href="../classes/Mesh.html">Mesh</a></li>
+            
+                <li><a href="../classes/NumberUtils.html">NumberUtils</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
@@ -101,6 +103,10 @@
     
 
     
+        <div class="extends">
+            Extends <a href="../classes/AbstractBatch.html" class="crosslink">AbstractBatch</a>
+        </div>
+    
 
     
         <div class="foundat">
@@ -123,6 +129,9 @@
     <p>A basic implementation of a batcher which draws 2D sprites.
 This uses two triangles (quads) with indexed and interleaved
 vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
+<p>The color is packed into a single float to reduce vertex bandwidth, and
+the data is interleaved for best performance. We use a static index buffer,
+and a dynamic vertex buffer that is updated with bufferSubData.</p>
 
 </div>
 
@@ -287,9 +296,16 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
                 <div class="index-section methods">
                     <h3>Methods</h3>
 
-                    <ul class="index-list methods">
+                    <ul class="index-list methods extends">
                         
-                            <li class="index-item method protected">
+                            <li class="index-item method inherited">
+                                <a href="#method__createMesh">_createMesh</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method protected inherited">
                                 <a href="#method__createShader">_createShader</a>
 
                                 
@@ -303,50 +319,78 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
                                 
                             </li>
                         
-                            <li class="index-item method protected">
+                            <li class="index-item method inherited">
+                                <a href="#method__createVertexAttributes">_createVertexAttributes</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method__postRender">_postRender</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method protected inherited">
                                 <a href="#method__preRender">_preRender</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#method_begin">begin</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
+                                <a href="#method_destroy">destroy</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
                                 <a href="#method_draw">draw</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#method_drawVertices">drawVertices</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#method_end">end</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#method_flush">flush</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
+                            <li class="index-item method inherited">
                                 <a href="#method_getVertexSize">getVertexSize</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method_setColor">setColor</a>
 
                                 
                                 
@@ -374,10 +418,31 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
                 <div class="index-section properties">
                     <h3>Properties</h3>
 
-                    <ul class="index-list properties">
+                    <ul class="index-list properties extends">
+                        
+                            <li class="index-item property inherited">
+                                <a href="#property_color">color</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property inherited">
+                                <a href="#property_premultiplyColor">premultiplyColor</a>
+
+                                
+                                
+                            </li>
                         
                             <li class="index-item property">
                                 <a href="#property_projection">projection</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_texture">texture</a>
 
                                 
                                 
@@ -398,7 +463,7 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
                 <div class="index-section attrs">
                     <h3>Attributes</h3>
 
-                    <ul class="index-list attrs">
+                    <ul class="index-list attrs extends">
                         
                             <li class="index-item attr">
                                 <a href="#attr_totalRenderCalls">totalRenderCalls</a>
@@ -418,6 +483,96 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
         
             <div id="methods" class="api-class-tabpanel">
                 <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method__createMesh" class="method item inherited">
+    <h3 class="name"><code>_createMesh</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>size</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/AbstractBatch.html#method__createMesh">AbstractBatch</a>:
+            
+        
+        
+        <a href="../files/lib_AbstractBatch.js.html#l128"><code>lib&#x2F;AbstractBatch.js:128</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called from the constructor to create a new Mesh 
+based on the expected batch size. Should set up
+verts &amp; indices properly.</p>
+<p>Users should not call this directly; instead, it
+should only be implemented by subclasses.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">size</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the size passed through the constructor</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
 
                 
                     <div id="method__createShader" class="method item protected">
@@ -449,16 +604,16 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
 
     <div class="meta">
         
+            <p>Inherited from
+            <a href="../classes/AbstractBatch.html#method__createShader">
+                AbstractBatch
+            </a>
             
-                
-                <p>
-                
-                Defined in
-                
+            but overwritten in
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l127"><code>lib&#x2F;SpriteBatch.js:127</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l137"><code>lib&#x2F;SpriteBatch.js:137</code></a>
         
         </p>
 
@@ -533,7 +688,7 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l90"><code>lib&#x2F;SpriteBatch.js:90</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l97"><code>lib&#x2F;SpriteBatch.js:97</code></a>
         
         </p>
 
@@ -570,6 +725,133 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
 </div>
 
                 
+                    <div id="method__createVertexAttributes" class="method item inherited">
+    <h3 class="name"><code>_createVertexAttributes</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Array</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/AbstractBatch.html#method__createVertexAttributes">AbstractBatch</a>:
+            
+        
+        
+        <a href="../files/lib_AbstractBatch.js.html#l186"><code>lib&#x2F;AbstractBatch.js:186</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Returns an array of vertex attributes for this mesh; 
+subclasses should implement this with the attributes 
+expected for their batch.</p>
+<p>This method initially throws an error; so it must be overridden by
+subclasses of AbstractBatch.</p>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Array</span>:
+                    
+                    <p>an array of Mesh.VertexAttrib objects</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method__postRender" class="method item inherited">
+    <h3 class="name"><code>_postRender</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/AbstractBatch.html#method__postRender">AbstractBatch</a>:
+            
+        
+        
+        <a href="../files/lib_AbstractBatch.js.html#l259"><code>lib&#x2F;AbstractBatch.js:259</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called after flushing the batch. This method
+does nothing by default.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="method__preRender" class="method item protected">
     <h3 class="name"><code>_preRender</code></h3>
 
@@ -595,16 +877,16 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
 
     <div class="meta">
         
+            <p>Inherited from
+            <a href="../classes/AbstractBatch.html#method__preRender">
+                AbstractBatch
+            </a>
             
-                
-                <p>
-                
-                Defined in
-                
+            but overwritten in
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l161"><code>lib&#x2F;SpriteBatch.js:161</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l171"><code>lib&#x2F;SpriteBatch.js:171</code></a>
         
         </p>
 
@@ -650,16 +932,16 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
 
     <div class="meta">
         
+            <p>Inherited from
+            <a href="../classes/AbstractBatch.html#method_begin">
+                AbstractBatch
+            </a>
             
-                
-                <p>
-                
-                Defined in
-                
+            but overwritten in
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l172"><code>lib&#x2F;SpriteBatch.js:172</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l182"><code>lib&#x2F;SpriteBatch.js:182</code></a>
         
         </p>
 
@@ -673,6 +955,60 @@ vertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).</p>
         <p>Binds the shader, disables depth writing, 
 enables blending, activates texture unit 0, and sends
 default matrices and sampler2D uniforms to the shader.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_destroy" class="method item inherited">
+    <h3 class="name"><code>destroy</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/AbstractBatch.html#method_destroy">AbstractBatch</a>:
+            
+        
+        
+        <a href="../files/lib_AbstractBatch.js.html#l325"><code>lib&#x2F;AbstractBatch.js:325</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Destroys the batch, deleting its buffers and removing it from the
+WebGLContext management. Trying to use this
+batch after destroying it can lead to unpredictable behaviour.</p>
 
     </div>
 
@@ -723,12 +1059,6 @@ default matrices and sampler2D uniforms to the shader.</p>
             
                 <li class="arg">
                     
-                        <code>color</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
                         <code>u1</code>
                     
                 </li>
@@ -771,16 +1101,16 @@ default matrices and sampler2D uniforms to the shader.</p>
 
     <div class="meta">
         
+            <p>Inherited from
+            <a href="../classes/AbstractBatch.html#method_draw">
+                AbstractBatch
+            </a>
             
-                
-                <p>
-                
-                Defined in
-                
+            but overwritten in
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l244"><code>lib&#x2F;SpriteBatch.js:244</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l253"><code>lib&#x2F;SpriteBatch.js:253</code></a>
         
         </p>
 
@@ -876,22 +1206,6 @@ screen-space with the origin at the upper-left corner (y-down).</p>
 
                     <div class="param-description">
                         <p>the height in pixels, defaults to the texture height</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">color</code>
-                        <span class="type">Number</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the color float (alpha), default zero</p>
 
                     </div>
 
@@ -1017,16 +1331,16 @@ screen-space with the origin at the upper-left corner (y-down).</p>
 
     <div class="meta">
         
+            <p>Inherited from
+            <a href="../classes/AbstractBatch.html#method_drawVertices">
+                AbstractBatch
+            </a>
             
-                
-                <p>
-                
-                Defined in
-                
+            but overwritten in
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l330"><code>lib&#x2F;SpriteBatch.js:330</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l338"><code>lib&#x2F;SpriteBatch.js:338</code></a>
         
         </p>
 
@@ -1133,16 +1447,16 @@ screen-space with the origin at the upper-left corner (y-down).</p>
 
     <div class="meta">
         
+            <p>Inherited from
+            <a href="../classes/AbstractBatch.html#method_end">
+                AbstractBatch
+            </a>
             
-                
-                <p>
-                
-                Defined in
-                
+            but overwritten in
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l207"><code>lib&#x2F;SpriteBatch.js:207</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l217"><code>lib&#x2F;SpriteBatch.js:217</code></a>
         
         </p>
 
@@ -1188,16 +1502,16 @@ screen-space with the origin at the upper-left corner (y-down).</p>
 
     <div class="meta">
         
+            <p>Inherited from
+            <a href="../classes/AbstractBatch.html#method_flush">
+                AbstractBatch
+            </a>
             
-                
-                <p>
-                
-                Defined in
-                
+            but overwritten in
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l226"><code>lib&#x2F;SpriteBatch.js:226</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l236"><code>lib&#x2F;SpriteBatch.js:236</code></a>
         
         </p>
 
@@ -1249,16 +1563,16 @@ shaders, and so forth.</p>
 
     <div class="meta">
         
+            <p>Inherited from
+            <a href="../classes/AbstractBatch.html#method_getVertexSize">
+                AbstractBatch
+            </a>
             
-                
-                <p>
-                
-                Defined in
-                
+            but overwritten in
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l79"><code>lib&#x2F;SpriteBatch.js:79</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l86"><code>lib&#x2F;SpriteBatch.js:86</code></a>
         
         </p>
 
@@ -1290,6 +1604,164 @@ shaders, and so forth.</p>
                 
             </div>
         </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_setColor" class="method item inherited">
+    <h3 class="name"><code>setColor</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>r</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>g</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>b</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>a</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/AbstractBatch.html#method_setColor">AbstractBatch</a>:
+            
+        
+        
+        <a href="../files/lib_AbstractBatch.js.html#l89"><code>lib&#x2F;AbstractBatch.js:89</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the color of this sprite batcher, which is used in subsequent draw
+calls. This does not flush the batch.</p>
+<p>If three or more arguments are specified, this method assumes that RGB 
+or RGBA float values (0.0 to 1.0) are being passed. </p>
+<p>If less than three arguments are specified, we only consider the first 
+and assign it to all four components -- this is useful for setting transparency 
+in a premultiplied alpha stage.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">r</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the red component, normalized</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">g</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the green component, normalized</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">b</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the blue component, normalized</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">a</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the alpha component, normalized</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
     
 
     
@@ -1344,7 +1816,7 @@ shaders, and so forth.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l106"><code>lib&#x2F;SpriteBatch.js:106</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l116"><code>lib&#x2F;SpriteBatch.js:116</code></a>
         
         </p>
 
@@ -1442,7 +1914,7 @@ defining the middle points of your stage.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l143"><code>lib&#x2F;SpriteBatch.js:143</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l153"><code>lib&#x2F;SpriteBatch.js:153</code></a>
         
         </p>
 
@@ -1477,9 +1949,101 @@ and this will be called before continuing to add items to the batch.</p>
                 <h2 class="off-left">Properties</h2>
 
                 
+                    <div id="property_color" class="property item inherited">
+    <h3 class="name"><code>color</code></h3>
+    <span class="type">Number</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/AbstractBatch.html#property_color">AbstractBatch</a>:
+            
+        
+        
+        <a href="../files/lib_AbstractBatch.js.html#l62"><code>lib&#x2F;AbstractBatch.js:62</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The ABGR packed color, as a single float. The default
+value is the color white (255, 255, 255, 255).</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_premultiplyColor" class="property item inherited">
+    <h3 class="name"><code>premultiplyColor</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/AbstractBatch.html#property_premultiplyColor">AbstractBatch</a>:
+            
+        
+        
+        <a href="../files/lib_AbstractBatch.js.html#l71"><code>lib&#x2F;AbstractBatch.js:71</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p><p>Whether to premultiply alpha on calls to setColor. 
+This is true by default, so that we can conveniently write:</p></p>
+<pre class="code prettyprint"><code>batch.setColor(1, 0, 0, 0.25); //tints red with 25% opacity</code></pre>
+<p>If false, you must premultiply the colors yourself to achieve
+the same tint, like so:</p>
+<pre class="code prettyprint"><code>batch.setColor(0.25, 0, 0, 0.25);</code></pre>
+
+    </div>
+
+    
+        <p><strong>Default:</strong> true</p>
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="property_projection" class="property item">
     <h3 class="name"><code>projection</code></h3>
-    <span class="type"><a href="../classes/Point.html" class="crosslink">Point</a></span>
+    <span class="type">Float32Array</span>
 
     
 
@@ -1500,7 +2064,7 @@ and this will be called before continuing to add items to the batch.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l56"><code>lib&#x2F;SpriteBatch.js:56</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l65"><code>lib&#x2F;SpriteBatch.js:65</code></a>
         
         </p>
 
@@ -1510,11 +2074,56 @@ and this will be called before continuing to add items to the batch.</p>
     </div>
 
     <div class="description">
-        <p>The projection Point which is
+        <p>The projection Float32Array vec2 which is
 used to avoid some matrix calculations. A 3D 
 batcher might want to replace this and 
 <a href="../classes/SpriteBatch.html#method_setProjection" class="crosslink">setProjection</a> 
 entirely.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_texture" class="property item">
+    <h3 class="name"><code>texture</code></h3>
+    <span class="type"><a href="../classes/Texture.html" class="crosslink">Texture</a></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_SpriteBatch.js.html#l77"><code>lib&#x2F;SpriteBatch.js:77</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The currently bound texture. Do not modify.</p>
 
     </div>
 
@@ -1549,7 +2158,7 @@ entirely.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l44"><code>lib&#x2F;SpriteBatch.js:44</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l53"><code>lib&#x2F;SpriteBatch.js:53</code></a>
         
         </p>
 
@@ -1616,7 +2225,7 @@ projection; in which case this should be set to false.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l412"><code>lib&#x2F;SpriteBatch.js:412</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l419"><code>lib&#x2F;SpriteBatch.js:419</code></a>
         
         </p>
 
@@ -1679,7 +2288,7 @@ console.log(&quot;Draw calls per frame:&quot;, SpriteBatch.totalRenderCalls);</c
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l402"><code>lib&#x2F;SpriteBatch.js:402</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l409"><code>lib&#x2F;SpriteBatch.js:409</code></a>
         
         </p>
 

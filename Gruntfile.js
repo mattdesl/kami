@@ -1,9 +1,6 @@
 module.exports = function(grunt) {
 	
 	require('load-grunt-tasks')(grunt);
-	var fs = require('fs');
-	var walk = require('fs-walk');
-	var path = require('path');
 
 	grunt.initConfig({
 
@@ -22,7 +19,7 @@ module.exports = function(grunt) {
 			//We include a UMD build for non-Node people...
 			umd: {
 				src: ['<%= dirs.src %>/index-umd.js'],
-				dest: '<%= dirs.build %>/kami.umd.js',
+				dest: '<%= dirs.build %>/kami.js',
 				
 				options: {
 					standalone: "kami",
@@ -39,7 +36,6 @@ module.exports = function(grunt) {
 					alias: [
 						'<%= dirs.src %>/index.js:kami',
 						'signals', //externalize
-						'gl-matrix'
 					]
 				}
 			}
@@ -63,12 +59,12 @@ module.exports = function(grunt) {
 		uglify: {
 			umd: {
 		      	files: {
-		        	'<%= dirs.build %>/kami.umd.min.js': ['<%= dirs.build %>/kami.umd.js']
+		        	'<%= dirs.build %>/kami.min.js': ['<%= dirs.build %>/kami.js']
 		      	}
 		    },
 		    demos: {
 		      	files: {
-		        	'<%= dirs.demo_build %>/kami.umd.min.js': ['<%= dirs.build %>/kami.umd.js']
+		        	'<%= dirs.demo_build %>/kami.min.js': ['<%= dirs.build %>/kami.js']
 		      	}
 		    }
 		},
@@ -87,103 +83,58 @@ module.exports = function(grunt) {
 					//nocode: true, 
 				}
 			}
+		},
+
+		//We use a little grunt plugin to write out the index.js file.
+		//This also builds a UMD-specific index file, which is then browserified.
+		autoindex: {
+			umd: {
+				options: {
+					banner: "/**\n" +
+			 		"  Auto-generated Kami index file.\n" +
+			 		"  Dependencies are placed on the top-level namespace, for convenience.\n" +
+			  		"  Created on <%= grunt.template.today('yyyy-mm-dd') %>\n" +
+			  		"*/",
+					
+					// Options for our dependency modules...
+					modules: {
+
+						//Export this module with the name 'Class'
+						'klasse': {
+							standalone: 'Class'
+						}
+					}
+				},
+				dest: '<%= dirs.src %>/index-umd.js',
+				src: '<%= dirs.src %>'
+			},
+
+			core: {
+				options: {
+					banner: "/**\n" +
+			 		"  Auto-generated Kami index file.\n" +
+			  		"  Created on <%= grunt.template.today('yyyy-mm-dd') %>\n" +
+			  		"*/",
+
+			  		// only core modules 
+					dependencies: [], 
+					// ignore the UMD file if it's present 
+					file_ignores: ['<%= dirs.src %>/index-umd.js'],
+				},
+				dest: '<%= dirs.src %>/index.js',
+				src: '<%= dirs.src %>'
+			}
 		}
 	});
-
-	var UMD_IGNORES = [
-		'index-umd.js'
-	];
 	
-	grunt.registerTask('umd-index', 'Writes the UMD index.js', function() {
-		grunt.log.writeln("Writing index-umd.js");
-
-		var banner = [
-				"/**",
-				"    This is the auto-generated index for UMD builds.",
-				"    Generated on: <%= grunt.template.today('yyyy-mm-dd') %>",
-				"*/\n"].join('\n');
-		
-		var text = banner;
-
-		text = grunt.template.process(text);
-
-		text += "module.exports = {\n";
-
-		var UMD_DEPS = Object.keys( grunt.file.readJSON('package.json').dependencies );
-
-		var mainDir = grunt.template.process('<%= dirs.src %>');
-
-		var reqs = [{comment: 'core classes'}];
-		walk.walkSync(mainDir, function(basedir, filename, stat) {
-			if (stat.isDirectory())
-				return;
-			if (filename.toLowerCase() === "index.js"
-				|| UMD_IGNORES.indexOf(filename.toLowerCase()) !== -1)
-				return;
-
-			if (path.extname(filename) in require.extensions) {
-				var fullname = path.join(basedir, filename);
-				var reqName = fullname.split(path.sep);
-				reqName.shift(); //remove src folder
-
-				//re-join paths.. maybe better way of doing this in node
-				var reqPath = './' + path.join.apply(this, reqName);
-				var className = path.basename(reqPath, path.extname(reqPath));
-				reqs.push({name: className, path: reqPath});
-			}
-		});
-
-		for (var i=0; i<UMD_DEPS.length; i++) {
-			reqs.push({comment:UMD_DEPS[i]+' dependencies'});
-
-			var dep = require(UMD_DEPS[i]);
-			for (var k in dep) {
-				if (dep.hasOwnProperty(k)) {
-					reqs.push({path: UMD_DEPS[i], name: k, prop: k });
-				}
-			}
-		}
-
-		var longest = 0;
-		for (var i=0; i<reqs.length; i++) {
-			if (reqs[i].comment) continue;
-			longest = Math.max(longest, reqs[i].name.length);
-		}
-
-		for (var i=0; i<reqs.length; i++) {
-			if (reqs[i].comment) {
-				if (i!==0)
-					text += '\n';
-				text += '    //'+reqs[i].comment+'\n';
-				continue;
-			}
-			var className = reqs[i].name;
-			var reqPath = reqs[i].path;
-			var tab = Array( Math.max(4, 4 + longest-className.length) ).join(' ');
-
-			text += "    '" + className + "':"+tab+"require('"+reqPath+"')";
-			if (reqs[i].prop)
-				text += '.'+reqs[i].prop;
-
-			if (i !== reqs.length-1)
-				text += ',\n';
-			else
-				text += '\n';
-		}
-		text += "};";
-
-		var file = grunt.template.process('<%= dirs.src %>/index-umd.js');
-		fs.writeFileSync(file, text)
-	});
-
 	//Builds core library
-	grunt.registerTask('build-umd', ['umd-index', 'browserify:umd', 'uglify:umd']);
+	grunt.registerTask('build-umd', ['autoindex:umd', 'browserify:umd', 'uglify:umd']);
 
 	//Depends on build-umd
 	grunt.registerTask('build-demos', ['browserify:demos', 'uglify:demos'])
 
-	//
-	grunt.registerTask('build', ['build-umd', 'build-demos']);
+	
+	grunt.registerTask('build', ['autoindex:core', 'build-umd', 'build-demos', 'yuidoc']);
 	grunt.registerTask('default', ['build']);
 
 };

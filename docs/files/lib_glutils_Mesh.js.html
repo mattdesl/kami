@@ -47,7 +47,9 @@
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
-                <li><a href="../classes/Point.html">Point</a></li>
+                <li><a href="../classes/Mesh.html">Mesh</a></li>
+            
+                <li><a href="../classes/NumberUtils.html">NumberUtils</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
@@ -100,38 +102,20 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-var Class = require(&#x27;jsOOP&#x27;).Class;
+/**
+ * @module kami
+ */
+
+var Class = require(&#x27;klasse&#x27;);
 
 //TODO: decouple into VBO + IBO utilities 
+/**
+ * A mesh class that wraps VBO and IBO.
+ *
+ * @class  Mesh
+ */
 var Mesh = new Class({
 
-	context: null,
-	gl: null,
-
-	numVerts: null,
-	numIndices: null,
-	
-	vertices: null,
-	indices: null,
-	vertexBuffer: null,
-	indexBuffer: null,
-
-	verticesDirty: true,
-	indicesDirty: true,
-	indexUsage: null,
-	vertexUsage: null,
-
-	/** 
-	 * @property
-	 * @private
-	 */
-	_vertexAttribs: null,
-
-	/** 
-	 * @property
-	 * @private
-	 */
-	_vertexStride: null,
 
 	/**
 	 * A write-only property which sets both vertices and indices 
@@ -165,7 +149,7 @@ var Mesh = new Class({
 	 * @param  {[type]}  vertexAttribs [description]
 	 * @return {[type]}                [description]
 	 */
-	initialize: function(context, isStatic, numVerts, numIndices, vertexAttribs) {
+	initialize: function Mesh(context, isStatic, numVerts, numIndices, vertexAttribs) {
 		if (!context)
 			throw &quot;GL context not specified&quot;;
 		if (!numVerts)
@@ -174,6 +158,31 @@ var Mesh = new Class({
 		this.context = context;
 		this.gl = context.gl;
 		
+		this.numVerts = null;
+		this.numIndices = null;
+		
+		this.vertices = null;
+		this.indices = null;
+		this.vertexBuffer = null;
+		this.indexBuffer = null;
+
+		this.verticesDirty = true;
+		this.indicesDirty = true;
+		this.indexUsage = null;
+		this.vertexUsage = null;
+
+		/** 
+		 * @property
+		 * @private
+		 */
+		this._vertexAttribs = null;
+
+		/** 
+		 * @property
+		 * @private
+		 */
+		this._vertexStride = null;
+
 		this.numVerts = numVerts;
 		this.numIndices = numIndices || 0;
 		this.vertexUsage = isStatic ? this.gl.STATIC_DRAW : this.gl.DYNAMIC_DRAW;
@@ -186,7 +195,7 @@ var Mesh = new Class({
 		//determine the vertex stride based on given attributes
 		var totalNumComponents = 0;
 		for (var i=0; i&lt;this._vertexAttribs.length; i++)
-			totalNumComponents += this._vertexAttribs[i].numComponents;
+			totalNumComponents += this._vertexAttribs[i].offsetCount;
 		this._vertexStride = totalNumComponents * 4; // in bytes
 
 		this.vertices = new Float32Array(this.numVerts);
@@ -225,7 +234,7 @@ var Mesh = new Class({
 			this.context.removeManagedObject(this);
 	},
 
-	_updateBuffers: function(ignoreBind) {
+	_updateBuffers: function(ignoreBind, subDataLength) {
 		var gl = this.gl;
 
 		//bind our index data, if we have any
@@ -246,12 +255,20 @@ var Mesh = new Class({
 
 		//update our vertex data
 		if (this.verticesDirty) {
-			gl.bufferData(gl.ARRAY_BUFFER, this.vertices, this.vertexUsage);
+			if (subDataLength) {
+				// TODO: When decoupling VBO/IBO be sure to give better subData support..
+				var view = this.vertices.subarray(0, subDataLength);
+				gl.bufferSubData(gl.ARRAY_BUFFER, 0, view);
+			} else {
+				gl.bufferData(gl.ARRAY_BUFFER, this.vertices, this.vertexUsage);	
+			}
+
+			
 			this.verticesDirty = false;
 		}
 	},
 
-	draw: function(primitiveType, count, offset) {
+	draw: function(primitiveType, count, offset, subDataLength) {
 		if (count === 0)
 			return;
 
@@ -261,7 +278,7 @@ var Mesh = new Class({
 
 		//binds and updates our buffers. pass ignoreBind as true
 		//to avoid binding unnecessarily
-		this._updateBuffers(true);
+		this._updateBuffers(true, subDataLength);
 
 		if (this.numIndices &gt; 0) { 
 			gl.drawElements(primitiveType, count, 
@@ -298,11 +315,10 @@ var Mesh = new Class({
 
 			//then specify our vertex format
 			gl.vertexAttribPointer(loc, a.numComponents, a.type || gl.FLOAT, 
-								   a.normalize || false, stride, offset);
-
+								   a.normalize, stride, offset);
 
 			//and increase the offset...
-			offset += a.numComponents * 4; //in bytes
+			offset += a.offsetCount * 4; //in bytes
 		}
 	},
 
@@ -343,37 +359,18 @@ Mesh.Attrib = new Class({
 	 * @param  {[type]} location      [description]
 	 * @return {[type]}               [description]
 	 */
-	initialize: function(name, numComponents, location, type, normalize) {
+	initialize: function(name, numComponents, location, type, normalize, offsetCount) {
 		this.name = name;
 		this.numComponents = numComponents;
 		this.location = typeof location === &quot;number&quot; ? location : null;
 		this.type = type;
-		this.normalize = normalize;
+		this.normalize = Boolean(normalize);
+		this.offsetCount = typeof offsetCount === &quot;number&quot; ? offsetCount : this.numComponents;
 	}
 })
 
 
 module.exports = Mesh;
-
-
-//flow:
-//  
-
-
-
-// var attribs = [
-// 	new Mesh.Attribute(&quot;a_position&quot;, 2),
-// 	new Mesh.Attribute(&quot;a_color&quot;, 1)
-// ];
-// var mesh = new Mesh(context, 4, 6, Mesh.STATIC, attribs);
-
-
-//Constant Vertex Attrib:
-//	e.g. with instancing maybe?
-//Only enable vertex attrib if it&#x27;s used?
-//	but we are still sending alpha so WTF
-//	would need another buffer, but that can get real ugly.
-//  
     </pre>
 </div>
 

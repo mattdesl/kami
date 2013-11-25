@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>lib/Point.js - kami</title>
+    <title>lib/index.js - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -47,7 +47,9 @@
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
-                <li><a href="../classes/Point.html">Point</a></li>
+                <li><a href="../classes/Mesh.html">Mesh</a></li>
+            
+                <li><a href="../classes/NumberUtils.html">NumberUtils</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
@@ -96,97 +98,25 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: lib/Point.js</h1>
+                        <h1 class="file-heading">File: lib/index.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
 /**
- * @module kami
- */
-
-var Class = require(&#x27;jsOOP&#x27;).Class;
-var vec2 = require(&#x27;gl-matrix&#x27;).vec2;
-
-//TODO: What about other types? Vector3, Vector4 ? 
-//Or should Kami be more generic, and just use Point and Point3D ? 
-
-/**
- * This is a convenience wrapper around [gl-matrix](http://glmatrix.net/) &quot;vec2&quot;
- * type. It is backed by a Float32Array, and the &#x60;x&#x60; and &#x60;y&#x60; properties are included
- * for convenience.
- * 
- * For performance, or when performing gl-matrix operations, 
- * you should access the &#x60;items&#x60; array directly. 
- * For convenience and clarity, the &#x60;x&#x60; and &#x60;y&#x60; properties are encouraged.
- * 
- * @class Point
- * @constructor
- * @param {Number} x the x position
- * @default  0
- * @param {Number} y the y position
- * @default  0
- */
-var Point = new Class({
-	
-	/**
-	 * This is the Float32Array which can be accessed
-	 * directly for better performance or gl-matrix operations.
-	 * 
-	 * @property items
-	 * @type {Float32Array}
-	 */
-	items: null,
-
-	//Constructor
-	initialize: function(x, y) {
-		x = x || 0;
-		y = y || 0;
-
-		this.items = vec2.fromValues(x, y);
-	},
-
-	/**
-	 * Reads or writes the &quot;x&quot; value in the backing array (the first element).
-	 *
-	 * @attribute
-	 * @default  0
-	 * @type {Number}
-	 */
-	x: {
-		get: function() {
-			return this.items[0];
-		},
-		set: function(val) {
-			this.items[0] = val;
-		}
-	},
-
-	/**
-	 * Reads or writes the &quot;y&quot; value in the backing array (the second element).
-	 *
-	 * @attribute
-	 * @default  0
-	 * @type {Number}
-	 */
-	y: {
-		get: function() {
-			return this.items[1];
-		},
-		set: function(val) {
-			this.items[1] = val;
-		}
-	},
-
-	/**
-	 * Returns a string representation of this point.
-	 * @return {String} a string value for this point
-	 */
-	toString: function() {
-		return &quot;(&quot; + this.x + &quot;, &quot; + this.y + &quot;)&quot;;
-	}
-});
-
-module.exports = Point;
+  Auto-generated Kami index file.
+  Created on 2013-11-24
+*/
+module.exports = {
+    //core classes
+    &#x27;AbstractBatch&#x27;:   require(&#x27;./AbstractBatch.js&#x27;),
+    &#x27;AssetManager&#x27;:    require(&#x27;./AssetManager.js&#x27;),
+    &#x27;SpriteBatch&#x27;:     require(&#x27;./SpriteBatch.js&#x27;),
+    &#x27;Texture&#x27;:         require(&#x27;./Texture.js&#x27;),
+    &#x27;WebGLContext&#x27;:    require(&#x27;./WebGLContext.js&#x27;),
+    &#x27;Mesh&#x27;:            require(&#x27;./glutils/Mesh.js&#x27;),
+    &#x27;NumberUtils&#x27;:     require(&#x27;./glutils/NumberUtils.js&#x27;),
+    &#x27;ShaderProgram&#x27;:   require(&#x27;./glutils/ShaderProgram.js&#x27;)
+};
     </pre>
 </div>
 
