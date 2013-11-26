@@ -41,11 +41,11 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="../classes/AbstractBatch.html">AbstractBatch</a></li>
-            
                 <li><a href="../classes/AssetManager.html">AssetManager</a></li>
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
+            
+                <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
@@ -107,7 +107,7 @@
 // Requires....
 var Class         = require(&#x27;klasse&#x27;);
 
-var AbstractBatch = require(&#x27;./AbstractBatch&#x27;);
+var BaseBatch = require(&#x27;./BaseBatch&#x27;);
 
 var Mesh          = require(&#x27;./glutils/Mesh&#x27;);
 var ShaderProgram = require(&#x27;./glutils/ShaderProgram&#x27;);
@@ -139,18 +139,18 @@ var ShaderProgram = require(&#x27;./glutils/ShaderProgram&#x27;);
  *      }
  * 
  * @class  SpriteBatch
- * @extends AbstractBatch
+ * @uses BaseBatch
  * @constructor
  * @param {WebGLContext} context the context for this batch
  * @param {Number} size the max number of sprites to fit in a single batch
  */
 var SpriteBatch = new Class({
 
-	Extends: AbstractBatch,
+	Mixins: BaseBatch,
 
 	//Constructor
 	initialize: function SpriteBatch(context, size) {
-		AbstractBatch.call(this, context, size);
+		BaseBatch.call(this, context, size);
 
 		/**
 		 * SpriteBatch uploads a vec2 for projection
@@ -294,7 +294,7 @@ var SpriteBatch = new Class({
 		
 		//just do direct parent call for speed here
 		//This binds the shader and mesh!
-		AbstractBatch.prototype.begin.call(this);
+		BaseBatch.prototype.begin.call(this);
 
 		this.updateMatrices(); //send projection/transform to shader
 
@@ -327,7 +327,7 @@ var SpriteBatch = new Class({
 		
 		//just do direct parent call for speed here
 		//This binds the shader and mesh!
-		AbstractBatch.prototype.end.call(this);
+		BaseBatch.prototype.end.call(this);
 
 		gl.depthMask(true);
 
@@ -348,7 +348,7 @@ var SpriteBatch = new Class({
 			return;
 		if (this.idx === 0)
 			return;
-		AbstractBatch.prototype.flush.call(this);
+		BaseBatch.prototype.flush.call(this);
 		SpriteBatch.totalRenderCalls++;
 	},
 

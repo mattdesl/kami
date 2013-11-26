@@ -62,6 +62,7 @@ $(function() {
 	var tex0 = assets.load("img/grass.png");
 	var tex1 = assets.load("img/scene.png");
 
+		
 	//In WebGL, repeat wrapping only works with power-of-two images!
 	tex0.setWrap(Texture.Wrap.REPEAT);
 
@@ -84,8 +85,6 @@ $(function() {
 
 	var proceduralTex = new Texture(context, texWidth, texHeight, fmt, type, data);
 	
-	var NumberUtils = require('kami').NumberUtils;
-	
 	function render() {
 		var gl = context.gl;
 
@@ -106,6 +105,8 @@ $(function() {
 						0, 0, 		  //x, y
 						width, height,//width, height
 						0, 0, 2, 2);  //we can adjust UVs to repeat easily
+	
+			batch.draw(tex0);
 
 			//by default, we can specify colors as non-premultiplied:
 			//Here we use red (R=1, G=0, B=0) with 50% opacity

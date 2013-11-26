@@ -41,11 +41,11 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="../classes/AbstractBatch.html">AbstractBatch</a></li>
-            
                 <li><a href="../classes/AssetManager.html">AssetManager</a></li>
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
+            
+                <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
@@ -271,6 +271,13 @@ re-loaded.</p>
 
                     <ul class="index-list methods">
                         
+                            <li class="index-item method private">
+                                <a href="#method___getDataType">__getDataType</a>
+
+                                
+                                
+                            </li>
+                        
                             <li class="index-item method">
                                 <a href="#method_destroy">destroy</a>
 
@@ -414,6 +421,118 @@ re-loaded.</p>
                 <h2 class="off-left">Methods</h2>
 
                 
+                    <div id="method___getDataType" class="method item private">
+    <h3 class="name"><code>__getDataType</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>str</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l207"><code>lib&#x2F;AssetManager.js:207</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Attempts to extract a mime-type from the given data URI. It will
+default to &quot;text/plain&quot; if the string is a data URI with no specified
+mime-type. If the string does not begin with &quot;data:&quot;, this method 
+returns null.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">str</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the data URI</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">String</span>:
+                    
+                    <p>the mime type</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
                     <div id="method_destroy" class="method item">
     <h3 class="name"><code>destroy</code></h3>
 
@@ -446,7 +565,7 @@ re-loaded.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l176"><code>lib&#x2F;AssetManager.js:176</code></a>
+        <a href="../files/lib_AssetManager.js.html#l174"><code>lib&#x2F;AssetManager.js:174</code></a>
         
         </p>
 
@@ -504,7 +623,7 @@ with WebGLContext and deleting the assets array.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l189"><code>lib&#x2F;AssetManager.js:189</code></a>
+        <a href="../files/lib_AssetManager.js.html#l187"><code>lib&#x2F;AssetManager.js:187</code></a>
         
         </p>
 
@@ -581,7 +700,7 @@ This is called internally on context loss.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l208"><code>lib&#x2F;AssetManager.js:208</code></a>
+        <a href="../files/lib_AssetManager.js.html#l250"><code>lib&#x2F;AssetManager.js:250</code></a>
         
         </p>
 
@@ -594,13 +713,14 @@ This is called internally on context loss.</p>
     <div class="description">
         <p>Pushes an asset onto this stack. This
 attempts to detect the loader for you based
-on the asset name&#39;s file extension. If the
-asset name doesn&#39;t have a known file extension,
+on the asset name&#39;s file extension (or data URI scheme). 
+If the asset name doesn&#39;t have a known file extension,
 or if there is no loader registered for that filename,
-this method throws an error. </p>
-<p>The first argument is the asset name. Any subsequent
-arguments will be passed along to the loader for further
-processing.</p>
+this method throws an error. If you&#39;re trying to use 
+generic keys for asset names, use the loadAs method and
+specify a loader plugin.</p>
+<p>This method&#39;s arguments are passed to the constructor
+of the loader function. </p>
 <p>The return value of this method is determined by
 the loader&#39;s processArguments method. For example, the
 default Image loader returns a Texture object.</p>
@@ -666,6 +786,21 @@ default Image loader returns a Texture object.</p>
     
 
     
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <p>   //uses ImageLoader to get a new Texture
+   var tex = assets.load(&quot;tex0.png&quot;); </p>
+<p>   //or you can specify your own texture
+   assets.load(&quot;tex1.png&quot;, tex1);</p>
+<p>   //the ImageLoader also accepts a path override, 
+   //but the asset key is still &quot;frames0.png&quot;
+   assets.load(&quot;frame0.png&quot;, tex1, &quot;path/to/frame1.png&quot;);</p>
+
+            </div>
+        </div>
+    
 </div>
 
                 
@@ -678,13 +813,13 @@ default Image loader returns a Texture object.</p>
             
                 <li class="arg">
                     
-                        <code>name</code>
+                        <code>loader</code>
                     
                 </li>
             
                 <li class="arg">
                     
-                        <code>loader</code>
+                        <code>name</code>
                     
                 </li>
             
@@ -727,7 +862,7 @@ default Image loader returns a Texture object.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l249"><code>lib&#x2F;AssetManager.js:249</code></a>
+        <a href="../files/lib_AssetManager.js.html#l302"><code>lib&#x2F;AssetManager.js:302</code></a>
         
         </p>
 
@@ -743,14 +878,13 @@ specify a loader function for the asset. This is useful
 if you wish to use generic names for your assets (instead of
 filenames), or if you want a particular asset to use a specific
 loader. </p>
-<p>Like with <a href="../classes/AssetManager.html#method_load" class="crosslink">load</a>,
-the first argument is the asset name. The second argument is the loader
-to use for this asset. Any subsequent
-arguments will be passed along to the loader for further
-processing.</p>
+<p>The first argument is the loader function, and the second is the asset
+name. Like with <a href="../classes/AssetManager.html#method_load" class="crosslink">load</a>, 
+any subsequent arguments will be passed along to the loader.</p>
 <p>The return value of this method is determined by
-the loader&#39;s processArguments method. For example, the
-default Image loader returns a Texture object.</p>
+the loader&#39;s getReturnValue() method, if it has one. For example, the
+default ImageLoader returns a Texture object. If the loader function
+does not implement this method, <code>undefined</code> is returned.</p>
 
     </div>
 
@@ -762,22 +896,6 @@ default Image loader returns a Texture object.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">name</code>
-                        <span class="type">String</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the asset name</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
                         <code class="param-name">loader</code>
                         <span class="type">Fucntion</span>
                     
@@ -786,6 +904,22 @@ default Image loader returns a Texture object.</p>
 
                     <div class="param-description">
                         <p>the loader function</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the asset name</p>
 
                     </div>
 
@@ -851,6 +985,12 @@ default Image loader returns a Texture object.</p>
                     
                 </li>
             
+                <li class="arg">
+                    
+                        <code>mediaType</code>
+                    
+                </li>
+            
             </ul><span class="paren">)</span>
         </div>
     
@@ -882,7 +1022,7 @@ default Image loader returns a Texture object.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l391"><code>lib&#x2F;AssetManager.js:391</code></a>
+        <a href="../files/lib_AssetManager.js.html#l446"><code>lib&#x2F;AssetManager.js:446</code></a>
         
         </p>
 
@@ -894,11 +1034,16 @@ default Image loader returns a Texture object.</p>
 
     <div class="description">
         <p>Registers a loader function with the given extension(s).
-The first parameter is a loader function, and all subsequent
-parameters are lower-case extensions (without the period) that
+The first parameter is a loader function. The second is an array
+of lower-case extensions (without the period) that
 should be associated with that loader. This will override other
-loaders by the same extension.</p>
-<p>By default, the extensions "png", "jpg", "jpeg", and "gif" are
+loaders by the same extension. </p>
+<p>You can also provide an optional mediaType to support data URI schemes.
+For example, if the mediaType is specified as "image", and the extensions
+are ["png", "gif"], then in addition to those extensions being associated with
+the loader, the mime-types "image/png" and "image/gif" will also be supported.</p>
+<p>By default, the extensions "png", "jpg", "jpeg", and "gif" and their associated
+media types are
 registered to AssetManager/ImageLoader:attribute.</p>
 
     </div>
@@ -928,13 +1073,29 @@ registered to AssetManager/ImageLoader:attribute.</p>
                 <li class="param">
                     
                         <code class="param-name">extensions</code>
-                        <span class="type">String ...</span>
+                        <span class="type">Array</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>a variable number of strings</p>
+                        <p>array of extension strings, not including period</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">mediaType</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>an optional media type</p>
 
                     </div>
 
@@ -987,7 +1148,7 @@ registered to AssetManager/ImageLoader:attribute.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l343"><code>lib&#x2F;AssetManager.js:343</code></a>
+        <a href="../files/lib_AssetManager.js.html#l398"><code>lib&#x2F;AssetManager.js:398</code></a>
         
         </p>
 
@@ -1105,7 +1266,7 @@ This should not be modified directly.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l378"><code>lib&#x2F;AssetManager.js:378</code></a>
+        <a href="../files/lib_AssetManager.js.html#l433"><code>lib&#x2F;AssetManager.js:433</code></a>
         
         </p>
 
@@ -1331,7 +1492,7 @@ number of assets in this AssetManager.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l150"><code>lib&#x2F;AssetManager.js:150</code></a>
+        <a href="../files/lib_AssetManager.js.html#l149"><code>lib&#x2F;AssetManager.js:149</code></a>
         
         </p>
 
@@ -1382,7 +1543,7 @@ signal is dispatched.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l126"><code>lib&#x2F;AssetManager.js:126</code></a>
+        <a href="../files/lib_AssetManager.js.html#l125"><code>lib&#x2F;AssetManager.js:125</code></a>
         
         </p>
 
@@ -1427,7 +1588,7 @@ signal is dispatched.</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l135"><code>lib&#x2F;AssetManager.js:135</code></a>
+        <a href="../files/lib_AssetManager.js.html#l134"><code>lib&#x2F;AssetManager.js:134</code></a>
         
         </p>
 
@@ -1478,7 +1639,7 @@ has been loaded in full (i.e. its async task finished).</p>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l116"><code>lib&#x2F;AssetManager.js:116</code></a>
+        <a href="../files/lib_AssetManager.js.html#l115"><code>lib&#x2F;AssetManager.js:115</code></a>
         
         </p>
 

@@ -7,6 +7,7 @@ var Texture = require('kami').Texture;
 var AssetManager = require('kami').AssetManager;
 var SpriteBatch = require('kami').SpriteBatch;
 
+
 $(function() {
 	var mainContainer = $("body").css({
 		background: "#343434"
@@ -72,6 +73,9 @@ $(function() {
 	var tex1 = new Texture(context);
 	assets.load("img/grass.png", tex1);
 
+	//We can even inline a Base64-encoded image, and reference it by a fake filename
+	var tex2 = assets.load("star.png", null, "data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7");
+	
 	//Here we'll simulate a longer loading time
 	var tex3 = new Texture(context);
 	var count = 25;
@@ -82,7 +86,7 @@ $(function() {
 		//the exact loader instead of having it guess based on filename.
 		//This also means we can use a generic key like "grass0" for the asset.
 		//The last parameter is the path of the actual image.
-		assets.loadAs(name, AssetManager.ImageLoader, tex3, "img/grass.png");
+		assets.loadAs(AssetManager.ImageLoader, name, tex3, "img/grass.png");
 	}
 
 	requestAnimationFrame(render);
@@ -92,13 +96,15 @@ $(function() {
 
 		
 		if (assets.update()) { //assets have been loaded.
-			canvas.css("background", "#86B32A");
+			canvas.css("background", "white");
 
 			batch.setProjection(width/2, height/2);
 			batch.begin();
 			batch.draw(tex0, 50, 50, 50, 50);
 
 			batch.draw(tex1, 75, 75, 100, 100);
+
+			batch.draw(tex2, 5, 5);
 			batch.end();
 		} else {			
 			canvas.css("background", "black");
@@ -120,7 +126,7 @@ $(function() {
 		progressLabel.hide();
 
 		var loseCtx = context.gl.getExtension("WEBGL_lose_context");
-
+		
 		if (loseCtx) { //may be null depending on browser, or if we have GL debuggers enabled
 			fontCSS.top = height + 50;
 

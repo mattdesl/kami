@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>AbstractBatch - kami</title>
+    <title>BaseBatch - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -41,11 +41,11 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="../classes/AbstractBatch.html">AbstractBatch</a></li>
-            
                 <li><a href="../classes/AssetManager.html">AssetManager</a></li>
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
+            
+                <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
@@ -96,7 +96,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>AbstractBatch Class</h1>
+                        <h1>BaseBatch Class</h1>
 <div class="box meta">
     
 
@@ -104,7 +104,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/lib_AbstractBatch.js.html#l13"><code>lib&#x2F;AbstractBatch.js:13</code></a>
+            Defined in: <a href="../files/lib_BaseBatch.js.html#l13"><code>lib&#x2F;BaseBatch.js:13</code></a>
         </div>
     
 
@@ -120,21 +120,22 @@
 
 
 <div class="box intro">
-    <p>An abstract batcher composed of quads (two tris, indexed). </p>
+    <p>A batcher mixin composed of quads (two tris, indexed). </p>
 <p>This is used internally; users should look at 
-<a href="../classes/SpriteBatch.html" class="crosslink">SpriteBatch</a> instead.</p>
+<a href="../classes/SpriteBatch.html" class="crosslink">SpriteBatch</a> instead, which inherits from this
+class.</p>
 <p>The batcher itself is not managed by WebGLContext; however, it makes
 use of Mesh and Texture which will be managed. For this reason, the batcher
 does not hold a direct reference to the GL state.</p>
-<p>Subclasses must implement the following:<br><a href="../classes/AbstractBatch.html#method__createShader" class="crosslink">_createShader</a><br><a href="../classes/AbstractBatch.html#method__createVertexAttributes" class="crosslink">_createVertexAttributes</a><br><a href="../classes/AbstractBatch.html#method_getVertexSize" class="crosslink">getVertexSize</a></p>
+<p>Subclasses must implement the following:<br><a href="../classes/BaseBatch.html#method__createShader" class="crosslink">_createShader</a><br><a href="../classes/BaseBatch.html#method__createVertexAttributes" class="crosslink">_createVertexAttributes</a><br><a href="../classes/BaseBatch.html#method_getVertexSize" class="crosslink">getVertexSize</a></p>
 
 </div>
 
 
     <div class="constructor">
         <h2>Constructor</h2>
-        <div id="method_AbstractBatch" class="method item">
-    <h3 class="name"><code>AbstractBatch</code></h3>
+        <div id="method_BaseBatch" class="method item">
+    <h3 class="name"><code>BaseBatch</code></h3>
 
     
         <div class="args">
@@ -181,7 +182,7 @@ does not hold a direct reference to the GL state.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l13"><code>lib&#x2F;AbstractBatch.js:13</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l13"><code>lib&#x2F;BaseBatch.js:13</code></a>
         
         </p>
 
@@ -440,7 +441,7 @@ does not hold a direct reference to the GL state.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l128"><code>lib&#x2F;AbstractBatch.js:128</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l129"><code>lib&#x2F;BaseBatch.js:129</code></a>
         
         </p>
 
@@ -527,7 +528,7 @@ should only be implemented by subclasses.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l171"><code>lib&#x2F;AbstractBatch.js:171</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l172"><code>lib&#x2F;BaseBatch.js:172</code></a>
         
         </p>
 
@@ -542,7 +543,7 @@ should only be implemented by subclasses.</p>
 multiple instances of your batch, it may or may not be wise
 to use a shared shader to save resources.</p>
 <p>This method initially throws an error; so it must be overridden by
-subclasses of AbstractBatch.</p>
+subclasses of BaseBatch.</p>
 
     </div>
 
@@ -604,7 +605,7 @@ subclasses of AbstractBatch.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l186"><code>lib&#x2F;AbstractBatch.js:186</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l187"><code>lib&#x2F;BaseBatch.js:187</code></a>
         
         </p>
 
@@ -619,7 +620,7 @@ subclasses of AbstractBatch.</p>
 subclasses should implement this with the attributes 
 expected for their batch.</p>
 <p>This method initially throws an error; so it must be overridden by
-subclasses of AbstractBatch.</p>
+subclasses of BaseBatch.</p>
 
     </div>
 
@@ -677,7 +678,7 @@ subclasses of AbstractBatch.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l259"><code>lib&#x2F;AbstractBatch.js:259</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l260"><code>lib&#x2F;BaseBatch.js:260</code></a>
         
         </p>
 
@@ -733,7 +734,7 @@ does nothing by default.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l250"><code>lib&#x2F;AbstractBatch.js:250</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l251"><code>lib&#x2F;BaseBatch.js:251</code></a>
         
         </p>
 
@@ -789,7 +790,7 @@ This method does nothing by default.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l216"><code>lib&#x2F;AbstractBatch.js:216</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l217"><code>lib&#x2F;BaseBatch.js:217</code></a>
         
         </p>
 
@@ -846,7 +847,7 @@ set up blending.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l325"><code>lib&#x2F;AbstractBatch.js:325</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l326"><code>lib&#x2F;BaseBatch.js:326</code></a>
         
         </p>
 
@@ -961,7 +962,7 @@ batch after destroying it can lead to unpredictable behaviour.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l294"><code>lib&#x2F;AbstractBatch.js:294</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l295"><code>lib&#x2F;BaseBatch.js:295</code></a>
         
         </p>
 
@@ -1191,7 +1192,7 @@ The specifics depend on the sprite batch implementation.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l312"><code>lib&#x2F;AbstractBatch.js:312</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l313"><code>lib&#x2F;BaseBatch.js:313</code></a>
         
         </p>
 
@@ -1304,7 +1305,7 @@ The specifics depend on the sprite batch implementation.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l234"><code>lib&#x2F;AbstractBatch.js:234</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l235"><code>lib&#x2F;BaseBatch.js:235</code></a>
         
         </p>
 
@@ -1360,7 +1361,7 @@ data and set GL state back to normal.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l268"><code>lib&#x2F;AbstractBatch.js:268</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l269"><code>lib&#x2F;BaseBatch.js:269</code></a>
         
         </p>
 
@@ -1420,7 +1421,7 @@ to GL.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l202"><code>lib&#x2F;AbstractBatch.js:202</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l203"><code>lib&#x2F;BaseBatch.js:203</code></a>
         
         </p>
 
@@ -1433,7 +1434,7 @@ to GL.</p>
     <div class="description">
         <p>Returns the number of floats per vertex for this batcher.</p>
 <p>This method initially throws an error; so it must be overridden by
-subclasses of AbstractBatch.</p>
+subclasses of BaseBatch.</p>
 
     </div>
 
@@ -1519,7 +1520,7 @@ subclasses of AbstractBatch.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l89"><code>lib&#x2F;AbstractBatch.js:89</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l90"><code>lib&#x2F;BaseBatch.js:90</code></a>
         
         </p>
 
@@ -1651,7 +1652,7 @@ in a premultiplied alpha stage.</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l62"><code>lib&#x2F;AbstractBatch.js:62</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l63"><code>lib&#x2F;BaseBatch.js:63</code></a>
         
         </p>
 
@@ -1697,7 +1698,7 @@ value is the color white (255, 255, 255, 255).</p>
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l71"><code>lib&#x2F;AbstractBatch.js:71</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l72"><code>lib&#x2F;BaseBatch.js:72</code></a>
         
         </p>
 

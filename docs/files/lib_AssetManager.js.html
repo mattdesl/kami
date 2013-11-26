@@ -41,11 +41,11 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="../classes/AbstractBatch.html">AbstractBatch</a></li>
-            
                 <li><a href="../classes/AssetManager.html">AssetManager</a></li>
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
+            
+                <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
@@ -210,7 +210,6 @@ var AssetManager = new Class({
 
 		this.__loadCount = 0;
 		this.__totalItems = 0;
-		this.__loadCallbackFunc = null;
 		this.__invalidateFunc = null;
 
 		// Signals 
@@ -269,7 +268,6 @@ var AssetManager = new Class({
 		this.loaders = {};
 
 		this.__invalidateFunc = this.invalidate.bind(this);
-		this.__loadCallbackFunc = this.__loadCallback.bind(this);
 
 		this.context = context;
 		this.context.lost.add(this.__invalidateFunc);
@@ -299,7 +297,7 @@ var AssetManager = new Class({
 	invalidate: function() {
 		//mark all as not yet loaded
 		for (var i=0; i&lt;this.assets.length; i++) 
-			this.assets[i].loaded = false;
+			this.assets[i].status = AssetManager.Status.QUEUED;
 
 		//copy our assets to a queue which can be popped
 		this.tasks = this.assets.slice();
@@ -307,38 +305,41 @@ var AssetManager = new Class({
 		this.__loadCount = this.__totalItems = this.tasks.length;
 	},
 
+
 	/**
-	 * Pushes an asset onto this stack. This
-	 * attempts to detect the loader for you based
-	 * on the asset name&#x27;s file extension. If the
-	 * asset name doesn&#x27;t have a known file extension,
-	 * or if there is no loader registered for that filename,
-	 * this method throws an error. 
+	 * Attempts to extract a mime-type from the given data URI. It will
+	 * default to &quot;text/plain&quot; if the string is a data URI with no specified
+	 * mime-type. If the string does not begin with &quot;data:&quot;, this method 
+	 * returns null.
 	 *
-	 * The first argument is the asset name. Any subsequent
-	 * arguments will be passed along to the loader for further
-	 * processing.
-	 *
-	 * The return value of this method is determined by
-	 * the loader&#x27;s processArguments method. For example, the
-	 * default Image loader returns a Texture object.
-	 *
-	 * @method  load
-	 * @param  {String} name the asset name
-	 * @param {any} args a variable number of optional arguments
-	 * @return {any} returns the best type for this asset&#x27;s loader
+	 * @method  __getDataType
+	 * @private
+	 * @param  {String} str the data URI
+	 * @return {String}     the mime type
 	 */
-	load: function(name) {
-		var ext = this.__extension(name);
-		if (!ext) 
-			throw &quot;Asset name does not have a file extension: &quot; + name;
-		if (!AssetManager.loaders.hasOwnProperty(ext))
-			throw &quot;No known loader for extension &quot;+ext+&quot; in asset &quot;+name;
+	__getDataType: function(str) {
+		var test = &quot;data:&quot;;
+		//starts with &#x27;data:&#x27;
+		var start = str.slice(0, test.length).toLowerCase();
+		if (start == test) {
+			var data = str.slice(test.length);
+			
+			var sepIdx = data.indexOf(&#x27;,&#x27;);
+			if (sepIdx === -1) //malformed data URI scheme
+				return null;
 
-		var args = [ name, AssetManager.loaders[ext] ];
-		args = args.concat( Array.prototype.slice.call(arguments, 1) );
+			//e.g. &quot;image/gif;base64&quot; =&gt; &quot;image/gif&quot;
+			var info = data.slice(0, sepIdx).split(&#x27;;&#x27;)[0];
 
-		return this.loadAs.apply(this, args);
+			//We might need to handle some special cases here...
+			//standardize text/plain to &quot;txt&quot; file extension
+			if (!info || info.toLowerCase() == &quot;text/plain&quot;)
+				return &quot;txt&quot;
+
+			//User specified mime type, try splitting it by &#x27;/&#x27;
+			return info.split(&#x27;/&#x27;).pop().toLowerCase();
+		}
+		return null;
 	},
 
 	__extension: function(str) {
@@ -349,29 +350,80 @@ var AssetManager = new Class({
 	},
 
 	/**
+	 * Pushes an asset onto this stack. This
+	 * attempts to detect the loader for you based
+	 * on the asset name&#x27;s file extension (or data URI scheme). 
+	 * If the asset name doesn&#x27;t have a known file extension,
+	 * or if there is no loader registered for that filename,
+	 * this method throws an error. If you&#x27;re trying to use 
+	 * generic keys for asset names, use the loadAs method and
+	 * specify a loader plugin.
+	 * 
+	 * This method&#x27;s arguments are passed to the constructor
+	 * of the loader function. 
+	 *
+	 * The return value of this method is determined by
+	 * the loader&#x27;s processArguments method. For example, the
+	 * default Image loader returns a Texture object.
+	 *
+	 * @example
+	 *    //uses ImageLoader to get a new Texture
+	 *    var tex = assets.load(&quot;tex0.png&quot;); 
+	 *
+	 *    //or you can specify your own texture
+	 *    assets.load(&quot;tex1.png&quot;, tex1);
+	 *
+	 *    //the ImageLoader also accepts a path override, 
+	 *    //but the asset key is still &quot;frames0.png&quot;
+	 *    assets.load(&quot;frame0.png&quot;, tex1, &quot;path/to/frame1.png&quot;);
+	 *    
+	 * @method  load
+	 * @param  {String} name the asset name
+	 * @param  {any} args a variable number of optional arguments
+	 * @return {any} returns the best type for this asset&#x27;s loader
+	 */
+	load: function(name) {
+		if (!name)
+			throw &quot;No asset name specified for load()&quot;;
+
+		var ext = this.__getDataType(name);
+		if (ext === null)
+			ext = this.__extension(name);
+
+		if (!ext) 
+			throw &quot;Asset name does not have a file extension: &quot; + name;
+		if (!AssetManager.loaders.hasOwnProperty(ext))
+			throw &quot;No known loader for extension &quot;+ext+&quot; in asset &quot;+name;
+
+		var args = [ AssetManager.loaders[ext], name ];
+		args = args.concat( Array.prototype.slice.call(arguments, 1) );
+
+		return this.loadAs.apply(this, args);
+	},
+
+	/**
 	 * Pushes an asset onto this stack. This allows you to
 	 * specify a loader function for the asset. This is useful
 	 * if you wish to use generic names for your assets (instead of
 	 * filenames), or if you want a particular asset to use a specific
 	 * loader. 
 	 *
-	 * Like with {{#crossLink &quot;AssetManager/load:method&quot;}}{{/crossLink}},
-	 * the first argument is the asset name. The second argument is the loader
-	 * to use for this asset. Any subsequent
-	 * arguments will be passed along to the loader for further
-	 * processing.
+	 * The first argument is the loader function, and the second is the asset
+	 * name. Like with {{#crossLink &quot;AssetManager/load:method&quot;}}{{/crossLink}}, 
+	 * any subsequent arguments will be passed along to the loader.
 	 *
 	 * The return value of this method is determined by
-	 * the loader&#x27;s processArguments method. For example, the
-	 * default Image loader returns a Texture object.
+	 * the loader&#x27;s getReturnValue() method, if it has one. For example, the
+	 * default ImageLoader returns a Texture object. If the loader function
+	 * does not implement this method, &#x60;undefined&#x60; is returned.
 	 *
 	 * @method  load
-	 * @param {String} name the asset name
 	 * @param {Fucntion} loader the loader function
+	 * @param {String} name the asset name
 	 * @param {Object ...} args a variable number of optional arguments
 	 * @return {any} returns the best type for this asset&#x27;s loader
 	 */
-	loadAs: function(name, loader) {
+	loadAs: function(loader, name) {
 		if (!name)
 			throw &quot;no name specified to load&quot;;
 		if (!loader)
@@ -381,25 +433,29 @@ var AssetManager = new Class({
 		if (idx !== -1) //TODO: eventually add support for dependencies and shared assets
 			throw &quot;asset already defined in asset manager&quot;;
 
-		//grab any additional arguments
-		var params = Array.prototype.slice.call(arguments, 2);
+		//grab the arguments, except for the loader function.
+		var args = Array.prototype.slice.call(arguments, 1);
 
-		var desc = new AssetManager.Descriptor(name, loader, params);
+		//now we need to create a new Loader object
+		//we apply the constructor with the args (context, name, [varargs...])
+		var loaderObj = new ( Function.prototype.bind.apply(loader, 
+									[null, this.context].concat(args)) );
 
-		//keep hold of this asset
-		this.assets.push(desc);
+
+		//keep hold of this asset and its original name
+		var descriptor = new AssetManager.Descriptor(name, loaderObj);
+		this.assets.push( descriptor );
 
 		//also add it to our queue of current tasks
-		this.tasks.push(desc);
+		this.tasks.push( descriptor );
 		this.__loadCount++;
 		this.__totalItems++;
 
-
-		//if we can process the arguments and get a return value...
-		if (loader.processArguments) {
-			return loader.processArguments.call(this, name, params);
-		} else
-			return null;
+		//try to get a nice return value from the Loader class
+		if (typeof loaderObj.getReturnValue === &quot;function&quot;)
+			return loaderObj.getReturnValue();
+		else 
+			return undefined;
 	},
 
 	__indexOf: function(list, name) {
@@ -411,9 +467,9 @@ var AssetManager = new Class({
 	},
 
 	__loadCallback: function(name, success) {
-		if (arguments.length &lt; 2) //some helpful debug information if you&#x27;re writing a Loader
-			throw &quot;Loader passed invalid arguments to finished() callback;&quot;
-					+&quot; must include name and success flag&quot;;
+		//if &#x27;false&#x27; was passed, use it.
+		//otherwise treat as &#x27;true&#x27;
+		success = success !== false;
 
 		this.__loadCount--;
 
@@ -436,10 +492,9 @@ var AssetManager = new Class({
 		}
 	},
 
-	// TODO....
+	// TODO.... getStatus and isLoaded
 	// isLoaded: function(name) {
-	// 	var assetIdx = this.__indexOf(this.assets, name);
-	// 	return assetIdx !== -1 ? this.assets[assetIdx].loaded : false;
+	// 	
 	// },
 
 	/**
@@ -468,10 +523,10 @@ var AssetManager = new Class({
 		//apply the loading step
 		var loader = nextTask.loader;
 
-		var cb = this.__loadCallbackFunc;
+		var cb = this.__loadCallback.bind(this, nextTask.name);
 
-		var newParams = [ nextTask.name, cb ].concat(nextTask.params);
-		loader.loadAsset.apply(this, newParams);
+		// var newParams = [ nextTask.name, cb ].concat(nextTask.params);
+		loader.load.call(loader, cb);
 
 		return (this.__loadCount === 0);
 	}
@@ -492,26 +547,37 @@ AssetManager.loaders = {};
 
 /**
  * Registers a loader function with the given extension(s).
- * The first parameter is a loader function, and all subsequent
- * parameters are lower-case extensions (without the period) that
+ * The first parameter is a loader function. The second is an array
+ * of lower-case extensions (without the period) that
  * should be associated with that loader. This will override other
- * loaders by the same extension.
+ * loaders by the same extension. 
  *
- * By default, the extensions &quot;png&quot;, &quot;jpg&quot;, &quot;jpeg&quot;, and &quot;gif&quot; are
+ * You can also provide an optional mediaType to support data URI schemes.
+ * For example, if the mediaType is specified as &quot;image&quot;, and the extensions
+ * are [&quot;png&quot;, &quot;gif&quot;], then in addition to those extensions being associated with
+ * the loader, the mime-types &quot;image/png&quot; and &quot;image/gif&quot; will also be supported.
+ *
+ * By default, the extensions &quot;png&quot;, &quot;jpg&quot;, &quot;jpeg&quot;, and &quot;gif&quot; and their associated
+ * media types are
  * registered to {{#crossLink &quot;AssetManager/ImageLoader:attribute&quot;}}{{/crossLink}}.
  * 
  * @method registerLoader
  * @static
  * @param {Function} loaderFunc the loader function
- * @param {String ...} extensions a variable number of strings
+ * @param {Array} extensions array of extension strings, not including period
+ * @param {String} mediaType an optional media type 
  */
-AssetManager.registerLoader = function(loaderFunc, extensions) {
+AssetManager.registerLoader = function(loaderFunc, extensions, mediaType) {
 	if (arguments.length===0)
 		throw &quot;must specify at least one extension for the loader&quot;;
-	var exts = Array.prototype.slice.call(arguments, 1);
-	for (var i=0; i&lt;exts.length; i++) 
-		AssetManager.loaders[ exts[i] ] = loaderFunc;
+	
+	for (var i=0; i&lt;extensions.length; i++) {
+		AssetManager.loaders[ extensions[i] ] = loaderFunc;
+		if (mediaType) 
+			AssetManager.loaders[ mediaType + &#x27;/&#x27; + extensions[i] ] = loaderFunc;
+	}
 };
+
 
 /**
  * A simple wrapper for assets which will be passed along to the loader;
@@ -519,20 +585,11 @@ AssetManager.registerLoader = function(loaderFunc, extensions) {
  * 
  * //@class AssetManager.Descriptor
  */
-AssetManager.Descriptor = new Class({
-
-	name: null,
-	loader: null,
-	params: null,
-	status: null,
-
-	initialize: function(name, loader, params) {
-		this.name = name;
-		this.loader = loader;
-		this.params = params;
-		this.status = AssetManager.Status.QUEUED;
-	}
-});
+AssetManager.Descriptor = function(name, loader) {
+	this.name = name;
+	this.loader = loader;
+	this.status = AssetManager.Status.QUEUED;
+};
 
 //TODO: document this
 /**
@@ -555,115 +612,92 @@ AssetManager.Status = {
  * texture. You will not need to deal with this class directly, unless you want
  * to write your own AssetManager loaders.
  *
- * A &#x60;Loader&#x60; type for AssetManager is simply an object which defines two methods:
+ * A Loader plugin is a class which handles the asynchronous loading and provides
+ * a convenient return value for the &#x60;AssetManager.load()&#x60; functions. The loader class
+ * is constructed with the following parameters: first, the WebGLContext this AssetManager
+ * is using, and second, the name of the asset to be loaded. The subsequent arguments are
+ * those that were passed as extra to the &#x60;AssetManager.load()&#x60; functions.
  *
- * - &#x60;loadAsset&#x60;: this is the loading function, which handles the asynchronous load.
- * - &#x60;processArguments&#x60;: this is for the user&#x27;s convenience, handling default arguments
- * and giving a meaningful return value. 
+ * A loader must implement a &#x60;load()&#x60; function, and it&#x27;s encouraged to also implement a 
+ * &#x60;getReturnValue()&#x60; function, for convenience.
  * 
  * @class AssetManager.ImageLoader
+ * @constructor 
+ * @param {WebGLContext} context the context, passed by AssetManager
+ * @param {String} name the unique key for this asset
+ * @param {String} path the optional path or data URI to use, will default to the name param
+ * @param {Texture} texture an optional texture to act on; if undefined, a new texture
+ *                          will be created
  */
-AssetManager.ImageLoader = {
-	
+AssetManager.ImageLoader = new Class({
+
+	initialize: function ImageLoader(context, name, texture, path) {
+		this.name = name;
+		this.path = path || this.name;
+		this.texture = texture || new Texture(context);
+	},
+
 	/**
-	 * This is a &quot;loader function&quot; which handles the asynchronous
-	 * loading for an asset. The function must be implemented in a very
+	 * This is the loading function of a AssetManager plugin, 
+	 * which handles the asynchronous loading for an asset. 
+	 * The function must be implemented in a very
 	 * strict manner for the asset manager to work correctly.
 	 *
-	 * The first parameter passed to this function is the name of the
-	 * asset being loaded. The second parameter is a callback that must
-	 * be invoked after the async task is completed.
-	 * Any subsequent parameters are those that came from the inital call
-	 * to {{#crossLink &quot;AssetManager/load:method&quot;}}AssetManager.load{{/crossLink}}. 
-	 *
-	 * Once the synchronous or asynchronous loading task is completed, the
-	 * &#x60;finished&#x60; callback must be invoked with two parameters: first, the
-	 * &#x60;name&#x60; of the asset as passed to this loader. And second, a boolean indicating
-	 * the &#x60;success&#x60; of the load operation. 
-	 *
+	 * Once the async loading is done, you must call the &#x60;finished&#x60; callback
+	 * that was passed to this method. You can pass the parameter &#x60;false&#x60; to the
+	 * finished callback to indicate the async load has failed. Otherwise, it is assumed
+	 * to be successful.
+	 * 
 	 * If you don&#x27;t invoke the callback, the asset manager may never finish loading.
 	 * 
-	 * @method loadAsset
+	 * @method load
 	 * @static
 	 * @param  {String} name the name of the asset to load
 	 * @param {Function} finished the function to call when async loading is complete
 	 * @param {Texture} texture the texture to operate on for this asset
 	 * @param {String} path the optional image path to use instead of the &#x60;name&#x60; parameter
 	 */
-	loadAsset: function(name, finished, texture, path) {
-		if (!texture) {
-			throw &quot;no texture object specified to the ImageLoader for asset manager&quot;;
-		}
-
-		//if path is undefined, use the asset name and 
-		//assume its a path.
-		path = path || name;
+	load: function(finished) {
 
 		var img = new Image();
 
+		var self = this;
+
 		img.onload = function() {
 			img.onerror = img.onabort = null; //clear other listeners
-			texture.uploadImage(img);
-			finished(name, true);
+			self.texture.uploadImage(img);
+			finished();
 		};
 		img.onerror = function() {
 			img.onload = img.onabort = null;
-			console.warn(&quot;Error loading image: &quot;+path);
+			console.warn(&quot;Error loading image: &quot;+self.path);
 			//We use null data to avoid WebGL errors
 			//TODO: handle fail more smoothly, i.e. with a callback
 			//TODO: Should this be pure black, or purely transparent?
-			texture.uploadData(1, 1); 
-			finished(name, false);
+			self.texture.uploadData(1, 1); 
+			finished(false);
 		};
 		img.onabort = function() {
 			img.onload = img.onerror = null;
-			console.warn(&quot;Aborted image: &quot;+path);
+			console.warn(&quot;Aborted image: &quot;+self.path);
 			//We use null data to avoid WebGL errors
-			texture.uploadData(1, 1);
-			finished(name, false);
+			self.texture.uploadData(1, 1);
+			finished(false);
 		};
-
 		//setup source
-		img.src = path;
+		img.src = this.path;
 	},
 
-	/**
-	 * This method is called from 
-	 * {{#crossLink &quot;AssetManager/load:method&quot;}}AssetManager.load{{/crossLink}} to
-	 * process the arguments and setup any default values. This is also responsible for
-	 * determining the appropriate return value for the load function. In the case of
-	 * &#x60;ImageLoader&#x60;, we return the Texture that was passed to the load() function, or
-	 * a new Texture object if none was given. This way, the user can write code like this:
-	 *
-	 *       var texture = assetManager.load(&quot;img.png&quot;); //returns new Texture
-	 *
-	 * The first argument is the name of the asset being processed. The second argument
-	 * is an array of arguments that will be passed to the loader function.
-	 * 
-	 * The method is called bound to the AssetManager, so we can access WebGLContext
-	 * with &quot;this.context&quot;.
-	 *
-	 * @method  processArguments
-	 * @static
-	 * @param  {String} name the asset name
-	 * @param  {Array} params an array of parameters that will be used to load the asset
-	 * @return {any} the object the user may expect from the loader, in this case a Texture object
-	 */
-	processArguments: function(name, params) {
-		//the first parameter is a texture... if not specified, we need to assign it a new object
-		if (params.length === 0 || !params[0])
-			return (params[0] = new Texture(this.context));
-		else
-			return params[0];
+	getReturnValue: function() {
+		return this.texture;
 	}
-};
-
-	
-
+});
 
 // Register our default loaders...
 
-AssetManager.registerLoader(AssetManager.ImageLoader, &quot;png&quot;, &quot;gif&quot;, &quot;jpg&quot;, &quot;jpeg&quot;);
+AssetManager.registerLoader(AssetManager.ImageLoader, 
+			[&quot;png&quot;, &quot;gif&quot;, &quot;jpg&quot;, &quot;jpeg&quot;], &quot;image&quot;);
+
 
 module.exports = AssetManager;
 

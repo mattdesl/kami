@@ -41,11 +41,11 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="../classes/AbstractBatch.html">AbstractBatch</a></li>
-            
                 <li><a href="../classes/AssetManager.html">AssetManager</a></li>
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
+            
+                <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
@@ -104,7 +104,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/lib_AssetManager.js.html#l450"><code>lib&#x2F;AssetManager.js:450</code></a>
+            Defined in: <a href="../files/lib_AssetManager.js.html#l507"><code>lib&#x2F;AssetManager.js:507</code></a>
         </div>
     
 
@@ -124,15 +124,174 @@
 This uses a DOM Image object to upload PNG, GIF and JPG images to a WebGL
 texture. You will not need to deal with this class directly, unless you want
 to write your own AssetManager loaders.</p>
-<p>A <code>Loader</code> type for AssetManager is simply an object which defines two methods:</p>
-<ul>
-<li><code>loadAsset</code>: this is the loading function, which handles the asynchronous load.</li>
-<li><code>processArguments</code>: this is for the user&#39;s convenience, handling default arguments
-and giving a meaningful return value.</li>
-</ul>
+<p>A Loader plugin is a class which handles the asynchronous loading and provides
+a convenient return value for the <code>AssetManager.load()</code> functions. The loader class
+is constructed with the following parameters: first, the WebGLContext this AssetManager
+is using, and second, the name of the asset to be loaded. The subsequent arguments are
+those that were passed as extra to the <code>AssetManager.load()</code> functions.</p>
+<p>A loader must implement a <code>load()</code> function, and it&#39;s encouraged to also implement a 
+<code>getReturnValue()</code> function, for convenience.</p>
 
 </div>
 
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+        <div id="method_AssetManager.ImageLoader" class="method item">
+    <h3 class="name"><code>AssetManager.ImageLoader</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>context</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>name</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>path</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>texture</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_AssetManager.js.html#l507"><code>lib&#x2F;AssetManager.js:507</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">context</code>
+                        <span class="type"><a href="../classes/WebGLContext.html" class="crosslink">WebGLContext</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the context, passed by AssetManager</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the unique key for this asset</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">path</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the optional path or data URI to use, will default to the name param</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">texture</code>
+                        <span class="type"><a href="../classes/Texture.html" class="crosslink">Texture</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>an optional texture to act on; if undefined, a new texture
+                         will be created</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+    </div>
 
 
 <div id="classdocs" class="tabview">
@@ -158,16 +317,7 @@ and giving a meaningful return value.</li>
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
-                                <a href="#method_loadAsset">loadAsset</a>
-
-                                
-                                    <span class="flag static">static</span>
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item method">
-                                <a href="#method_processArguments">processArguments</a>
+                                <a href="#method_load">load</a>
 
                                 
                                     <span class="flag static">static</span>
@@ -191,8 +341,8 @@ and giving a meaningful return value.</li>
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method_loadAsset" class="method item">
-    <h3 class="name"><code>loadAsset</code></h3>
+                    <div id="method_load" class="method item">
+    <h3 class="name"><code>load</code></h3>
 
     
         <div class="args">
@@ -253,7 +403,7 @@ and giving a meaningful return value.</li>
             
         
         
-        <a href="../files/lib_AssetManager.js.html#l466"><code>lib&#x2F;AssetManager.js:466</code></a>
+        <a href="../files/lib_AssetManager.js.html#l538"><code>lib&#x2F;AssetManager.js:538</code></a>
         
         </p>
 
@@ -264,18 +414,14 @@ and giving a meaningful return value.</li>
     </div>
 
     <div class="description">
-        <p>This is a "loader function" which handles the asynchronous
-loading for an asset. The function must be implemented in a very
+        <p>This is the loading function of a AssetManager plugin, 
+which handles the asynchronous loading for an asset. 
+The function must be implemented in a very
 strict manner for the asset manager to work correctly.</p>
-<p>The first parameter passed to this function is the name of the
-asset being loaded. The second parameter is a callback that must
-be invoked after the async task is completed.
-Any subsequent parameters are those that came from the inital call
-to <a href="../classes/AssetManager.html#method_load" class="crosslink">AssetManager.load</a>. </p>
-<p>Once the synchronous or asynchronous loading task is completed, the
-<code>finished</code> callback must be invoked with two parameters: first, the
-<code>name</code> of the asset as passed to this loader. And second, a boolean indicating
-the <code>success</code> of the load operation. </p>
+<p>Once the async loading is done, you must call the <code>finished</code> callback
+that was passed to this method. You can pass the parameter <code>false</code> to the
+finished callback to indicate the async load has failed. Otherwise, it is assumed
+to be successful.</p>
 <p>If you don&#39;t invoke the callback, the asset manager may never finish loading.</p>
 
     </div>
@@ -354,147 +500,6 @@ the <code>success</code> of the load operation. </p>
         </div>
     
 
-    
-
-    
-</div>
-
-                
-                    <div id="method_processArguments" class="method item">
-    <h3 class="name"><code>processArguments</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>name</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>params</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-        <span class="returns-inline">
-            <span class="type">Any</span>
-        </span>
-    
-
-    
-
-    
-
-    
-
-    
-        <span class="flag static">static</span>
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_AssetManager.js.html#l528"><code>lib&#x2F;AssetManager.js:528</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>This method is called from 
-<a href="../classes/AssetManager.html#method_load" class="crosslink">AssetManager.load</a> to
-process the arguments and setup any default values. This is also responsible for
-determining the appropriate return value for the load function. In the case of
-<code>ImageLoader</code>, we return the Texture that was passed to the load() function, or
-a new Texture object if none was given. This way, the user can write code like this:</p>
-<pre class="code prettyprint"><code>  var texture = assetManager.load("img.png"); //returns new Texture</code></pre>
-<p>The first argument is the name of the asset being processed. The second argument
-is an array of arguments that will be passed to the loader function.</p>
-<p>The method is called bound to the AssetManager, so we can access WebGLContext
-with "this.context".</p>
-
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">name</code>
-                        <span class="type">String</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the asset name</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">params</code>
-                        <span class="type">Array</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>an array of parameters that will be used to load the asset</p>
-
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                
-                    
-                        <span class="type">Any</span>:
-                    
-                    <p>the object the user may expect from the loader, in this case a Texture object</p>
-
-                
-            </div>
-        </div>
     
 
     

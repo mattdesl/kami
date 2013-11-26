@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>kami - kami</title>
+    <title>lib/FrameBuffer.js - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -96,85 +96,117 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>kami Module</h1>
-<div class="box clearfix meta">
-    
+                        <h1 class="file-heading">File: lib/FrameBuffer.js</h1>
 
-    
-
-    
-        <div class="foundat">
-            Defined in: <a href="../files/lib_WebGLContext.js.html#l8"><code>lib&#x2F;WebGLContext.js:8</code></a>
-        </div>
-    
-
-    
-</div>
+<div class="file">
+    <pre class="code prettyprint linenums">
+var Class = require(&#x27;klasse&#x27;);
+var Texture = require(&#x27;./Texture&#x27;);
 
 
+var FrameBuffer = new Class({
 
-<div class="box intro">
-    
-</div>
+	/**
+	 * Creates a new Frame Buffer Object with the given width and height.
+	 *
+	 * If width and height are non-numbers, this method expects the
+	 * first parameter to be a Texture object which should be acted upon. 
+	 * In this case, the FrameBuffer does not &quot;own&quot; the texture, and so it
+	 * won&#x27;t dispose of it upon destruction. This is an advanced version of the
+	 * constructor that assumes the user is giving us a valid Texture that can be bound (i.e.
+	 * no async Image textures).
+	 * 
+	 * @param  {[type]} width  [description]
+	 * @param  {[type]} height [description]
+	 * @param  {[type]} filter [description]
+	 * @return {[type]}        [description]
+	 */
+	initialize: function FrameBuffer(context, width, height, format) { //TODO: depth component
+		this.id = null;
 
+		//this Texture is now managed.
+		this.texture = new Texture(context, width, height, format);
 
+		//This is maanged by WebGLContext
+		this.context.addManagedObject(this);
+		this.create();
+	},
 
-<div class="yui3-g">
-    <div class="yui3-u-1-2">
-        
-            <p>This module provides the following classes:</p>
+	// width: {
+	// 	get: function() {
+	// 		return this.texture.width
+	// 	}
+	// },
 
-            <ul class="module-classes">
-            
-                <li class="module-class">
-                    <a href="../classes/AssetManager.html">
-                        AssetManager
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/AssetManager.ImageLoader.html">
-                        AssetManager.ImageLoader
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/BaseBatch.html">
-                        BaseBatch
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/Mesh.html">
-                        Mesh
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/SpriteBatch.html">
-                        SpriteBatch
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/Texture.html">
-                        Texture
-                    </a>
-                </li>
-            
-                <li class="module-class">
-                    <a href="../classes/WebGLContext.html">
-                        WebGLContext
-                    </a>
-                </li>
-            
-            </ul>
-        
-    </div>
+	// height: {
+	// 	get: function() {
+	// 		return this.texture.height;
+	// 	}
+	// },
 
-    <div class="yui3-u-1-2">
-        
-    </div>
+	create: function() {
+		this.gl = this.context.gl; 
+		var gl = this.gl;
+
+		var tex = this.texture;
+
+		//we assume the texture has already had create() called on it
+		//since it was added as a managed object prior to this FrameBuffer
+		tex.bind();
+
+		this.id = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
+
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, tex.target, tex.id, 0);
+
+		var result = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+		if (result != gl.FRAMEBUFFER_COMPLETE) {
+			this.destroy(); //destroy our resources before leaving this function..
+
+			var err = &quot;Framebuffer not complete&quot;;
+			switch (result) {
+				case gl.FRAMEBUFFER_UNSUPPORTED:
+					throw new Error(err + &quot;: unsupported&quot;);
+				case gl.INCOMPLETE_DIMENSIONS:
+					throw new Error(err + &quot;: incomplete dimensions&quot;);
+				case gl.INCOMPLETE_ATTACHMENT:
+					throw new Error(err + &quot;: incomplete attachment&quot;);
+				case gl.INCOMPLETE_MISSING_ATTACHMENT:
+					throw new Error(err + &quot;: missing attachment&quot;);
+				default:
+					throw new Error(err);
+			}
+		}
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	},
+
+	destroy: function() {
+		var gl = this.gl;
+
+		if (this.texture)
+			this.texture.destroy();
+		if (this.id &amp;&amp; this.gl)
+			this.gl.deleteFramebuffer(this.id);
+		if (this.context)
+			this.context.removeManagedObject(this);
+
+		this.id = null;
+		this.texture = null;
+	},
+
+	begin: function() {
+		var gl = this.gl;
+		gl.viewport(0, 0, this.texture.width, this.texture.height);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
+	},
+
+	end: function() {
+		var gl = this.gl;
+		gl.viewport(0, 0, this.context.width, this.context.height);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	}
+});
+    </pre>
 </div>
 
                     </div>

@@ -41,11 +41,11 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="../classes/AbstractBatch.html">AbstractBatch</a></li>
-            
                 <li><a href="../classes/AssetManager.html">AssetManager</a></li>
             
                 <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
+            
+                <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
@@ -99,11 +99,16 @@
                         <h1>SpriteBatch Class</h1>
 <div class="box meta">
     
-
-    
-        <div class="extends">
-            Extends <a href="../classes/AbstractBatch.html" class="crosslink">AbstractBatch</a>
+        <div class="uses">
+            Uses
+            <ul class="inline commas">
+                
+                    <li><a href="BaseBatch.html">BaseBatch</a></li>
+                
+            </ul>
         </div>
+    
+
     
 
     
@@ -294,7 +299,7 @@ and a dynamic vertex buffer that is updated with bufferSubData.</p>
                 <div class="index-section methods">
                     <h3>Methods</h3>
 
-                    <ul class="index-list methods extends">
+                    <ul class="index-list methods">
                         
                             <li class="index-item method inherited">
                                 <a href="#method__createMesh">_createMesh</a>
@@ -416,7 +421,7 @@ and a dynamic vertex buffer that is updated with bufferSubData.</p>
                 <div class="index-section properties">
                     <h3>Properties</h3>
 
-                    <ul class="index-list properties extends">
+                    <ul class="index-list properties">
                         
                             <li class="index-item property inherited">
                                 <a href="#property_color">color</a>
@@ -461,7 +466,7 @@ and a dynamic vertex buffer that is updated with bufferSubData.</p>
                 <div class="index-section attrs">
                     <h3>Attributes</h3>
 
-                    <ul class="index-list attrs extends">
+                    <ul class="index-list attrs">
                         
                             <li class="index-item attr">
                                 <a href="#attr_totalRenderCalls">totalRenderCalls</a>
@@ -518,11 +523,11 @@ and a dynamic vertex buffer that is updated with bufferSubData.</p>
         
             
                 <p>Inherited from
-                <a href="../classes/AbstractBatch.html#method__createMesh">AbstractBatch</a>:
+                <a href="../classes/BaseBatch.html#method__createMesh">BaseBatch</a>:
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l128"><code>lib&#x2F;AbstractBatch.js:128</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l129"><code>lib&#x2F;BaseBatch.js:129</code></a>
         
         </p>
 
@@ -603,8 +608,8 @@ should only be implemented by subclasses.</p>
     <div class="meta">
         
             <p>Inherited from
-            <a href="../classes/AbstractBatch.html#method__createShader">
-                AbstractBatch
+            <a href="../classes/BaseBatch.html#method__createShader">
+                BaseBatch
             </a>
             
             but overwritten in
@@ -752,11 +757,11 @@ should only be implemented by subclasses.</p>
         
             
                 <p>Inherited from
-                <a href="../classes/AbstractBatch.html#method__createVertexAttributes">AbstractBatch</a>:
+                <a href="../classes/BaseBatch.html#method__createVertexAttributes">BaseBatch</a>:
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l186"><code>lib&#x2F;AbstractBatch.js:186</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l187"><code>lib&#x2F;BaseBatch.js:187</code></a>
         
         </p>
 
@@ -771,7 +776,7 @@ should only be implemented by subclasses.</p>
 subclasses should implement this with the attributes 
 expected for their batch.</p>
 <p>This method initially throws an error; so it must be overridden by
-subclasses of AbstractBatch.</p>
+subclasses of BaseBatch.</p>
 
     </div>
 
@@ -822,11 +827,11 @@ subclasses of AbstractBatch.</p>
         
             
                 <p>Inherited from
-                <a href="../classes/AbstractBatch.html#method__postRender">AbstractBatch</a>:
+                <a href="../classes/BaseBatch.html#method__postRender">BaseBatch</a>:
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l259"><code>lib&#x2F;AbstractBatch.js:259</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l260"><code>lib&#x2F;BaseBatch.js:260</code></a>
         
         </p>
 
@@ -876,8 +881,8 @@ does nothing by default.</p>
     <div class="meta">
         
             <p>Inherited from
-            <a href="../classes/AbstractBatch.html#method__preRender">
-                AbstractBatch
+            <a href="../classes/BaseBatch.html#method__preRender">
+                BaseBatch
             </a>
             
             but overwritten in
@@ -931,8 +936,8 @@ does nothing by default.</p>
     <div class="meta">
         
             <p>Inherited from
-            <a href="../classes/AbstractBatch.html#method_begin">
-                AbstractBatch
+            <a href="../classes/BaseBatch.html#method_begin">
+                BaseBatch
             </a>
             
             but overwritten in
@@ -989,11 +994,11 @@ default matrices and sampler2D uniforms to the shader.</p>
         
             
                 <p>Inherited from
-                <a href="../classes/AbstractBatch.html#method_destroy">AbstractBatch</a>:
+                <a href="../classes/BaseBatch.html#method_destroy">BaseBatch</a>:
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l325"><code>lib&#x2F;AbstractBatch.js:325</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l326"><code>lib&#x2F;BaseBatch.js:326</code></a>
         
         </p>
 
@@ -1100,8 +1105,8 @@ batch after destroying it can lead to unpredictable behaviour.</p>
     <div class="meta">
         
             <p>Inherited from
-            <a href="../classes/AbstractBatch.html#method_draw">
-                AbstractBatch
+            <a href="../classes/BaseBatch.html#method_draw">
+                BaseBatch
             </a>
             
             but overwritten in
@@ -1330,8 +1335,8 @@ screen-space with the origin at the upper-left corner (y-down).</p>
     <div class="meta">
         
             <p>Inherited from
-            <a href="../classes/AbstractBatch.html#method_drawVertices">
-                AbstractBatch
+            <a href="../classes/BaseBatch.html#method_drawVertices">
+                BaseBatch
             </a>
             
             but overwritten in
@@ -1446,8 +1451,8 @@ screen-space with the origin at the upper-left corner (y-down).</p>
     <div class="meta">
         
             <p>Inherited from
-            <a href="../classes/AbstractBatch.html#method_end">
-                AbstractBatch
+            <a href="../classes/BaseBatch.html#method_end">
+                BaseBatch
             </a>
             
             but overwritten in
@@ -1501,8 +1506,8 @@ screen-space with the origin at the upper-left corner (y-down).</p>
     <div class="meta">
         
             <p>Inherited from
-            <a href="../classes/AbstractBatch.html#method_flush">
-                AbstractBatch
+            <a href="../classes/BaseBatch.html#method_flush">
+                BaseBatch
             </a>
             
             but overwritten in
@@ -1562,8 +1567,8 @@ shaders, and so forth.</p>
     <div class="meta">
         
             <p>Inherited from
-            <a href="../classes/AbstractBatch.html#method_getVertexSize">
-                AbstractBatch
+            <a href="../classes/BaseBatch.html#method_getVertexSize">
+                BaseBatch
             </a>
             
             but overwritten in
@@ -1661,11 +1666,11 @@ shaders, and so forth.</p>
         
             
                 <p>Inherited from
-                <a href="../classes/AbstractBatch.html#method_setColor">AbstractBatch</a>:
+                <a href="../classes/BaseBatch.html#method_setColor">BaseBatch</a>:
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l89"><code>lib&#x2F;AbstractBatch.js:89</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l90"><code>lib&#x2F;BaseBatch.js:90</code></a>
         
         </p>
 
@@ -1963,11 +1968,11 @@ and this will be called before continuing to add items to the batch.</p>
         
             
                 <p>Inherited from
-                <a href="../classes/AbstractBatch.html#property_color">AbstractBatch</a>:
+                <a href="../classes/BaseBatch.html#property_color">BaseBatch</a>:
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l62"><code>lib&#x2F;AbstractBatch.js:62</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l63"><code>lib&#x2F;BaseBatch.js:63</code></a>
         
         </p>
 
@@ -2006,11 +2011,11 @@ value is the color white (255, 255, 255, 255).</p>
         
             
                 <p>Inherited from
-                <a href="../classes/AbstractBatch.html#property_premultiplyColor">AbstractBatch</a>:
+                <a href="../classes/BaseBatch.html#property_premultiplyColor">BaseBatch</a>:
             
         
         
-        <a href="../files/lib_AbstractBatch.js.html#l71"><code>lib&#x2F;AbstractBatch.js:71</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l72"><code>lib&#x2F;BaseBatch.js:72</code></a>
         
         </p>
 

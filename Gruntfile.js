@@ -23,7 +23,7 @@ module.exports = function(grunt) {
 				
 				options: {
 					standalone: "kami",
-					// debug: true
+					debug: true
 				}
 			},
 			
@@ -93,7 +93,7 @@ module.exports = function(grunt) {
 					banner: "/**\n" +
 			 		"  Auto-generated Kami index file.\n" +
 			 		"  Dependencies are placed on the top-level namespace, for convenience.\n" +
-			  		"  Created on <%= grunt.template.today('yyyy-mm-dd') %>\n" +
+			  		"  Created on <%= grunt.template.today('yyyy-mm-dd') %>.\n" +
 			  		"*/",
 					
 					// Options for our dependency modules...
@@ -119,7 +119,7 @@ module.exports = function(grunt) {
 				options: {
 					banner: "/**\n" +
 			 		"  Auto-generated Kami index file.\n" +
-			  		"  Created on <%= grunt.template.today('yyyy-mm-dd') %>\n" +
+			  		"  Created on <%= grunt.template.today('yyyy-mm-dd') %>.\n" +
 			  		"*/",
 
 			  		// only core modules 
