@@ -104,7 +104,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/lib_Texture.js.html#l11"><code>lib&#x2F;Texture.js:11</code></a>
+            Defined in: <a href="../files/lib_Texture.js.html#l13"><code>lib&#x2F;Texture.js:13</code></a>
         </div>
     
 
@@ -183,6 +183,12 @@ with asynchronous loading and context loss.</p>
                     
                 </li>
             
+                <li class="arg">
+                    
+                        <code>genMipmaps</code>
+                    
+                </li>
+            
             </ul><span class="paren">)</span>
         </div>
     
@@ -212,7 +218,7 @@ with asynchronous loading and context loss.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l11"><code>lib&#x2F;Texture.js:11</code></a>
+        <a href="../files/lib_Texture.js.html#l13"><code>lib&#x2F;Texture.js:13</code></a>
         
         </p>
 
@@ -328,6 +334,22 @@ with asynchronous loading and context loss.</p>
                     
                 </li>
             
+                <li class="param">
+                    
+                        <code class="param-name">genMipmaps</code>
+                        <span class="type">Boolean</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>whether to generate mipmaps after uploading the data</p>
+
+                    </div>
+
+                    
+                </li>
+            
             </ul>
         </div>
     
@@ -365,6 +387,13 @@ with asynchronous loading and context loss.</p>
                     <h3>Methods</h3>
 
                     <ul class="index-list methods">
+                        
+                            <li class="index-item method private">
+                                <a href="#method__checkPOT">_checkPOT</a>
+
+                                
+                                
+                            </li>
                         
                             <li class="index-item method">
                                 <a href="#method_bind">bind</a>
@@ -461,6 +490,10 @@ with asynchronous loading and context loss.</p>
                             </li>
                         
                             <li class="index-item attr">
+                                <a href="#attr_FORCE_POT">FORCE_POT</a>
+                            </li>
+                        
+                            <li class="index-item attr">
                                 <a href="#attr_Format">Format</a>
                             </li>
                         
@@ -478,6 +511,84 @@ with asynchronous loading and context loss.</p>
         
             <div id="methods" class="api-class-tabpanel">
                 <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method__checkPOT" class="method item private">
+    <h3 class="name"><code>_checkPOT</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">type</span>
+        </span>
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l286"><code>lib&#x2F;Texture.js:286</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If FORCE_POT is false, we verify this texture to see if it is valid, 
+as per non-power-of-two rules. If it is non-power-of-two, it must have 
+a wrap mode of CLAMP_TO_EDGE, and the minification filter must be LINEAR
+or NEAREST. If we don&#39;t satisfy these needs, an error is thrown.</p>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">type</span>:
+                    
+                    <p>[description]</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
 
                 
                     <div id="method_bind" class="method item">
@@ -522,7 +633,7 @@ with asynchronous loading and context loss.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l271"><code>lib&#x2F;Texture.js:271</code></a>
+        <a href="../files/lib_Texture.js.html#l311"><code>lib&#x2F;Texture.js:311</code></a>
         
         </p>
 
@@ -621,7 +732,7 @@ is currently active.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l415"><code>lib&#x2F;Texture.js:415</code></a>
+        <a href="../files/lib_Texture.js.html#l472"><code>lib&#x2F;Texture.js:472</code></a>
         
         </p>
 
@@ -738,7 +849,7 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l162"><code>lib&#x2F;Texture.js:162</code></a>
+        <a href="../files/lib_Texture.js.html#l167"><code>lib&#x2F;Texture.js:167</code></a>
         
         </p>
 
@@ -887,7 +998,7 @@ a GL reference.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l218"><code>lib&#x2F;Texture.js:218</code></a>
+        <a href="../files/lib_Texture.js.html#l229"><code>lib&#x2F;Texture.js:229</code></a>
         
         </p>
 
@@ -1044,7 +1155,7 @@ texture to change.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l249"><code>lib&#x2F;Texture.js:249</code></a>
+        <a href="../files/lib_Texture.js.html#l262"><code>lib&#x2F;Texture.js:262</code></a>
         
         </p>
 
@@ -1123,7 +1234,7 @@ HTMLVideoElement.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l73"><code>lib&#x2F;Texture.js:73</code></a>
+        <a href="../files/lib_Texture.js.html#l76"><code>lib&#x2F;Texture.js:76</code></a>
         
         </p>
 
@@ -1168,7 +1279,7 @@ HTMLVideoElement.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l53"><code>lib&#x2F;Texture.js:53</code></a>
+        <a href="../files/lib_Texture.js.html#l56"><code>lib&#x2F;Texture.js:56</code></a>
         
         </p>
 
@@ -1217,7 +1328,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l64"><code>lib&#x2F;Texture.js:64</code></a>
+        <a href="../files/lib_Texture.js.html#l67"><code>lib&#x2F;Texture.js:67</code></a>
         
         </p>
 
@@ -1279,7 +1390,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l362"><code>lib&#x2F;Texture.js:362</code></a>
+        <a href="../files/lib_Texture.js.html#l402"><code>lib&#x2F;Texture.js:402</code></a>
         
         </p>
 
@@ -1344,7 +1455,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l399"><code>lib&#x2F;Texture.js:399</code></a>
+        <a href="../files/lib_Texture.js.html#l439"><code>lib&#x2F;Texture.js:439</code></a>
         
         </p>
 
@@ -1401,7 +1512,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l388"><code>lib&#x2F;Texture.js:388</code></a>
+        <a href="../files/lib_Texture.js.html#l428"><code>lib&#x2F;Texture.js:428</code></a>
         
         </p>
 
@@ -1458,7 +1569,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l293"><code>lib&#x2F;Texture.js:293</code></a>
+        <a href="../files/lib_Texture.js.html#l333"><code>lib&#x2F;Texture.js:333</code></a>
         
         </p>
 
@@ -1495,6 +1606,69 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
 </div>
 
                 
+                    <div id="attr_FORCE_POT" class="attr item">
+    <a name="config_FORCE_POT"></a> 
+    <h3 class="name"><code>FORCE_POT</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l449"><code>lib&#x2F;Texture.js:449</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>By default, we do some error checking when creating textures
+to ensure that they will be &quot;renderable&quot; by WebGL. Non-power-of-two
+textures must use CLAMP_TO_EDGE as their wrap mode, and NEAREST or LINEAR
+as their wrap mode. Further, trying to generate mipmaps for a NPOT image
+will lead to errors. </p>
+<p>However, you can disable this error checking by setting <code>FORCE_POT</code> to true.
+This may be useful if you are running on specific hardware that supports POT 
+textures, or in some future case where NPOT textures is added as a WebGL extension.</p>
+
+    </div>
+
+    
+        <p><strong>Default:</strong> false</p>
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="attr_Format" class="attr item">
     <a name="config_Format"></a> 
     <h3 class="name"><code>Format</code></h3>
@@ -1527,7 +1701,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l339"><code>lib&#x2F;Texture.js:339</code></a>
+        <a href="../files/lib_Texture.js.html#l379"><code>lib&#x2F;Texture.js:379</code></a>
         
         </p>
 
@@ -1593,7 +1767,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l319"><code>lib&#x2F;Texture.js:319</code></a>
+        <a href="../files/lib_Texture.js.html#l359"><code>lib&#x2F;Texture.js:359</code></a>
         
         </p>
 

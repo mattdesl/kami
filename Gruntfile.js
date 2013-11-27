@@ -35,7 +35,8 @@ module.exports = function(grunt) {
 					debug: true,
 					alias: [
 						'<%= dirs.src %>/index.js:kami',
-						'signals', //externalize
+						'signals', //externalize,
+						'number-util'
 					]
 				}
 			}

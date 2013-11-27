@@ -11,7 +11,7 @@
   "dependencies": {
     "signals": "git://github.com/millermedeiros/js-signals#v1.0.0",
     "klasse": "git://github.com/mattdesl/klasse#v1.0.0",
-    "number-util": "git://github.com/mattdesl/number-util#v1.0.0"
+    "number-util": "git://github.com/mattdesl/number-util#v1.0.1"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

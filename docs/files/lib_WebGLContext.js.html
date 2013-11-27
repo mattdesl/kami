@@ -181,7 +181,7 @@ var WebGLContext = new Class({
 		
 		/**
 		 * Whether this context is &#x27;valid&#x27;, i.e. renderable. A context that has been lost
-		 * (and not yet restored) is invalid.
+		 * (and not yet restored) or destroyed is invalid.
 		 * 
 		 * @property {Boolean} valid
 		 */
@@ -293,6 +293,27 @@ var WebGLContext = new Class({
 		return null;
 	},
 
+	/**
+	 * Calls destroy() on each managed object, then removes references to these objects
+	 * and the GL rendering context. This also removes references to the view and sets
+	 * the context&#x27;s width and height to zero.
+	 *
+	 * Attempting to use this WebGLContext or the GL rendering context after destroying it
+	 * will lead to undefined behaviour.
+	 */
+	destroy: function() {
+		for (var i=0; i&lt;this.managedObjects.length; i++) {
+			var obj = this.managedObjects[i];
+			if (obj &amp;&amp; typeof obj.destroy)
+				obj.destroy();
+		}
+		this.managedObjects.length = 0;
+		this.valid = false;
+		this.gl = null;
+		this.view = null;
+		this.width = this.height = 0;
+	},
+
 	_contextLost: function(ev) {
 		//all textures/shaders/buffers/FBOs have been deleted... 
 		//we need to re-create them on restore
@@ -302,13 +323,6 @@ var WebGLContext = new Class({
 	},
 
 	_contextRestored: function(ev) {
-		//If an asset manager is attached to this
-		//context, we need to invalidate it and re-load 
-		//the assets.
-		if (this.assetManager) {
-			this.assetManager.invalidate();
-		}
-
 		//first, initialize the GL context again
 		this._initContext();
 

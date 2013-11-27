@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>lib/FrameBuffer.js - kami</title>
+    <title>lib/TextureRegion.js - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -96,116 +96,94 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: lib/FrameBuffer.js</h1>
+                        <h1 class="file-heading">File: lib/TextureRegion.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
 var Class = require(&#x27;klasse&#x27;);
 var Texture = require(&#x27;./Texture&#x27;);
 
+//This is a GL-specific texture region, employing tangent space normalized coordinates U and V.
+//A canvas-specific region would really just be a lightweight object with { x, y, width, height }
+//in pixels.
+var TextureRegion = new Class({
 
-var FrameBuffer = new Class({
-
-	/**
-	 * Creates a new Frame Buffer Object with the given width and height.
-	 *
-	 * If width and height are non-numbers, this method expects the
-	 * first parameter to be a Texture object which should be acted upon. 
-	 * In this case, the FrameBuffer does not &quot;own&quot; the texture, and so it
-	 * won&#x27;t dispose of it upon destruction. This is an advanced version of the
-	 * constructor that assumes the user is giving us a valid Texture that can be bound (i.e.
-	 * no async Image textures).
-	 * 
-	 * @param  {[type]} width  [description]
-	 * @param  {[type]} height [description]
-	 * @param  {[type]} filter [description]
-	 * @return {[type]}        [description]
-	 */
-	initialize: function FrameBuffer(context, width, height, format) { //TODO: depth component
-		this.id = null;
-
-		//this Texture is now managed.
-		this.texture = new Texture(context, width, height, format);
-
-		//This is maanged by WebGLContext
-		this.context.addManagedObject(this);
-		this.create();
+	initialize: function TextureRegion(texture, x, y, width, height) {
+		this.texture = texture;
+		this.setRegion(x, y, width, height);
 	},
 
-	// width: {
-	// 	get: function() {
-	// 		return this.texture.width
-	// 	}
-	// },
+	setUVs: function(u, v, u2, v2) {
+		this.regionWidth = Math.round(Math.abs(u2 - u) * this.texture.width);
+        this.regionHeight = Math.round(Math.abs(v2 - v) * this.texture.height);
 
-	// height: {
-	// 	get: function() {
-	// 		return this.texture.height;
-	// 	}
-	// },
-
-	create: function() {
-		this.gl = this.context.gl; 
-		var gl = this.gl;
-
-		var tex = this.texture;
-
-		//we assume the texture has already had create() called on it
-		//since it was added as a managed object prior to this FrameBuffer
-		tex.bind();
-
-		this.id = gl.createFramebuffer();
-		gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
-
-		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, tex.target, tex.id, 0);
-
-		var result = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-		if (result != gl.FRAMEBUFFER_COMPLETE) {
-			this.destroy(); //destroy our resources before leaving this function..
-
-			var err = &quot;Framebuffer not complete&quot;;
-			switch (result) {
-				case gl.FRAMEBUFFER_UNSUPPORTED:
-					throw new Error(err + &quot;: unsupported&quot;);
-				case gl.INCOMPLETE_DIMENSIONS:
-					throw new Error(err + &quot;: incomplete dimensions&quot;);
-				case gl.INCOMPLETE_ATTACHMENT:
-					throw new Error(err + &quot;: incomplete attachment&quot;);
-				case gl.INCOMPLETE_MISSING_ATTACHMENT:
-					throw new Error(err + &quot;: missing attachment&quot;);
-				default:
-					throw new Error(err);
-			}
+        // From LibGDX TextureRegion.java -- 
+		// For a 1x1 region, adjust UVs toward pixel center to avoid filtering artifacts on AMD GPUs when drawing very stretched.
+		if (this.regionWidth == 1 &amp;&amp; this.regionHeight == 1) {
+			var adjustX = 0.25 / texWidth;
+			u += adjustX;
+			u2 -= adjustX;
+			var adjustY = 0.25 / texHeight;
+			v += adjustY;
+			v2 -= adjustY;
 		}
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+		this.u = u;
+		this.v = v;
+		this.u2 = u2;
+		this.v2 = v2;
 	},
 
-	destroy: function() {
-		var gl = this.gl;
+	setRegion: function(x, y, width, height) {
+		x = x || 0;
+		y = y || 0;
+		width = (width===0 || width) ? width : this.texture.width;
+		height = (height===0 || height) ? height : this.texture.height;
 
-		if (this.texture)
-			this.texture.destroy();
-		if (this.id &amp;&amp; this.gl)
-			this.gl.deleteFramebuffer(this.id);
-		if (this.context)
-			this.context.removeManagedObject(this);
-
-		this.id = null;
-		this.texture = null;
+		var invTexWidth = 1 / this.texture.width;
+		var invTexHeight = 1 / this.texture.height;
+		this.setUVs(x * invTexWidth, y * invTexHeight, (x + width) * invTexWidth, (y + height) * invTexHeight);
+		this.regionWidth = Math.abs(width);
+		this.regionHeight = Math.abs(height);
 	},
 
-	begin: function() {
-		var gl = this.gl;
-		gl.viewport(0, 0, this.texture.width, this.texture.height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
+	/** Sets the texture to that of the specified region and sets the coordinates relative to the specified region. */
+	setFromRegion: function(region, x, y, width, height) {
+		this.texture = region.texture;
+		this.set(region.getRegionX() + x, region.getRegionY() + y, width, height);
 	},
 
-	end: function() {
-		var gl = this.gl;
-		gl.viewport(0, 0, this.context.width, this.context.height);
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+	//TODO: add setters for regionX/Y and regionWidth/Height
+
+	regionX: {
+		get: function() {
+			return Math.round(this.u * this.texture.width);
+		} 
+	},
+
+	regionY: {
+		get: function() {
+			return Math.round(this.v * this.texture.height);
+		}
+	},
+
+	flip: function(x, y) {
+		var temp;
+		if (x) {
+			temp = this.u;
+			this.u = this.u2;
+			this.u2 = temp;
+		}
+		if (y) {
+			temp = this.v;
+			this.v = this.v2;
+			this.v2 = temp;
+		}
 	}
 });
+
+module.exports = TextureRegion;
     </pre>
 </div>
 

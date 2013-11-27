@@ -259,6 +259,34 @@ var ShaderProgram = new Class({
 		return shader;
 	},
 
+
+	bind: function() {
+		this.gl.useProgram(this.program);
+	},
+
+	destroy: function() {
+		if (this.context)
+			this.context.removeManagedObject(this);
+
+		if (this.gl) {
+			var gl = this.gl;
+			gl.detachShader(this.vertShader);
+			gl.detachShader(this.fragShader);
+
+			gl.deleteShader(this.vertShader);
+			gl.deleteShader(this.fragShader);
+			gl.deleteProgram(this.program);
+		}
+		this.attributeCache = null;
+		this.uniformCache = null;
+		this.vertShader = null;
+		this.fragShader = null;
+		this.program = null;
+		this.gl = null;
+		this.context = null;
+	},
+
+
 	/**
 	 * Returns the cached uniform info (size, type, location).
 	 * If the uniform is not found in the cache, it is assumed
@@ -267,7 +295,8 @@ var ShaderProgram = new Class({
 	 * This may return null even if the uniform is defined in GLSL:
 	 * if it is _inactive_ (i.e. not used in the program) then it may
 	 * be optimized out.
-	 * 
+	 *
+	 * @method  getUniformInfo
 	 * @param  {String} name the uniform name as defined in GLSL
 	 * @return {Object} an object containing location, size, and type
 	 */
@@ -283,7 +312,8 @@ var ShaderProgram = new Class({
 	 * This may return null even if the attribute is defined in GLSL:
 	 * if it is _inactive_ (i.e. not used in the program or disabled) 
 	 * then it may be optimized out.
-	 * 
+	 *
+	 * @method  getAttributeInfo
 	 * @param  {String} name the attribute name as defined in GLSL
 	 * @return {object} an object containing location, size and type
 	 */
@@ -295,7 +325,8 @@ var ShaderProgram = new Class({
 	/**
 	 * Returns the cached uniform location object.
 	 * If the uniform is not found, this method returns null.
-	 * 
+	 *
+	 * @method  getAttributeLocation
 	 * @param  {String} name the uniform name as defined in GLSL
 	 * @return {GLint} the location object
 	 */
@@ -305,8 +336,11 @@ var ShaderProgram = new Class({
 	},
 
 	/**
-	 * Returns the cached uniform location object.
-	 * 
+	 * Returns the cached uniform location object, assuming it exists
+	 * and is active. Note that uniforms may be inactive if 
+	 * the GLSL compiler deemed them unused.
+	 *
+	 * @method  getUniformLocation
 	 * @param  {String} name the uniform name as defined in GLSL
 	 * @return {WebGLUniformLocation} the location object
 	 */
@@ -317,8 +351,10 @@ var ShaderProgram = new Class({
 
 	/**
 	 * Returns true if the uniform is active and found in this
-	 * compiled program.
-	 * 
+	 * compiled program. Note that uniforms may be inactive if 
+	 * the GLSL compiler deemed them unused.
+	 *
+	 * @method  hasUniform
 	 * @param  {String}  name the uniform name
 	 * @return {Boolean} true if the uniform is found and active
 	 */
@@ -329,7 +365,8 @@ var ShaderProgram = new Class({
 	/**
 	 * Returns true if the attribute is active and found in this
 	 * compiled program.
-	 * 
+	 *
+	 * @method  hasAttribute
 	 * @param  {String}  name the attribute name
 	 * @return {Boolean} true if the attribute is found and active
 	 */
@@ -339,7 +376,8 @@ var ShaderProgram = new Class({
 
 	/**
 	 * Returns the uniform value by name.
-	 * 
+	 *
+	 * @method  getUniform
 	 * @param  {String} name the uniform name as defined in GLSL
 	 * @return {any} The value of the WebGL uniform
 	 */
@@ -349,7 +387,8 @@ var ShaderProgram = new Class({
 
 	/**
 	 * Returns the uniform value at the specified WebGLUniformLocation.
-	 * 
+	 *
+	 * @method  getUniformAt
 	 * @param  {WebGLUniformLocation} location the location object
 	 * @return {any} The value of the WebGL uniform
 	 */
@@ -357,22 +396,18 @@ var ShaderProgram = new Class({
 		return this.gl.getUniform(this.program, location);
 	},
 
-	bind: function() {
-		this.gl.useProgram(this.program);
-	},
-
-	destroy: function() {
-		var gl = this.gl;
-		gl.detachShader(this.vertShader);
-		gl.detachShader(this.fragShader);
-
-		gl.deleteShader(this.vertShader);
-		gl.deleteShader(this.fragShader);
-
-		gl.deleteProgram(this.program);
-		this.program = null;
-	},
-
+	/**
+	 * A convenience method to set uniformi from the given arguments.
+	 * We determine which GL call to make based on the number of arguments
+	 * passed. For example, &#x60;setUniformi(&quot;var&quot;, 0, 1)&#x60; maps to &#x60;gl.uniform2i&#x60;.
+	 * 
+	 * @method  setUniformi
+	 * @param {String} name        		the name of the uniform
+	 * @param {GLint} x  the x component for ints
+	 * @param {GLint} y  the y component for ivec2
+	 * @param {GLint} z  the z component for ivec3
+	 * @param {GLint} w  the w component for ivec4
+	 */
 	setUniformi: function(name, x, y, z, w) {
 		var gl = this.gl;
 		var loc = this.getUniformLocation(name);
@@ -388,6 +423,18 @@ var ShaderProgram = new Class({
 		}
 	},
 
+	/**
+	 * A convenience method to set uniformf from the given arguments.
+	 * We determine which GL call to make based on the number of arguments
+	 * passed. For example, &#x60;setUniformf(&quot;var&quot;, 0, 1)&#x60; maps to &#x60;gl.uniform2f&#x60;.
+	 * 
+	 * @method  setUniformf
+	 * @param {String} name        		the name of the uniform
+	 * @param {GLfloat} x  the x component for floats
+	 * @param {GLfloat} y  the y component for vec2
+	 * @param {GLfloat} z  the z component for vec3
+	 * @param {GLfloat} w  the w component for vec4
+	 */
 	setUniformf: function(name, x, y, z, w) {
 		var gl = this.gl;
 		var loc = this.getUniformLocation(name);
@@ -409,7 +456,8 @@ var ShaderProgram = new Class({
 	 * A convenience method to set uniformNfv from the given ArrayBuffer.
 	 * We determine which GL call to make based on the length of the array 
 	 * buffer. 
-	 * 	
+	 *
+	 * @method  setUniformfv
 	 * @param {String} name        		the name of the uniform
 	 * @param {ArrayBuffer} arrayBuffer the array buffer
 	 */
@@ -429,10 +477,11 @@ var ShaderProgram = new Class({
 	},
 
 	/**
-	 * A convenience method to set uniformNfv from the given ArrayBuffer.
+	 * A convenience method to set uniformNiv from the given ArrayBuffer.
 	 * We determine which GL call to make based on the length of the array 
 	 * buffer. 
-	 * 	
+	 *
+	 * @method  setUniformiv
 	 * @param {String} name        		the name of the uniform
 	 * @param {ArrayBuffer} arrayBuffer the array buffer
 	 */

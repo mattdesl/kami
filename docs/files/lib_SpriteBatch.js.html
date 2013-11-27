@@ -176,6 +176,10 @@ var SpriteBatch = new Class({
 		 */
 		this.projection = new Float32Array(2);
 
+		//Sets up a default projection vector if none is specified
+		this.projection[0] = this.context.width;
+		this.projection[1] = this.context.height;
+
 		/**
 		 * The currently bound texture. Do not modify.
 		 * 

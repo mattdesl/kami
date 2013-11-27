@@ -425,6 +425,10 @@ var BaseBatch = new Class({
 	drawVertices: function(texture, verts, off)  {
 	},
 
+	drawRegion: function(region, x, y, width, height) {
+		this.draw(region.texture, x, y, width, height, region.u, region.v, region.u2, region.v2);
+	},
+
 	/**
 	 * Destroys the batch, deleting its buffers and removing it from the
 	 * WebGLContext management. Trying to use this

@@ -2,6 +2,15 @@
 
 Kami is a fast and lightweight WebGL sprite rendering framework. It can be used for 2D or 3D purposes, and aims to support modern WebGL features like compressed textures.
 
+- Minimal set of WebGL utilities for compiling shaders, managing asynchronous assets, handling context loss, and working with vertex data and textures.
+- Optimized sprite batcher for rendering complex 2D scenes. 
+
+It is ideal for tinkering with WebGL, building your game engine on top of, or writing applications that require low-level control over vertex data, textures, and so forth. 
+
+## Docs
+
+... soon to be online ...
+
 ## Usage
 
 Here is an example using Node style requires and browserify:
@@ -43,9 +52,6 @@ function render() {
 	//We update the assets every frame. This method returns
 	//true when all assets have been updated.
 	if (assets.update()) { //assets have been loaded.
-		//Set the projection vector; the mid-point of your stage.
-		batch.setProjection(width/2, height/2);
-
 		//start the batch...
 		batch.begin();
 
@@ -68,7 +74,7 @@ If you aren't using Node and `require()` statements, you can grab the UMD build 
 
 Most of the code looks exactly the same, except all of Kami's objects are exported onto a global `kami` namespace. The dependencies are also exported on the namespace, for convenience. See here:
 
-```javascript
+```html
 <script src="kami.js"></script>
 <script>
 	var context = new kami.WebGLContext(width, height);

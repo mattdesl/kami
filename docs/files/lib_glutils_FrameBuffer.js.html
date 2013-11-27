@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>lib/index-umd.js - kami</title>
+    <title>lib/glutils/FrameBuffer.js - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -96,36 +96,119 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: lib/index-umd.js</h1>
+                        <h1 class="file-heading">File: lib/glutils/FrameBuffer.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
-/**
-  Auto-generated Kami index file.
-  Dependencies are placed on the top-level namespace, for convenience.
-  Created on 2013-11-26.
-*/
-module.exports = {
-    //core classes
-    &#x27;AssetManager&#x27;:    require(&#x27;./AssetManager.js&#x27;),
-    &#x27;BaseBatch&#x27;:       require(&#x27;./BaseBatch.js&#x27;),
-    &#x27;SpriteBatch&#x27;:     require(&#x27;./SpriteBatch.js&#x27;),
-    &#x27;Texture&#x27;:         require(&#x27;./Texture.js&#x27;),
-    &#x27;TextureRegion&#x27;:   require(&#x27;./TextureRegion.js&#x27;),
-    &#x27;WebGLContext&#x27;:    require(&#x27;./WebGLContext.js&#x27;),
-    &#x27;FrameBuffer&#x27;:     require(&#x27;./glutils/FrameBuffer.js&#x27;),
-    &#x27;Mesh&#x27;:            require(&#x27;./glutils/Mesh.js&#x27;),
-    &#x27;ShaderProgram&#x27;:   require(&#x27;./glutils/ShaderProgram.js&#x27;),
+var Class = require(&#x27;klasse&#x27;);
+var Texture = require(&#x27;../Texture&#x27;);
 
-    //signals dependencies
-    &#x27;Signal&#x27;:          require(&#x27;signals&#x27;).Signal,
 
-    //klasse dependencies
-    &#x27;Class&#x27;:           require(&#x27;klasse&#x27;),
+var FrameBuffer = new Class({
 
-    //number-util dependencies
-    &#x27;NumberUtil&#x27;:      require(&#x27;number-util&#x27;)
-};
+	/**
+	 * Creates a new Frame Buffer Object with the given width and height.
+	 *
+	 * If width and height are non-numbers, this method expects the
+	 * first parameter to be a Texture object which should be acted upon. 
+	 * In this case, the FrameBuffer does not &quot;own&quot; the texture, and so it
+	 * won&#x27;t dispose of it upon destruction. This is an advanced version of the
+	 * constructor that assumes the user is giving us a valid Texture that can be bound (i.e.
+	 * no async Image textures).
+	 * 
+	 * @param  {[type]} width  [description]
+	 * @param  {[type]} height [description]
+	 * @param  {[type]} filter [description]
+	 * @return {[type]}        [description]
+	 */
+	initialize: function FrameBuffer(context, width, height, format) { //TODO: depth component
+		this.id = null;
+		this.context = context;
+
+		//this Texture is now managed.
+		this.texture = new Texture(context, width, height, format);
+
+		//This is maanged by WebGLContext
+		this.context.addManagedObject(this);
+		this.create();
+	},
+
+	width: {
+		get: function() {
+			return this.texture.width
+		}
+	},
+
+	height: {
+		get: function() {
+			return this.texture.height;
+		}
+	},
+
+	create: function() {
+		this.gl = this.context.gl; 
+		var gl = this.gl;
+
+		var tex = this.texture;
+
+		//we assume the texture has already had create() called on it
+		//since it was added as a managed object prior to this FrameBuffer
+		tex.bind();
+ 
+		this.id = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
+
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, tex.target, tex.id, 0);
+
+		var result = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+		if (result != gl.FRAMEBUFFER_COMPLETE) {
+			this.destroy(); //destroy our resources before leaving this function..
+
+			var err = &quot;Framebuffer not complete&quot;;
+			switch (result) {
+				case gl.FRAMEBUFFER_UNSUPPORTED:
+					throw new Error(err + &quot;: unsupported&quot;);
+				case gl.INCOMPLETE_DIMENSIONS:
+					throw new Error(err + &quot;: incomplete dimensions&quot;);
+				case gl.INCOMPLETE_ATTACHMENT:
+					throw new Error(err + &quot;: incomplete attachment&quot;);
+				case gl.INCOMPLETE_MISSING_ATTACHMENT:
+					throw new Error(err + &quot;: missing attachment&quot;);
+				default:
+					throw new Error(err);
+			}
+		}
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	},
+
+	destroy: function() {
+		var gl = this.gl;
+
+		if (this.texture)
+			this.texture.destroy();
+		if (this.id &amp;&amp; this.gl)
+			this.gl.deleteFramebuffer(this.id);
+		if (this.context)
+			this.context.removeManagedObject(this);
+
+		this.id = null;
+		this.texture = null;
+	},
+
+	begin: function() {
+		var gl = this.gl;
+		gl.viewport(0, 0, this.texture.width, this.texture.height);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
+	},
+
+	end: function() {
+		var gl = this.gl;
+		gl.viewport(0, 0, this.context.width, this.context.height);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	}
+});
+
+module.exports = FrameBuffer;
     </pre>
 </div>
 
