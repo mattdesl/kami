@@ -1,6 +1,6 @@
 {
   "name": "kami",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "WebGL utilities for performant and flexible 2D and 3D rendering.",
   "main": "lib/index.js",
   "scripts": {
@@ -12,6 +12,10 @@
     "signals": "git://github.com/millermedeiros/js-signals#v1.0.0",
     "klasse": "git://github.com/mattdesl/klasse#v1.0.0",
     "number-util": "git://github.com/mattdesl/number-util#v1.0.1"
+  },
+  "repository": { 
+    "type" : "git",
+    "url" : "https://github.com/mattdesl/kami.git"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
