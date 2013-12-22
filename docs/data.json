@@ -2,7 +2,7 @@
     "project": {
         "name": "kami",
         "description": "WebGL utilities for performant and flexible 2D and 3D rendering.",
-        "version": "0.0.0",
+        "version": "0.1.0",
         "url": ""
     },
     "files": {
@@ -28,16 +28,6 @@
             "name": "lib/glutils/ShaderProgram.js",
             "modules": {},
             "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
-        "lib/AssetManager.js": {
-            "name": "lib/AssetManager.js",
-            "modules": {},
-            "classes": {
-                "AssetManager": 1,
-                "AssetManager.ImageLoader": 1
-            },
             "fors": {},
             "namespaces": {}
         },
@@ -105,8 +95,6 @@
             "submodules": {},
             "classes": {
                 "Mesh": 1,
-                "AssetManager": 1,
-                "AssetManager.ImageLoader": 1,
                 "BaseBatch": 1,
                 "SpriteBatch": 1,
                 "Texture": 1,
@@ -133,65 +121,6 @@
             "file": "lib/glutils/Mesh.js",
             "line": 8,
             "description": "A mesh class that wraps VBO and IBO."
-        },
-        "AssetManager": {
-            "name": "AssetManager",
-            "shortname": "AssetManager",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "kami",
-            "namespace": "",
-            "file": "lib/AssetManager.js",
-            "line": 8,
-            "description": "This is a utility which makes asset loading cleaner\nand simpler, especially with regard to asynchronous image\nloading and WebGL context loss.\n\n\nBasic usage looks like this:\n\n    //Create an asset manager \n    var assets = new AssetManager(context);\n \n    //image types will return a new Texture\n    var tex0 = assets.load(\"img/grass.png\");\n    var tex1 = assets.load(\"img/scene.png\");\n\n    ... inside game loop ...\n\n        if (assets.update()) {\n            // all assets are loaded, we can render.\n        } else {\n            // not all assets are loaded. we need\n            // to show our preloader.\n        }\n\nCurrently this class only supports image loading,\nalthough in the future others could be added for \ncompressed textures, sprite sheets, and so forth.\n\nCreating a new asset manager will listen for context\nloss events on the given WebGLContext. When this happens,\nall assets will be invalidated and added to the loading queue.\nAs such, update() will return false until the assets have been\nre-loaded.",
-            "is_constructor": 1,
-            "params": [
-                {
-                    "name": "context",
-                    "description": "the WebGLContext for this manager",
-                    "type": "WebGLContext"
-                }
-            ]
-        },
-        "AssetManager.ImageLoader": {
-            "name": "AssetManager.ImageLoader",
-            "shortname": "AssetManager.ImageLoader",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "kami",
-            "namespace": "",
-            "file": "lib/AssetManager.js",
-            "line": 507,
-            "description": "This is the default implementation of an image loader plugin for AssetManager.\nThis uses a DOM Image object to upload PNG, GIF and JPG images to a WebGL\ntexture. You will not need to deal with this class directly, unless you want\nto write your own AssetManager loaders.\n\nA Loader plugin is a class which handles the asynchronous loading and provides\na convenient return value for the `AssetManager.load()` functions. The loader class\nis constructed with the following parameters: first, the WebGLContext this AssetManager\nis using, and second, the name of the asset to be loaded. The subsequent arguments are\nthose that were passed as extra to the `AssetManager.load()` functions.\n\nA loader must implement a `load()` function, and it's encouraged to also implement a \n`getReturnValue()` function, for convenience.",
-            "is_constructor": 1,
-            "params": [
-                {
-                    "name": "context",
-                    "description": "the context, passed by AssetManager",
-                    "type": "WebGLContext"
-                },
-                {
-                    "name": "name",
-                    "description": "the unique key for this asset",
-                    "type": "String"
-                },
-                {
-                    "name": "path",
-                    "description": "the optional path or data URI to use, will default to the name param",
-                    "type": "String"
-                },
-                {
-                    "name": "texture",
-                    "description": "an optional texture to act on; if undefined, a new texture\n                         will be created",
-                    "type": "Texture"
-                }
-            ]
         },
         "BaseBatch": {
             "name": "BaseBatch",
@@ -234,7 +163,7 @@
             "module": "kami",
             "namespace": "",
             "file": "lib/SpriteBatch.js",
-            "line": 14,
+            "line": 13,
             "description": "A basic implementation of a batcher which draws 2D sprites.\nThis uses two triangles (quads) with indexed and interleaved\nvertex data. Each vertex holds 5 floats (Position.xy, Color, TexCoord0.xy).\n\nThe color is packed into a single float to reduce vertex bandwidth, and\nthe data is interleaved for best performance. We use a static index buffer,\nand a dynamic vertex buffer that is updated with bufferSubData.",
             "example": [
                 "\n     var SpriteBatch = require('kami').SpriteBatch;  \n     \n     //create a new batcher\n     var batch = new SpriteBatch(context);\n\n     function render() {\n         batch.begin();\n         \n         //draw some sprites in between begin and end...\n         batch.draw( texture, 0, 0, 25, 32 );\n         batch.draw( texture1, 0, 25, 42, 23 );\n\n         batch.end();\n     }"
@@ -268,7 +197,7 @@
             "namespace": "",
             "file": "lib/Texture.js",
             "line": 13,
-            "description": "Creates a new texture with the optional width, height, and data.\n\nIf the constructor is passed no parameters other than WebGLContext, then\nit will not be initialized and will be non-renderable. You will need to manually\nuploadData or uploadImage yourself.\n\nIf you pass a width and height, the texture will be initialized with that size\nand null data (e.g. transparent black). If you also pass the format and data, \nit will be uploaded to the texture. \n\nThe arguments are kept in memory for future context restoration events. If\nthis is undesirable (e.g. huge buffers which need to be GC'd), you should not\npass the data in the constructor, but instead upload it after creating an uninitialized \ntexture. You will need to manage it yourself, either by extending the create() method, \nor listening to restored events in WebGLContext.\n\nMost users will want to use the AssetManager to create and manage their textures\nwith asynchronous loading and context loss.",
+            "description": "Creates a new texture with the optional width, height, and data.\n\nIf the constructor is passed no parameters other than WebGLContext, then\nit will not be initialized and will be non-renderable. You will need to manually\nuploadData or uploadImage yourself.\n\nIf you pass a width and height after context, the texture will be initialized with that size\nand null data (e.g. transparent black). If you also pass the format and data, \nit will be uploaded to the texture. \n\nIf you pass a String or Data URI as the second parameter,\nthis Texture will load an Image object asynchronously. The optional third parameter for\nthis version of the constructor is genMipmaps, which defaults to false. The texture\nwidth and height will be zero until the image has loaded. \n\nThe arguments are kept in memory for future context restoration events. If\nthis is undesirable (e.g. huge buffers which need to be GC'd), you should not\npass the data in the constructor, but instead upload it after creating an uninitialized \ntexture. You will need to manage it yourself, either by extending the create() method, \nor listening to restored events in WebGLContext.\n\nMost users will want to use the AssetManager to create and manage their textures\nwith asynchronous loading and context loss.",
             "is_constructor": 1,
             "params": [
                 {
@@ -475,7 +404,7 @@
             "file": "lib/glutils/ShaderProgram.js",
             "line": 37,
             "description": "This is called during the ShaderProgram constructor,\nand may need to be called again after context loss and restore.",
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -495,7 +424,7 @@
                 "description": "an object containing location, size, and type",
                 "type": "Object"
             },
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -515,7 +444,7 @@
                 "description": "an object containing location, size and type",
                 "type": "Object"
             },
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -535,7 +464,7 @@
                 "description": "the location object",
                 "type": "GLint"
             },
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -555,7 +484,7 @@
                 "description": "the location object",
                 "type": "WebGLUniformLocation"
             },
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -575,7 +504,7 @@
                 "description": "true if the uniform is found and active",
                 "type": "Boolean"
             },
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -595,7 +524,7 @@
                 "description": "true if the attribute is found and active",
                 "type": "Boolean"
             },
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -615,7 +544,7 @@
                 "description": "The value of the WebGL uniform",
                 "type": "Any"
             },
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -635,7 +564,7 @@
                 "description": "The value of the WebGL uniform",
                 "type": "Any"
             },
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -671,7 +600,7 @@
                     "type": "GLint"
                 }
             ],
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -707,7 +636,7 @@
                     "type": "GLfloat"
                 }
             ],
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -728,7 +657,7 @@
                     "type": "ArrayBuffer"
                 }
             ],
-            "class": "AssetManager",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
@@ -749,294 +678,32 @@
                     "type": "ArrayBuffer"
                 }
             ],
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 49,
-            "description": "A read-only property that describes the number of \nassets remaining to be loaded.",
-            "itemtype": "attribute",
-            "name": "remaining",
-            "type": "{Number}",
-            "readonly": "",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 63,
-            "description": "A read-only property that descriibes the total\nnumber of assets in this AssetManager.",
-            "itemtype": "attribute",
-            "name": "total",
-            "readonly": "",
-            "type": "{Number}",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 82,
-            "description": "An array of assets that this AssetManager is handling.\nThis should not be modified directly.",
-            "itemtype": "property",
-            "name": "assets",
-            "type": "{Array}",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 91,
-            "description": "The queue of tasks to load. Each contains\nan\n{{#crossLink \"AssetManager.Descriptor\"}}{{/crossLink}}.\n\nLoading a task will pop it off this list and fire the async\nor synchronous process.\n\nThis should not be modified directly.",
-            "itemtype": "property",
-            "name": "tasks",
-            "access": "protected",
-            "tagname": "",
-            "type": "{Array}",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 115,
-            "description": "A signal dispatched when loading first begins, \ni.e. when update() is called and the loading queue is the\nsame size as the total asset list.",
-            "itemtype": "event",
-            "name": "loadStarted",
-            "type": "{Signal}",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 125,
-            "description": "A signal dispatched when all assets have been loaded\n(i.e. their async tasks finished).",
-            "itemtype": "event",
-            "name": "loadFinished",
-            "type": "{Signal}",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 134,
-            "description": "A signal dispatched on progress updates, once an asset\nhas been loaded in full (i.e. its async task finished).\n\nThis passes three arguments to the listener function:\n\n- `current` number of assets that have been loaded\n- `total` number of assets to loaded\n- `name` of the asset which was just loaded",
-            "itemtype": "event",
-            "name": "loadProgress",
-            "type": "{[type]}",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 149,
-            "description": "A signal dispatched on problematic load; e.g. if\nthe image was not found and \"onerror\" was triggered. \nThe first argument passed to the listener will be \nthe string name of the asset.\n\nThe asset manager will continue loading subsequent assets.\n\nThis is dispatched after the status of the asset is\nset to Status.LOAD_FAIL, and before the loadProgress\nsignal is dispatched.",
-            "itemtype": "event",
-            "name": "loadError",
-            "type": "{Signal}",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 174,
-            "description": "Destroys this asset manager; removing its listeners\nwith WebGLContext and deleting the assets array.",
-            "itemtype": "method",
-            "name": "destroy",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 187,
-            "description": "Called to invalidate the asset manager\nand require all assets to be re-loaded.\nThis is called internally on context loss.",
-            "access": "protected",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "invalidate",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 207,
-            "description": "Attempts to extract a mime-type from the given data URI. It will\ndefault to \"text/plain\" if the string is a data URI with no specified\nmime-type. If the string does not begin with \"data:\", this method \nreturns null.",
-            "itemtype": "method",
-            "name": "__getDataType",
-            "access": "private",
-            "tagname": "",
-            "params": [
-                {
-                    "name": "str",
-                    "description": "the data URI",
-                    "type": "String"
-                }
-            ],
-            "return": {
-                "description": "the mime type",
-                "type": "String"
-            },
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 250,
-            "description": "Pushes an asset onto this stack. This\nattempts to detect the loader for you based\non the asset name's file extension (or data URI scheme). \nIf the asset name doesn't have a known file extension,\nor if there is no loader registered for that filename,\nthis method throws an error. If you're trying to use \ngeneric keys for asset names, use the loadAs method and\nspecify a loader plugin.\n\nThis method's arguments are passed to the constructor\nof the loader function. \n\nThe return value of this method is determined by\nthe loader's processArguments method. For example, the\ndefault Image loader returns a Texture object.",
-            "example": [
-                "\n   //uses ImageLoader to get a new Texture\n   var tex = assets.load(\"tex0.png\"); \n\n   //or you can specify your own texture\n   assets.load(\"tex1.png\", tex1);\n\n   //the ImageLoader also accepts a path override, \n   //but the asset key is still \"frames0.png\"\n   assets.load(\"frame0.png\", tex1, \"path/to/frame1.png\");"
-            ],
-            "itemtype": "method",
-            "name": "load",
-            "params": [
-                {
-                    "name": "name",
-                    "description": "the asset name",
-                    "type": "String"
-                },
-                {
-                    "name": "args",
-                    "description": "a variable number of optional arguments",
-                    "type": "Any"
-                }
-            ],
-            "return": {
-                "description": "returns the best type for this asset's loader",
-                "type": "Any"
-            },
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 302,
-            "description": "Pushes an asset onto this stack. This allows you to\nspecify a loader function for the asset. This is useful\nif you wish to use generic names for your assets (instead of\nfilenames), or if you want a particular asset to use a specific\nloader. \n\nThe first argument is the loader function, and the second is the asset\nname. Like with {{#crossLink \"AssetManager/load:method\"}}{{/crossLink}}, \nany subsequent arguments will be passed along to the loader.\n\nThe return value of this method is determined by\nthe loader's getReturnValue() method, if it has one. For example, the\ndefault ImageLoader returns a Texture object. If the loader function\ndoes not implement this method, `undefined` is returned.",
-            "itemtype": "method",
-            "name": "load",
-            "params": [
-                {
-                    "name": "loader",
-                    "description": "the loader function",
-                    "type": "Fucntion"
-                },
-                {
-                    "name": "name",
-                    "description": "the asset name",
-                    "type": "String"
-                },
-                {
-                    "name": "args",
-                    "description": "a variable number of optional arguments",
-                    "type": "Object ..."
-                }
-            ],
-            "return": {
-                "description": "returns the best type for this asset's loader",
-                "type": "Any"
-            },
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 398,
-            "description": "Updates this AssetManager by loading the next asset in the queue.\nIf all assets have been loaded, this method returns true, otherwise\nit will return false.",
-            "itemtype": "method",
-            "name": "update",
-            "return": {
-                "description": "whether this asset manager has finished loading",
-                "type": "Boolean"
-            },
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 433,
-            "description": "A set of loader plugins for this asset manager. These might be as simple\nas pushing HTML Image objects into a Texture, or more complex like decoding\na compressed, mip-mapped, or cube-map texture.\n\nThis object is a simple hashmap of lower-case extension names to Loader functions.",
-            "itemtype": "property",
-            "name": "loaders",
-            "static": 1,
-            "type": "{Object}",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 446,
-            "description": "Registers a loader function with the given extension(s).\nThe first parameter is a loader function. The second is an array\nof lower-case extensions (without the period) that\nshould be associated with that loader. This will override other\nloaders by the same extension. \n\nYou can also provide an optional mediaType to support data URI schemes.\nFor example, if the mediaType is specified as \"image\", and the extensions\nare [\"png\", \"gif\"], then in addition to those extensions being associated with\nthe loader, the mime-types \"image/png\" and \"image/gif\" will also be supported.\n\nBy default, the extensions \"png\", \"jpg\", \"jpeg\", and \"gif\" and their associated\nmedia types are\nregistered to {{#crossLink \"AssetManager/ImageLoader:attribute\"}}{{/crossLink}}.",
-            "itemtype": "method",
-            "name": "registerLoader",
-            "static": 1,
-            "params": [
-                {
-                    "name": "loaderFunc",
-                    "description": "the loader function",
-                    "type": "Function"
-                },
-                {
-                    "name": "extensions",
-                    "description": "array of extension strings, not including period",
-                    "type": "Array"
-                },
-                {
-                    "name": "mediaType",
-                    "description": "an optional media type",
-                    "type": "String"
-                }
-            ],
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 480,
-            "description": "A simple wrapper for assets which will be passed along to the loader;\nthis is used internally.\n\n//@class AssetManager.Descriptor",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 493,
-            "description": "Defines the status of an asset in the manager queue.",
-            "type": "{Object}",
-            "class": "AssetManager",
-            "module": "kami"
-        },
-        {
-            "file": "lib/AssetManager.js",
-            "line": 538,
-            "description": "This is the loading function of a AssetManager plugin, \nwhich handles the asynchronous loading for an asset. \nThe function must be implemented in a very\nstrict manner for the asset manager to work correctly.\n\nOnce the async loading is done, you must call the `finished` callback\nthat was passed to this method. You can pass the parameter `false` to the\nfinished callback to indicate the async load has failed. Otherwise, it is assumed\nto be successful.\n\nIf you don't invoke the callback, the asset manager may never finish loading.",
-            "itemtype": "method",
-            "name": "load",
-            "static": 1,
-            "params": [
-                {
-                    "name": "name",
-                    "description": "the name of the asset to load",
-                    "type": "String"
-                },
-                {
-                    "name": "finished",
-                    "description": "the function to call when async loading is complete",
-                    "type": "Function"
-                },
-                {
-                    "name": "texture",
-                    "description": "the texture to operate on for this asset",
-                    "type": "Texture"
-                },
-                {
-                    "name": "path",
-                    "description": "the optional image path to use instead of the `name` parameter",
-                    "type": "String"
-                }
-            ],
-            "class": "AssetManager.ImageLoader",
+            "class": "BaseBatch",
             "module": "kami"
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 63,
+            "line": 56,
+            "description": "This shader will be used whenever \"null\" is passed\nas the batch's shader.",
+            "itemtype": "property",
+            "name": "shader",
+            "type": "ShaderProgram",
+            "class": "BaseBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/BaseBatch.js",
+            "line": 64,
+            "description": "By default, a SpriteBatch is created with its own ShaderProgram,\nstored in `defaultShader`. If this flag is true, on deleting the SpriteBatch, its\n`defaultShader` will also be deleted. If this flag is false, no shaders\nwill be deleted on destroy.\n\nNote that if you re-assign `defaultShader`, you will need to dispose the previous\ndefault shader yoursel.",
+            "itemtype": "property",
+            "name": "ownsShader",
+            "type": "{Boolean}",
+            "class": "BaseBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/BaseBatch.js",
+            "line": 84,
             "description": "The ABGR packed color, as a single float. The default\nvalue is the color white (255, 255, 255, 255).",
             "itemtype": "property",
             "name": "color",
@@ -1047,10 +714,10 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 72,
+            "line": 93,
             "description": "Whether to premultiply alpha on calls to setColor. \nThis is true by default, so that we can conveniently write:\n\n    batch.setColor(1, 0, 0, 0.25); //tints red with 25% opacity\n\nIf false, you must premultiply the colors yourself to achieve\nthe same tint, like so:\n\n    batch.setColor(0.25, 0, 0, 0.25);",
             "itemtype": "property",
-            "name": "premultiplyColor",
+            "name": "premultiplied",
             "type": "{Boolean}",
             "default": "true",
             "class": "BaseBatch",
@@ -1058,7 +725,17 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 90,
+            "line": 111,
+            "description": "This is a setter/getter for this batch's current ShaderProgram.\nIf this is set when the batch is drawing, the state will be flushed\nto the GPU and the new shader will then be bound.\n\nIf `null` or a falsy value is specified, the batch's `defaultShader` will be used. \n\nNote that shaders are bound on batch.begin().",
+            "itemtype": "property",
+            "name": "shader",
+            "type": "{ShaderProgram}",
+            "class": "BaseBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/BaseBatch.js",
+            "line": 143,
             "description": "Sets the color of this sprite batcher, which is used in subsequent draw\ncalls. This does not flush the batch.\n\nIf three or more arguments are specified, this method assumes that RGB \nor RGBA float values (0.0 to 1.0) are being passed. \n\nIf less than three arguments are specified, we only consider the first \nand assign it to all four components -- this is useful for setting transparency \nin a premultiplied alpha stage.",
             "itemtype": "method",
             "name": "setColor",
@@ -1089,7 +766,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 129,
+            "line": 182,
             "description": "Called from the constructor to create a new Mesh \nbased on the expected batch size. Should set up\nverts & indices properly.\n\nUsers should not call this directly; instead, it\nshould only be implemented by subclasses.",
             "itemtype": "method",
             "name": "_createMesh",
@@ -1105,7 +782,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 172,
+            "line": 225,
             "description": "Returns a shader for this batch. If you plan to support\nmultiple instances of your batch, it may or may not be wise\nto use a shared shader to save resources.\n\nThis method initially throws an error; so it must be overridden by\nsubclasses of BaseBatch.",
             "itemtype": "method",
             "name": "_createShader",
@@ -1118,7 +795,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 187,
+            "line": 240,
             "description": "Returns an array of vertex attributes for this mesh; \nsubclasses should implement this with the attributes \nexpected for their batch.\n\nThis method initially throws an error; so it must be overridden by\nsubclasses of BaseBatch.",
             "itemtype": "method",
             "name": "_createVertexAttributes",
@@ -1131,7 +808,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 203,
+            "line": 256,
             "description": "Returns the number of floats per vertex for this batcher.\n\nThis method initially throws an error; so it must be overridden by\nsubclasses of BaseBatch.",
             "itemtype": "method",
             "name": "getVertexSize",
@@ -1144,7 +821,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 217,
+            "line": 270,
             "description": "Begins the sprite batch. This will bind the shader\nand mesh. Subclasses may want to disable depth or \nset up blending.",
             "itemtype": "method",
             "name": "begin",
@@ -1153,7 +830,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 235,
+            "line": 288,
             "description": "Ends the sprite batch. This will flush any remaining \ndata and set GL state back to normal.",
             "itemtype": "method",
             "name": "end",
@@ -1162,7 +839,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 251,
+            "line": 304,
             "description": "Called before rendering to bind new textures.\nThis method does nothing by default.",
             "itemtype": "method",
             "name": "_preRender",
@@ -1171,7 +848,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 260,
+            "line": 313,
             "description": "Called after flushing the batch. This method\ndoes nothing by default.",
             "itemtype": "method",
             "name": "_postRender",
@@ -1180,7 +857,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 269,
+            "line": 322,
             "description": "Flushes the batch by pushing the current data\nto GL.",
             "itemtype": "method",
             "name": "flush",
@@ -1189,7 +866,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 295,
+            "line": 348,
             "description": "Adds a sprite to this batch.\nThe specifics depend on the sprite batch implementation.",
             "itemtype": "method",
             "name": "draw",
@@ -1245,7 +922,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 313,
+            "line": 366,
             "description": "Adds a single quad mesh to this sprite batch from the given\narray of vertices.\nThe specifics depend on the sprite batch implementation.",
             "itemtype": "method",
             "name": "drawVertices",
@@ -1271,8 +948,8 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 330,
-            "description": "Destroys the batch, deleting its buffers and removing it from the\nWebGLContext management. Trying to use this\nbatch after destroying it can lead to unpredictable behaviour.",
+            "line": 383,
+            "description": "Destroys the batch, deleting its buffers and removing it from the\nWebGLContext management. Trying to use this\nbatch after destroying it can lead to unpredictable behaviour.\n\nIf `ownsShader` is true, this will also delete the `defaultShader` object.",
             "itemtype": "method",
             "name": "destroy",
             "class": "BaseBatch",
@@ -1281,18 +958,7 @@
         {
             "file": "lib/SpriteBatch.js",
             "line": 53,
-            "description": "SpriteBatch uploads a vec2 for projection\ntransform in the shader. A custom shader might\nuse a matrix or some other means of calculating \nprojection; in which case this should be set to false.",
-            "itemtype": "property",
-            "name": "useProjectionVector",
-            "type": "{Boolean}",
-            "default": "true",
-            "class": "SpriteBatch",
-            "module": "kami"
-        },
-        {
-            "file": "lib/SpriteBatch.js",
-            "line": 65,
-            "description": "The projection Float32Array vec2 which is\nused to avoid some matrix calculations. A 3D \nbatcher might want to replace this and \n{{#crossLink \"SpriteBatch/setProjection:method\"}}{{/crossLink}} \nentirely.",
+            "description": "The projection Float32Array vec2 which is\nused to avoid some matrix calculations.",
             "itemtype": "property",
             "name": "projection",
             "type": "{Float32Array}",
@@ -1301,7 +967,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 81,
+            "line": 66,
             "description": "The currently bound texture. Do not modify.",
             "itemtype": "property",
             "name": "texture",
@@ -1312,7 +978,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 90,
+            "line": 75,
             "description": "The number of floats per vertex for this batcher \n(Position.xy + Color + TexCoord0.xy).",
             "itemtype": "method",
             "name": "getVertexSize",
@@ -1325,7 +991,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 101,
+            "line": 86,
             "description": "Used internally to return the Position, Color, and TexCoord0 attributes.",
             "itemtype": "method",
             "name": "_createVertexAttribuets",
@@ -1340,7 +1006,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 120,
+            "line": 105,
             "description": "Sets the projection vector, an x and y\ndefining the middle points of your stage.",
             "itemtype": "method",
             "name": "setProjection",
@@ -1361,7 +1027,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 141,
+            "line": 126,
             "description": "Creates a default shader for this batch.",
             "itemtype": "method",
             "name": "_createShader",
@@ -1376,7 +1042,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 157,
+            "line": 142,
             "description": "This is called during rendering to update projection/transform\nmatrices and upload the new values to the shader. For example,\nif the user calls setProjection mid-draw, the batch will flush\nand this will be called before continuing to add items to the batch.\n\nYou generally should not need to call this directly.",
             "itemtype": "method",
             "name": "updateMatrices",
@@ -1387,7 +1053,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 175,
+            "line": 157,
             "description": "Called before rendering, and binds the current texture.",
             "itemtype": "method",
             "name": "_preRender",
@@ -1398,7 +1064,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 186,
+            "line": 168,
             "description": "Binds the shader, disables depth writing, \nenables blending, activates texture unit 0, and sends\ndefault matrices and sampler2D uniforms to the shader.",
             "itemtype": "method",
             "name": "begin",
@@ -1407,7 +1073,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 221,
+            "line": 202,
             "description": "Ends the sprite batcher and flushes any remaining data to the GPU.",
             "itemtype": "method",
             "name": "end",
@@ -1416,7 +1082,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 240,
+            "line": 221,
             "description": "Flushes the batch to the GPU. This should be called when\nstate changes, such as blend functions, depth or stencil states,\nshaders, and so forth.",
             "itemtype": "method",
             "name": "flush",
@@ -1425,14 +1091,14 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 257,
+            "line": 238,
             "description": "Adds a sprite to this batch. The sprite is drawn in \nscreen-space with the origin at the upper-left corner (y-down).",
             "itemtype": "method",
             "name": "draw",
             "params": [
                 {
                     "name": "texture",
-                    "description": "the texture for this sprite",
+                    "description": "the Texture",
                     "type": "Texture"
                 },
                 {
@@ -1481,14 +1147,14 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 342,
+            "line": 323,
             "description": "Adds a single quad mesh to this sprite batch from the given\narray of vertices. The sprite is drawn in \nscreen-space with the origin at the upper-left corner (y-down).\n\nThis reads 20 interleaved floats from the given offset index, in the format\n\n { x, y, color, u, v,\n     ...  }",
             "itemtype": "method",
             "name": "drawVertices",
             "params": [
                 {
                     "name": "texture",
-                    "description": "the texture we are drawing for this sprite",
+                    "description": "the Texture object",
                     "type": "Texture"
                 },
                 {
@@ -1507,7 +1173,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 413,
+            "line": 395,
             "description": "The default vertex size, i.e. number of floats per vertex.",
             "itemtype": "attribute",
             "name": "VERTEX_SIZE",
@@ -1520,7 +1186,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 423,
+            "line": 405,
             "description": "Incremented after each draw call, can be used for debugging.\n\n    SpriteBatch.totalRenderCalls = 0;\n\n    ... draw your scene ...\n\n    console.log(\"Draw calls per frame:\", SpriteBatch.totalRenderCalls);",
             "itemtype": "attribute",
             "name": "totalRenderCalls",
@@ -1532,7 +1198,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 48,
+            "line": 53,
             "description": "The WebGLTexture which backs this Texture object. This\ncan be used for low-level GL calls.",
             "type": "{WebGLTexture}",
             "class": "Texture",
@@ -1540,7 +1206,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 56,
+            "line": 61,
             "description": "The target for this texture unit, i.e. TEXTURE_2D. Subclasses\nshould override the create() method to change this, for correct\nusage with context restore.",
             "itemtype": "property",
             "name": "target",
@@ -1551,7 +1217,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 67,
+            "line": 72,
             "description": "The width of this texture, in pixels.",
             "itemtype": "property",
             "name": "width",
@@ -1562,7 +1228,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 76,
+            "line": 81,
             "description": "The height of this texture, in pixels.",
             "itemtype": "property",
             "name": "height",
@@ -1573,7 +1239,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 95,
+            "line": 100,
             "description": "When a texture is created, we keep track of the arguments provided to \nits constructor. On context loss and restore, these arguments are re-supplied\nto the Texture, so as to re-create it in its correct form.\n\nThis is mainly useful if you are procedurally creating textures and passing\ntheir data directly (e.g. for generic lookup tables in a shader). For image\nor media based textures, it would be better to use an AssetManager to manage\nthe asynchronous texture upload.\n\nUpon destroying a texture, a reference to this is also lost.",
             "type": "{Array} the array of arguments, shifted to exclude the WebGLContext parameter",
             "class": "Texture",
@@ -1581,21 +1247,30 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 116,
+            "line": 121,
+            "description": "On instantiation and subsequent context restore, this function is called\nto parse the constructor's arguments.",
+            "access": "protected",
+            "tagname": "",
+            "class": "Texture",
+            "module": "kami"
+        },
+        {
+            "file": "lib/Texture.js",
+            "line": 163,
             "description": "Called in the Texture constructor, and after the GL context has been re-initialized. \nSubclasses can override this to provide a custom data upload, e.g. cubemaps or compressed\ntextures.",
             "class": "Texture",
             "module": "kami"
         },
         {
             "file": "lib/Texture.js",
-            "line": 148,
+            "line": 195,
             "description": "Destroys this texture by deleting the GL resource,\nremoving it from the WebGLContext management stack,\nsetting its size to zero, and id and managed arguments to null.\n\nTrying to use this texture after may lead to undefined behaviour.",
             "class": "Texture",
             "module": "kami"
         },
         {
             "file": "lib/Texture.js",
-            "line": 167,
+            "line": 214,
             "description": "Sets the wrap mode for this texture; if the second argument\nis undefined or falsy, then both S and T wrap will use the first\nargument.\n\nYou can use Texture.Wrap constants for convenience, to avoid needing \na GL reference.",
             "itemtype": "method",
             "name": "setWrap",
@@ -1621,7 +1296,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 199,
+            "line": 246,
             "description": "Sets the min and mag filter for this texture; \nif mag is undefined or falsy, then both min and mag will use the\nfilter specified for min.\n\nYou can use Texture.Filter constants for convenience, to avoid needing \na GL reference.",
             "params": [
                 {
@@ -1645,7 +1320,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 229,
+            "line": 276,
             "description": "A low-level method to upload the specified ArrayBufferView\nto this texture. This will cause the width and height of this\ntexture to change.",
             "itemtype": "method",
             "name": "uploadData",
@@ -1681,7 +1356,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 262,
+            "line": 309,
             "description": "Uploads ImageData, HTMLImageElement, HTMLCanvasElement or \nHTMLVideoElement.",
             "itemtype": "method",
             "name": "uploadImage",
@@ -1697,7 +1372,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 286,
+            "line": 333,
             "description": "If FORCE_POT is false, we verify this texture to see if it is valid, \nas per non-power-of-two rules. If it is non-power-of-two, it must have \na wrap mode of CLAMP_TO_EDGE, and the minification filter must be LINEAR\nor NEAREST. If we don't satisfy these needs, an error is thrown.",
             "itemtype": "method",
             "name": "_checkPOT",
@@ -1712,7 +1387,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 311,
+            "line": 358,
             "description": "Binds the texture. If unit is specified,\nit will bind the texture at the given slot\n(TEXTURE0, TEXTURE1, etc). If unit is not specified,\nit will simply bind the texture at whichever slot\nis currently active.",
             "itemtype": "method",
             "name": "bind",
@@ -1728,7 +1403,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 333,
+            "line": 380,
             "description": "A set of Filter constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Filter.NEAREST\n    Texture.Filter.NEAREST_MIPMAP_LINEAR\n    Texture.Filter.NEAREST_MIPMAP_NEAREST\n    Texture.Filter.LINEAR\n    Texture.Filter.LINEAR_MIPMAP_LINEAR\n    Texture.Filter.LINEAR_MIPMAP_NEAREST\n```"
@@ -1742,7 +1417,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 359,
+            "line": 406,
             "description": "A set of Wrap constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Wrap.CLAMP_TO_EDGE\n    Texture.Wrap.MIRRORED_REPEAT\n    Texture.Wrap.REPEAT\n```"
@@ -1756,7 +1431,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 379,
+            "line": 426,
             "description": "A set of Format constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Format.RGB\n    Texture.Format.RGBA\n    Texture.Format.LUMINANCE_ALPHA\n```"
@@ -1770,7 +1445,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 402,
+            "line": 449,
             "description": "A set of DataType constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.DataType.UNSIGNED_BYTE \n    Texture.DataType.FLOAT \n```"
@@ -1784,7 +1459,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 428,
+            "line": 475,
             "description": "The default wrap mode when creating new textures. If a custom \nprovider was specified, it may choose to override this default mode.",
             "itemtype": "attribute",
             "name": "DEFAULT_WRAP",
@@ -1796,7 +1471,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 439,
+            "line": 486,
             "description": "The default filter mode when creating new textures. If a custom\nprovider was specified, it may choose to override this default mode.",
             "itemtype": "attribute",
             "name": "DEFAULT_FILTER",
@@ -1808,7 +1483,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 449,
+            "line": 496,
             "description": "By default, we do some error checking when creating textures\nto ensure that they will be \"renderable\" by WebGL. Non-power-of-two\ntextures must use CLAMP_TO_EDGE as their wrap mode, and NEAREST or LINEAR\nas their wrap mode. Further, trying to generate mipmaps for a NPOT image\nwill lead to errors. \n\nHowever, you can disable this error checking by setting `FORCE_POT` to true.\nThis may be useful if you are running on specific hardware that supports POT \ntextures, or in some future case where NPOT textures is added as a WebGL extension.",
             "itemtype": "attribute",
             "name": "FORCE_POT",
@@ -1820,7 +1495,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 472,
+            "line": 519,
             "description": "Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.\nReturns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,\nLUMINANCE_ALPHA, RGB, or RGBA.",
             "itemtype": "method",
             "name": "getNumComponents",
@@ -1996,14 +1671,14 @@
         {
             "file": "lib/index-umd.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-11-26.",
+            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-20.",
             "class": "",
             "module": "kami"
         },
         {
             "file": "lib/index.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nCreated on 2013-11-26.",
+            "description": "Auto-generated Kami index file.\nCreated on 2013-12-20.",
             "class": "",
             "module": "kami"
         }
@@ -2030,32 +1705,28 @@
             "line": " lib/glutils/ShaderProgram.js:37"
         },
         {
-            "message": "Missing item type\nA simple wrapper for assets which will be passed along to the loader;\nthis is used internally.\n\n//@class AssetManager.Descriptor",
-            "line": " lib/AssetManager.js:480"
-        },
-        {
-            "message": "Missing item type\nDefines the status of an asset in the manager queue.",
-            "line": " lib/AssetManager.js:493"
-        },
-        {
             "message": "Missing item type\nThe WebGLTexture which backs this Texture object. This\ncan be used for low-level GL calls.",
-            "line": " lib/Texture.js:48"
+            "line": " lib/Texture.js:53"
         },
         {
             "message": "Missing item type\nWhen a texture is created, we keep track of the arguments provided to \nits constructor. On context loss and restore, these arguments are re-supplied\nto the Texture, so as to re-create it in its correct form.\n\nThis is mainly useful if you are procedurally creating textures and passing\ntheir data directly (e.g. for generic lookup tables in a shader). For image\nor media based textures, it would be better to use an AssetManager to manage\nthe asynchronous texture upload.\n\nUpon destroying a texture, a reference to this is also lost.",
-            "line": " lib/Texture.js:95"
+            "line": " lib/Texture.js:100"
+        },
+        {
+            "message": "Missing item type\nOn instantiation and subsequent context restore, this function is called\nto parse the constructor's arguments.",
+            "line": " lib/Texture.js:121"
         },
         {
             "message": "Missing item type\nCalled in the Texture constructor, and after the GL context has been re-initialized. \nSubclasses can override this to provide a custom data upload, e.g. cubemaps or compressed\ntextures.",
-            "line": " lib/Texture.js:116"
+            "line": " lib/Texture.js:163"
         },
         {
             "message": "Missing item type\nDestroys this texture by deleting the GL resource,\nremoving it from the WebGLContext management stack,\nsetting its size to zero, and id and managed arguments to null.\n\nTrying to use this texture after may lead to undefined behaviour.",
-            "line": " lib/Texture.js:148"
+            "line": " lib/Texture.js:195"
         },
         {
             "message": "Missing item type\nSets the min and mag filter for this texture; \nif mag is undefined or falsy, then both min and mag will use the\nfilter specified for min.\n\nYou can use Texture.Filter constants for convenience, to avoid needing \na GL reference.",
-            "line": " lib/Texture.js:199"
+            "line": " lib/Texture.js:246"
         },
         {
             "message": "Missing item type",
@@ -2078,11 +1749,11 @@
             "line": " lib/WebGLContext.js:194"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-11-26.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-20.",
             "line": " lib/index-umd.js:1"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2013-11-26.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2013-12-20.",
             "line": " lib/index.js:1"
         }
     ]

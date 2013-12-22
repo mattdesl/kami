@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.0.0</em>
+            <em>API Docs for: 0.1.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,10 +40,6 @@
 
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
-            
-                <li><a href="../classes/AssetManager.html">AssetManager</a></li>
-            
-                <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
                 <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
@@ -124,9 +120,13 @@
 <p>If the constructor is passed no parameters other than WebGLContext, then
 it will not be initialized and will be non-renderable. You will need to manually
 uploadData or uploadImage yourself.</p>
-<p>If you pass a width and height, the texture will be initialized with that size
+<p>If you pass a width and height after context, the texture will be initialized with that size
 and null data (e.g. transparent black). If you also pass the format and data, 
 it will be uploaded to the texture. </p>
+<p>If you pass a String or Data URI as the second parameter,
+this Texture will load an Image object asynchronously. The optional third parameter for
+this version of the constructor is genMipmaps, which defaults to false. The texture
+width and height will be zero until the image has loaded. </p>
 <p>The arguments are kept in memory for future context restoration events. If
 this is undesirable (e.g. huge buffers which need to be GC&#39;d), you should not
 pass the data in the constructor, but instead upload it after creating an uninitialized 
@@ -551,7 +551,7 @@ with asynchronous loading and context loss.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l286"><code>lib&#x2F;Texture.js:286</code></a>
+        <a href="../files/lib_Texture.js.html#l333"><code>lib&#x2F;Texture.js:333</code></a>
         
         </p>
 
@@ -633,7 +633,7 @@ or NEAREST. If we don&#39;t satisfy these needs, an error is thrown.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l311"><code>lib&#x2F;Texture.js:311</code></a>
+        <a href="../files/lib_Texture.js.html#l358"><code>lib&#x2F;Texture.js:358</code></a>
         
         </p>
 
@@ -732,7 +732,7 @@ is currently active.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l472"><code>lib&#x2F;Texture.js:472</code></a>
+        <a href="../files/lib_Texture.js.html#l519"><code>lib&#x2F;Texture.js:519</code></a>
         
         </p>
 
@@ -849,7 +849,7 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l167"><code>lib&#x2F;Texture.js:167</code></a>
+        <a href="../files/lib_Texture.js.html#l214"><code>lib&#x2F;Texture.js:214</code></a>
         
         </p>
 
@@ -998,7 +998,7 @@ a GL reference.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l229"><code>lib&#x2F;Texture.js:229</code></a>
+        <a href="../files/lib_Texture.js.html#l276"><code>lib&#x2F;Texture.js:276</code></a>
         
         </p>
 
@@ -1155,7 +1155,7 @@ texture to change.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l262"><code>lib&#x2F;Texture.js:262</code></a>
+        <a href="../files/lib_Texture.js.html#l309"><code>lib&#x2F;Texture.js:309</code></a>
         
         </p>
 
@@ -1234,7 +1234,7 @@ HTMLVideoElement.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l76"><code>lib&#x2F;Texture.js:76</code></a>
+        <a href="../files/lib_Texture.js.html#l81"><code>lib&#x2F;Texture.js:81</code></a>
         
         </p>
 
@@ -1279,7 +1279,7 @@ HTMLVideoElement.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l56"><code>lib&#x2F;Texture.js:56</code></a>
+        <a href="../files/lib_Texture.js.html#l61"><code>lib&#x2F;Texture.js:61</code></a>
         
         </p>
 
@@ -1328,7 +1328,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l67"><code>lib&#x2F;Texture.js:67</code></a>
+        <a href="../files/lib_Texture.js.html#l72"><code>lib&#x2F;Texture.js:72</code></a>
         
         </p>
 
@@ -1390,7 +1390,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l402"><code>lib&#x2F;Texture.js:402</code></a>
+        <a href="../files/lib_Texture.js.html#l449"><code>lib&#x2F;Texture.js:449</code></a>
         
         </p>
 
@@ -1455,7 +1455,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l439"><code>lib&#x2F;Texture.js:439</code></a>
+        <a href="../files/lib_Texture.js.html#l486"><code>lib&#x2F;Texture.js:486</code></a>
         
         </p>
 
@@ -1512,7 +1512,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l428"><code>lib&#x2F;Texture.js:428</code></a>
+        <a href="../files/lib_Texture.js.html#l475"><code>lib&#x2F;Texture.js:475</code></a>
         
         </p>
 
@@ -1569,7 +1569,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l333"><code>lib&#x2F;Texture.js:333</code></a>
+        <a href="../files/lib_Texture.js.html#l380"><code>lib&#x2F;Texture.js:380</code></a>
         
         </p>
 
@@ -1638,7 +1638,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l449"><code>lib&#x2F;Texture.js:449</code></a>
+        <a href="../files/lib_Texture.js.html#l496"><code>lib&#x2F;Texture.js:496</code></a>
         
         </p>
 
@@ -1701,7 +1701,7 @@ textures, or in some future case where NPOT textures is added as a WebGL extensi
             
         
         
-        <a href="../files/lib_Texture.js.html#l379"><code>lib&#x2F;Texture.js:379</code></a>
+        <a href="../files/lib_Texture.js.html#l426"><code>lib&#x2F;Texture.js:426</code></a>
         
         </p>
 
@@ -1767,7 +1767,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l359"><code>lib&#x2F;Texture.js:359</code></a>
+        <a href="../files/lib_Texture.js.html#l406"><code>lib&#x2F;Texture.js:406</code></a>
         
         </p>
 

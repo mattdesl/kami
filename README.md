@@ -99,3 +99,12 @@ Most of the code looks exactly the same, except all of Kami's objects are export
 - FrameBuffer utility for render-to-texture (should support MRTs for WebGL2)
 - Advanced batcher that batches up to 4 textures in a single draw call
 - More shader examples
+
+## Features
+
+- Texture
+	- Upload pixels directly with custom format / data type
+	- Supports data URI to GL Texture, or asynchronous src path using the Image object
+	- Control over mipmap generation, texture filters, wrap modes.
+- Multiple contexts, context loss/destroy management
+- Optimized sprite batcher with color tinting

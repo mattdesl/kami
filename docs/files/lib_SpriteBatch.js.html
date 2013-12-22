@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.0.0</em>
+            <em>API Docs for: 0.1.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,10 +40,6 @@
 
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
-            
-                <li><a href="../classes/AssetManager.html">AssetManager</a></li>
-            
-                <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
                 <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
@@ -112,7 +108,6 @@ var BaseBatch = require(&#x27;./BaseBatch&#x27;);
 var Mesh          = require(&#x27;./glutils/Mesh&#x27;);
 var ShaderProgram = require(&#x27;./glutils/ShaderProgram&#x27;);
 
-
 /**
  * A basic implementation of a batcher which draws 2D sprites.
  * This uses two triangles (quads) with indexed and interleaved
@@ -146,6 +141,7 @@ var ShaderProgram = require(&#x27;./glutils/ShaderProgram&#x27;);
  */
 var SpriteBatch = new Class({
 
+	//inherit some stuff onto this prototype
 	Mixins: BaseBatch,
 
 	//Constructor
@@ -153,32 +149,17 @@ var SpriteBatch = new Class({
 		BaseBatch.call(this, context, size);
 
 		/**
-		 * SpriteBatch uploads a vec2 for projection
-		 * transform in the shader. A custom shader might
-		 * use a matrix or some other means of calculating 
-		 * projection; in which case this should be set to false.
-		 * 
-		 * @property useProjectionVector
-		 * @type {Boolean}
-		 * @default  true
-		 */
-		this.useProjectionVector = true;
-
-		/**
 		 * The projection Float32Array vec2 which is
-		 * used to avoid some matrix calculations. A 3D 
-		 * batcher might want to replace this and 
-		 * {{#crossLink &quot;SpriteBatch/setProjection:method&quot;}}{{/crossLink}} 
-		 * entirely. 
+		 * used to avoid some matrix calculations.
 		 *
 		 * @property projection
 		 * @type {Float32Array}
 		 */
 		this.projection = new Float32Array(2);
 
-		//Sets up a default projection vector if none is specified
-		this.projection[0] = this.context.width;
-		this.projection[1] = this.context.height;
+		//Sets up a default projection vector so that the batch works without setProjection
+		this.projection[0] = this.context.width/2;
+		this.projection[1] = this.context.height/2;
 
 		/**
 		 * The currently bound texture. Do not modify.
@@ -268,10 +249,7 @@ var SpriteBatch = new Class({
 	 * @protected
 	 */
 	updateMatrices: function() {
-		//an extension of SpriteBatch might want to support full transform &amp;
-		//projection matrices for 3D billboards. if so, override this method
-		if (this.useProjectionVector)
-			this.shader.setUniformfv(&quot;u_projection&quot;, this.projection);
+		this.shader.setUniformfv(&quot;u_projection&quot;, this.projection);
 	},
 
 	/**
@@ -296,7 +274,6 @@ var SpriteBatch = new Class({
 		//sprite batch doesn&#x27;t hold a reference to GL since it is volatile
 		var gl = this.context.gl;
 		
-		//just do direct parent call for speed here
 		//This binds the shader and mesh!
 		BaseBatch.prototype.begin.call(this);
 
@@ -359,9 +336,9 @@ var SpriteBatch = new Class({
 	/**
 	 * Adds a sprite to this batch. The sprite is drawn in 
 	 * screen-space with the origin at the upper-left corner (y-down).
-	 *
+	 * 
 	 * @method draw
-	 * @param  {Texture} texture the texture for this sprite
+	 * @param  {Texture} texture the Texture
 	 * @param  {Number} x       the x position in pixels, defaults to zero
 	 * @param  {Number} y       the y position in pixels, defaults to zero
 	 * @param  {Number} width   the width in pixels, defaults to the texture width
@@ -374,11 +351,11 @@ var SpriteBatch = new Class({
 	draw: function(texture, x, y, width, height, u1, v1, u2, v2) {
 		if (!this.drawing)
 			throw &quot;Illegal State: trying to draw a batch before begin()&quot;;
-		
+
 		//don&#x27;t draw anything if GL tex doesn&#x27;t exist..
 		if (!texture)
 			return;
-		
+
 		if (this.texture === null || this.texture.id !== texture.id) {
 			//new texture.. flush previous data
 			this.flush();
@@ -452,7 +429,7 @@ var SpriteBatch = new Class({
 	 *      ...  }
 	 *
 	 * @method  drawVertices
-	 * @param {Texture} texture the texture we are drawing for this sprite
+	 * @param {Texture} texture the Texture object
 	 * @param {Float32Array} verts an array of vertices
 	 * @param {Number} off the offset into the vertices array to read from
 	 */
@@ -463,7 +440,8 @@ var SpriteBatch = new Class({
 		//don&#x27;t draw anything if GL tex doesn&#x27;t exist..
 		if (!texture)
 			return;
-		
+
+
 		if (this.texture != texture) {
 			//new texture.. flush previous data
 			this.flush();

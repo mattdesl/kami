@@ -93,6 +93,8 @@ $(function() {
 		//We update the assets every frame. This method returns
 		//true when all assets have been updated.
 		if (assets.update()) { //assets have been loaded.
+			gl.clear(gl.COLOR_BUFFER_BIT);
+
 			//Set the projection vector; the mid-point of your stage.
 			batch.setProjection(width/2, height/2);
 

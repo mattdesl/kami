@@ -5,6 +5,6 @@ The bundled files are already included for you; this allows you to run and modif
 Serve up the main `kami` folder with `http-server` or a similar tool and open `localhost:8080` to browse the HTML demos.
 
 ```
-cd kami/demos
+cd kami
 http-server
 ```

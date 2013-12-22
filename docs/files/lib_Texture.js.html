@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.0.0</em>
+            <em>API Docs for: 0.1.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,10 +40,6 @@
 
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
-            
-                <li><a href="../classes/AssetManager.html">AssetManager</a></li>
-            
-                <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
                 <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
@@ -119,10 +115,15 @@ var Texture = new Class({
 	 * it will not be initialized and will be non-renderable. You will need to manually
 	 * uploadData or uploadImage yourself.
 	 *
-	 * If you pass a width and height, the texture will be initialized with that size
+	 * If you pass a width and height after context, the texture will be initialized with that size
 	 * and null data (e.g. transparent black). If you also pass the format and data, 
 	 * it will be uploaded to the texture. 
 	 *
+	 * If you pass a String or Data URI as the second parameter,
+	 * this Texture will load an Image object asynchronously. The optional third parameter for
+	 * this version of the constructor is genMipmaps, which defaults to false. The texture
+	 * width and height will be zero until the image has loaded. 
+	 * 
 	 * The arguments are kept in memory for future context restoration events. If
 	 * this is undesirable (e.g. huge buffers which need to be GC&#x27;d), you should not
 	 * pass the data in the constructor, but instead upload it after creating an uninitialized 
@@ -216,6 +217,48 @@ var Texture = new Class({
 	},
 
 	/**
+	 * On instantiation and subsequent context restore, this function is called
+	 * to parse the constructor&#x27;s arguments.
+	 * 
+	 * @protected
+	 */
+	_handleCreate: function(width, height, format, dataType, data, genMipmaps) {
+		//If the first argument is a string, assume it&#x27;s an Image loader
+		//second argument will then be genMipmaps
+		if (typeof width === &quot;string&quot;) {
+			var img = new Image();
+			var path = width;      //first argument, the path
+			genMipmaps = !!height; //second argument, the genMipmaps boolean
+			var self = this;
+			img.onload = function() {
+				if (genMipmaps)
+					gl.generateMipmap(gl.TEXTURE_2D);
+				self.uploadImage(img);
+			}
+			img.onerror = function() {
+				console.warn(&quot;Error loading image: &quot;+path);
+				self.uploadData(1, 1);
+				if (genMipmaps)
+					gl.generateMipmap(gl.TEXTURE_2D);
+			}
+			img.onabort = function() {
+				console.warn(&quot;Image load aborted: &quot;+path);
+				self.uploadData(1, 1);
+				if (genMipmaps)
+					gl.generateMipmap(gl.TEXTURE_2D);
+			}
+
+			img.src = path;
+		} 
+		//otherwise assume our regular list of width/height arguments are passed
+		else {
+			this.uploadData(width, height, format, dataType, data);
+			if (genMipmaps)
+				gl.generateMipmap(gl.TEXTURE_2D);
+		}
+	},	
+
+	/**
 	 * Called in the Texture constructor, and after the GL context has been re-initialized. 
 	 * Subclasses can override this to provide a custom data upload, e.g. cubemaps or compressed
 	 * textures.
@@ -243,7 +286,7 @@ var Texture = new Class({
 		this.setFilter(this.minFilter, this.magFilter, false);
 		
 		if (this.managedArgs.length !== 0) {
-			this.uploadData.apply(this, this.managedArgs);
+			this._handleCreate.apply(this, this.managedArgs);
 		}
 	},
 

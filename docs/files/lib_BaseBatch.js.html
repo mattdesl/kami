@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.0.0</em>
+            <em>API Docs for: 0.1.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,10 +40,6 @@
 
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
-            
-                <li><a href="../classes/AssetManager.html">AssetManager</a></li>
-            
-                <li><a href="../classes/AssetManager.ImageLoader.html">AssetManager.ImageLoader</a></li>
             
                 <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
@@ -148,13 +144,34 @@ var BaseBatch = new Class({
 		if (this.size &gt; 10922)  //(you&#x27;d have to be insane to try and batch this much with WebGL)
 			throw &quot;Can&#x27;t have more than 10922 sprites per batch: &quot; + this.size;
 				
-		//TODO: support defaultShader/customShader 
-		this.shader = this._createShader();
-
+		
 		//TODO: make these public
 		this._blendSrc = this.context.gl.ONE;
 		this._blendDst = this.context.gl.ONE_MINUS_SRC_ALPHA
 		this._blendEnabled = true;
+		this._shader = this._createShader();
+
+		/**
+		 * This shader will be used whenever &quot;null&quot; is passed
+		 * as the batch&#x27;s shader. 
+		 *
+		 * @property {ShaderProgram} shader
+		 */
+		this.defaultShader = this._shader;
+
+		/**
+		 * By default, a SpriteBatch is created with its own ShaderProgram,
+		 * stored in &#x60;defaultShader&#x60;. If this flag is true, on deleting the SpriteBatch, its
+		 * &#x60;defaultShader&#x60; will also be deleted. If this flag is false, no shaders
+		 * will be deleted on destroy.
+		 *
+		 * Note that if you re-assign &#x60;defaultShader&#x60;, you will need to dispose the previous
+		 * default shader yoursel. 
+		 *
+		 * @property ownsShader
+		 * @type {Boolean}
+		 */
+		this.ownsShader = true;
 
 		this.idx = 0;
 		this.drawing = false;
@@ -182,11 +199,43 @@ var BaseBatch = new Class({
 		 *
 		 *     batch.setColor(0.25, 0, 0, 0.25);
 		 * 
-		 * @property premultiplyColor
+		 * @property premultiplied
 		 * @type {Boolean}
 		 * @default  true
 		 */
 		this.premultiplied = true;
+	},
+
+	/**
+	 * This is a setter/getter for this batch&#x27;s current ShaderProgram.
+	 * If this is set when the batch is drawing, the state will be flushed
+	 * to the GPU and the new shader will then be bound.
+	 *
+	 * If &#x60;null&#x60; or a falsy value is specified, the batch&#x27;s &#x60;defaultShader&#x60; will be used. 
+	 *
+	 * Note that shaders are bound on batch.begin().
+	 *
+	 * @property shader
+	 * @type {ShaderProgram}
+	 */
+	shader: {
+		set: function(val) {
+			var wasDrawing = this.drawing;
+
+			if (wasDrawing) {
+				this.end(); //unbinds the shader from the mesh
+			}
+
+			this._shader = val ? val : this.defaultShader;
+
+			if (wasDrawing) {
+				this.begin();
+			}
+		},
+
+		get: function() {
+			return this._shader;
+		}
 	},
 
 	/**
@@ -434,6 +483,8 @@ var BaseBatch = new Class({
 	 * WebGLContext management. Trying to use this
 	 * batch after destroying it can lead to unpredictable behaviour.
 	 *
+	 * If &#x60;ownsShader&#x60; is true, this will also delete the &#x60;defaultShader&#x60; object.
+	 * 
 	 * @method destroy
 	 */
 	destroy: function() {
@@ -441,7 +492,14 @@ var BaseBatch = new Class({
 		this.indices = [];
 		this.size = this.maxVertices = 0;
 
-		this.mesh.destroy();
+		if (this.defaultShader)
+			this.defaultShader.destroy();
+		this.defaultShader = null;
+		this._shader = null; // remove reference to whatever shader is currently being used
+
+		if (this.mesh) 
+			this.mesh.destroy();
+		this.mesh = null;
 	}
 });
 
