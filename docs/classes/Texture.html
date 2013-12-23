@@ -371,8 +371,8 @@ with asynchronous loading and context loss.</p>
                 <pre class="code prettyprint"><code>    new Texture(context, 256, 256); //empty 256x256 texture
     new Texture(context, 1, 1, Texture.Format.RGBA, Texture.DataType.UNSIGNED_BYTE, 
                 new Uint8Array([255,0,0,255])); //1x1 red texture
-    new Texture(&quot;test.png&quot;); //loads image asynchronously
-    new Texture(&quot;test.png&quot;, successFunc, failFunc, useMipmaps); //extra params for image laoder </code></pre>
+    new Texture(context, &quot;test.png&quot;); //loads image asynchronously
+    new Texture(context, &quot;test.png&quot;, successFunc, failFunc, useMipmaps); //extra params for image laoder </code></pre>
 
             </div>
         </div>
