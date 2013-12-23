@@ -2793,6 +2793,12 @@ passed. For example, <code>setUniformf(&quot;var&quot;, 0, 1)</code> maps to <co
                     
                 </li>
             
+                <li class="arg">
+                    
+                        <code>count</code>
+                    
+                </li>
+            
             </ul><span class="paren">)</span>
         </div>
     
@@ -2822,7 +2828,7 @@ passed. For example, <code>setUniformf(&quot;var&quot;, 0, 1)</code> maps to <co
             
         
         
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l353"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:353</code></a>
+        <a href="../files/lib_glutils_ShaderProgram.js.html#l356"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:356</code></a>
         
         </p>
 
@@ -2835,7 +2841,10 @@ passed. For example, <code>setUniformf(&quot;var&quot;, 0, 1)</code> maps to <co
     <div class="description">
         <p>A convenience method to set uniformNfv from the given ArrayBuffer.
 We determine which GL call to make based on the length of the array 
-buffer.</p>
+buffer (for 1-4 component vectors stored in a Float32Array). To use
+this method to upload data to uniform arrays, you need to specify the
+&#39;count&#39; parameter; i.e. the data type you are using for that array. If
+specified, this will dictate whether to call uniform1fv, uniform2fv, etc.</p>
 
     </div>
 
@@ -2871,6 +2880,22 @@ buffer.</p>
 
                     <div class="param-description">
                         <p>the array buffer</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">count</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>optional, the explicit data type count, e.g. 2 for vec2</p>
 
                     </div>
 
@@ -3085,6 +3110,12 @@ passed. For example, <code>setUniformi(&quot;var&quot;, 0, 1)</code> maps to <co
                     
                 </li>
             
+                <li class="arg">
+                    
+                        <code>count</code>
+                    
+                </li>
+            
             </ul><span class="paren">)</span>
         </div>
     
@@ -3114,7 +3145,7 @@ passed. For example, <code>setUniformi(&quot;var&quot;, 0, 1)</code> maps to <co
             
         
         
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l377"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:377</code></a>
+        <a href="../files/lib_glutils_ShaderProgram.js.html#l385"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:385</code></a>
         
         </p>
 
@@ -3127,7 +3158,10 @@ passed. For example, <code>setUniformi(&quot;var&quot;, 0, 1)</code> maps to <co
     <div class="description">
         <p>A convenience method to set uniformNiv from the given ArrayBuffer.
 We determine which GL call to make based on the length of the array 
-buffer.</p>
+buffer (for 1-4 component vectors stored in a int array). To use
+this method to upload data to uniform arrays, you need to specify the
+&#39;count&#39; parameter; i.e. the data type you are using for that array. If
+specified, this will dictate whether to call uniform1fv, uniform2fv, etc.</p>
 
     </div>
 
@@ -3163,6 +3197,22 @@ buffer.</p>
 
                     <div class="param-description">
                         <p>the array buffer</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">count</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>optional, the explicit data type count, e.g. 2 for ivec2</p>
 
                     </div>
 

@@ -134,8 +134,8 @@ var BaseBatch = new Class({
 
 	//Constructor
 	initialize: function BaseBatch(context, size) {
-		if (!context)
-			throw &quot;GL context not specified&quot;;
+		if (typeof context !== &quot;object&quot;)
+			throw &quot;GL context not specified to SpriteBatch&quot;;
 		this.context = context;
 
 		this.size = size || 500;

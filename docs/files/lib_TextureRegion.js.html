@@ -116,10 +116,10 @@ var TextureRegion = new Class({
         // From LibGDX TextureRegion.java -- 
 		// For a 1x1 region, adjust UVs toward pixel center to avoid filtering artifacts on AMD GPUs when drawing very stretched.
 		if (this.regionWidth == 1 &amp;&amp; this.regionHeight == 1) {
-			var adjustX = 0.25 / texWidth;
+			var adjustX = 0.25 / this.texture.width;
 			u += adjustX;
 			u2 -= adjustX;
-			var adjustY = 0.25 / texHeight;
+			var adjustY = 0.25 / this.texture.height;
 			v += adjustY;
 			v2 -= adjustY;
 		}

@@ -120,9 +120,13 @@ var Texture = new Class({
 	 * it will be uploaded to the texture. 
 	 *
 	 * If you pass a String or Data URI as the second parameter,
-	 * this Texture will load an Image object asynchronously. The optional third parameter for
-	 * this version of the constructor is genMipmaps, which defaults to false. The texture
-	 * width and height will be zero until the image has loaded. 
+	 * this Texture will load an Image object asynchronously. The optional third
+	 * and fourth parameters are callback functions for success and failure, respectively. 
+	 * The optional fifrth parameter for this version of the constructor is genMipmaps, which defaults to false. 
+	 * 
+	 * _Note:_ To avoid WebGL errors with the Image URL constructor,
+	 * we upload a dummy 1x1 transparent texture until the async Image load has been completed. So
+	 * the width and height will not be accurate until the onComplete callback is fired.
 	 * 
 	 * The arguments are kept in memory for future context restoration events. If
 	 * this is undesirable (e.g. huge buffers which need to be GC&#x27;d), you should not
@@ -132,6 +136,13 @@ var Texture = new Class({
 	 *
 	 * Most users will want to use the AssetManager to create and manage their textures
 	 * with asynchronous loading and context loss. 
+	 *
+	 * @example
+	 * 		new Texture(context, 256, 256); //empty 256x256 texture
+	 * 		new Texture(context, 1, 1, Texture.Format.RGBA, Texture.DataType.UNSIGNED_BYTE, 
+	 * 					new Uint8Array([255,0,0,255])); //1x1 red texture
+	 * 		new Texture(&quot;test.png&quot;); //loads image asynchronously
+	 * 		new Texture(&quot;test.png&quot;, successFunc, failFunc, useMipmaps); //extra params for image laoder 
 	 *
 	 * @class  Texture
 	 * @constructor
@@ -144,8 +155,8 @@ var Texture = new Class({
 	 * @param  {Boolean} genMipmaps whether to generate mipmaps after uploading the data
 	 */
 	initialize: function Texture(context, width, height, format, dataType, data, genMipmaps) {
-		if (!context)
-			throw &quot;GL context not specified&quot;;
+		if (typeof context !== &quot;object&quot;)
+			throw &quot;GL context not specified to Texture&quot;;
 		this.context = context;
 
 		/**
@@ -223,38 +234,50 @@ var Texture = new Class({
 	 * @protected
 	 */
 	_handleCreate: function(width, height, format, dataType, data, genMipmaps) {
+		var gl = this.gl;
+
 		//If the first argument is a string, assume it&#x27;s an Image loader
-		//second argument will then be genMipmaps
+		//second argument will then be genMipmaps, third and fourth the success/fail callbacks
 		if (typeof width === &quot;string&quot;) {
 			var img = new Image();
-			var path = width;      //first argument, the path
-			genMipmaps = !!height; //second argument, the genMipmaps boolean
+			var path      = arguments[0];   //first argument, the path
+			var successCB = typeof arguments[1] === &quot;function&quot; ? arguments[1] : null;
+			var failCB    = typeof arguments[2] === &quot;function&quot; ? arguments[2] : null;
+			genMipmaps    = !!arguments[3];
+
 			var self = this;
+
+			//Unfortunately, requestAnimationFrame fires before img.onload events in Chrome, even
+			//if the image is already &#x27;complete&#x27; (from cache). So we need to upload 1x1
+			//transparent dummy data to ensure that the user isn&#x27;t trying to render 
+			//a Texture that hasn&#x27;t been created yet.
+			self.uploadData(1, 1);
+
 			img.onload = function() {
-				if (genMipmaps)
-					gl.generateMipmap(gl.TEXTURE_2D);
-				self.uploadImage(img);
+				self.uploadImage(img, undefined, undefined, genMipmaps);
+				if (successCB)
+					successCB();
 			}
 			img.onerror = function() {
-				console.warn(&quot;Error loading image: &quot;+path);
-				self.uploadData(1, 1);
-				if (genMipmaps)
+				// console.warn(&quot;Error loading image: &quot;+path);
+				if (genMipmaps) //we gen mipmaps on the 1x1 dummy
 					gl.generateMipmap(gl.TEXTURE_2D);
+				if (failCB)
+					failCB();
 			}
 			img.onabort = function() {
-				console.warn(&quot;Image load aborted: &quot;+path);
-				self.uploadData(1, 1);
-				if (genMipmaps)
+				// console.warn(&quot;Image load aborted: &quot;+path);
+				if (genMipmaps) //we gen mipmaps on the 1x1 dummy
 					gl.generateMipmap(gl.TEXTURE_2D);
+				if (failCB)
+					failCB();
 			}
 
 			img.src = path;
 		} 
 		//otherwise assume our regular list of width/height arguments are passed
 		else {
-			this.uploadData(width, height, format, dataType, data);
-			if (genMipmaps)
-				gl.generateMipmap(gl.TEXTURE_2D);
+			this.uploadData(width, height, format, dataType, data, genMipmaps);
 		}
 	},	
 
@@ -272,6 +295,7 @@ var Texture = new Class({
 		this.target = gl.TEXTURE_2D;  //the provider can change this if necessary (e.g. cube maps)
 
 		this.bind();
+
 
 		//TODO: clean these up a little. 
 		gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, Texture.UNPACK_PREMULTIPLY_ALPHA);
@@ -384,8 +408,9 @@ var Texture = new Class({
 	 * @param  {GLenum} format         the data format, default RGBA
 	 * @param  {GLenum} type           the data type, default UNSIGNED_BYTE (Uint8Array)
 	 * @param  {ArrayBufferView} data  the raw data for this texture, or null for an empty image
+	 * @param  {Boolean} genMipmaps	   whether to generate mipmaps after uploading the data, default false
 	 */
-	uploadData: function(width, height, format, type, data) {
+	uploadData: function(width, height, format, type, data, genMipmaps) {
 		var gl = this.gl;
 
 		this.format = format || gl.RGBA;
@@ -402,6 +427,9 @@ var Texture = new Class({
 		gl.texImage2D(this.target, 0, this.format, 
 					  this.width, this.height, 0, this.format,
 					  type, data);
+
+		if (genMipmaps)
+			gl.generateMipmap(this.target);
 	},
 
 	/**
@@ -410,8 +438,11 @@ var Texture = new Class({
 	 *
 	 * @method  uploadImage
 	 * @param  {Object} domObject the DOM image container
+	 * @param  {GLenum} format the format, default gl.RGBA
+	 * @param  {GLenum} type the data type, default gl.UNSIGNED_BYTE
+	 * @param  {Boolean} genMipmaps whether to generate mipmaps after uploading the data, default false
 	 */
-	uploadImage: function(domObject, format, type) {
+	uploadImage: function(domObject, format, type, genMipmaps) {
 		var gl = this.gl;
 
 		this.format = format || gl.RGBA;
@@ -426,6 +457,9 @@ var Texture = new Class({
 
 		gl.texImage2D(this.target, 0, this.format, this.format,
 					  type, domObject);
+
+		if (genMipmaps)
+			gl.generateMipmap(this.target);
 	},
 
 	/**
@@ -443,7 +477,8 @@ var Texture = new Class({
 			//If minFilter is anything but LINEAR or NEAREST
 			//or if wrapS or wrapT are not CLAMP_TO_EDGE...
 			var wrongFilter = (this.minFilter !== Texture.Filter.LINEAR &amp;&amp; this.minFilter !== Texture.Filter.NEAREST);
-			var wrongWrap = (this.wrapS !== Texture.Wrap.CLAMP_TO_EDGE || this.wrapT !== Texture.Wrap.CLAMP_TO_EDGE)
+			var wrongWrap = (this.wrapS !== Texture.Wrap.CLAMP_TO_EDGE || this.wrapT !== Texture.Wrap.CLAMP_TO_EDGE);
+
 			if ( wrongFilter || wrongWrap ) {
 				if (!isPowerOfTwo(this.width) || !isPowerOfTwo(this.height))
 					throw new Error(wrongFilter 

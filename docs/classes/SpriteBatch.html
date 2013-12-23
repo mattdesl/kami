@@ -703,7 +703,7 @@ should only be implemented by subclasses.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l126"><code>lib&#x2F;SpriteBatch.js:126</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l139"><code>lib&#x2F;SpriteBatch.js:139</code></a>
         
         </p>
 
@@ -778,7 +778,7 @@ should only be implemented by subclasses.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l86"><code>lib&#x2F;SpriteBatch.js:86</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l99"><code>lib&#x2F;SpriteBatch.js:99</code></a>
         
         </p>
 
@@ -976,7 +976,7 @@ does nothing by default.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l157"><code>lib&#x2F;SpriteBatch.js:157</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l170"><code>lib&#x2F;SpriteBatch.js:170</code></a>
         
         </p>
 
@@ -1031,7 +1031,7 @@ does nothing by default.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l168"><code>lib&#x2F;SpriteBatch.js:168</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l181"><code>lib&#x2F;SpriteBatch.js:181</code></a>
         
         </p>
 
@@ -1201,7 +1201,7 @@ batch after destroying it can lead to unpredictable behaviour.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l238"><code>lib&#x2F;SpriteBatch.js:238</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l251"><code>lib&#x2F;SpriteBatch.js:251</code></a>
         
         </p>
 
@@ -1431,7 +1431,7 @@ screen-space with the origin at the upper-left corner (y-down).</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l323"><code>lib&#x2F;SpriteBatch.js:323</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l336"><code>lib&#x2F;SpriteBatch.js:336</code></a>
         
         </p>
 
@@ -1547,7 +1547,7 @@ screen-space with the origin at the upper-left corner (y-down).</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l202"><code>lib&#x2F;SpriteBatch.js:202</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l215"><code>lib&#x2F;SpriteBatch.js:215</code></a>
         
         </p>
 
@@ -1602,7 +1602,7 @@ screen-space with the origin at the upper-left corner (y-down).</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l221"><code>lib&#x2F;SpriteBatch.js:221</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l234"><code>lib&#x2F;SpriteBatch.js:234</code></a>
         
         </p>
 
@@ -2300,7 +2300,7 @@ the GLSL compiler deemed them unused.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l75"><code>lib&#x2F;SpriteBatch.js:75</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l88"><code>lib&#x2F;SpriteBatch.js:88</code></a>
         
         </p>
 
@@ -2755,7 +2755,7 @@ in a premultiplied alpha stage.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l105"><code>lib&#x2F;SpriteBatch.js:105</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l118"><code>lib&#x2F;SpriteBatch.js:118</code></a>
         
         </p>
 
@@ -3014,6 +3014,12 @@ passed. For example, <code>setUniformf(&quot;var&quot;, 0, 1)</code> maps to <co
                     
                 </li>
             
+                <li class="arg">
+                    
+                        <code>count</code>
+                    
+                </li>
+            
             </ul><span class="paren">)</span>
         </div>
     
@@ -3040,7 +3046,7 @@ passed. For example, <code>setUniformf(&quot;var&quot;, 0, 1)</code> maps to <co
             
         
         
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l353"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:353</code></a>
+        <a href="../files/lib_glutils_ShaderProgram.js.html#l356"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:356</code></a>
         
         </p>
 
@@ -3053,7 +3059,10 @@ passed. For example, <code>setUniformf(&quot;var&quot;, 0, 1)</code> maps to <co
     <div class="description">
         <p>A convenience method to set uniformNfv from the given ArrayBuffer.
 We determine which GL call to make based on the length of the array 
-buffer.</p>
+buffer (for 1-4 component vectors stored in a Float32Array). To use
+this method to upload data to uniform arrays, you need to specify the
+&#39;count&#39; parameter; i.e. the data type you are using for that array. If
+specified, this will dictate whether to call uniform1fv, uniform2fv, etc.</p>
 
     </div>
 
@@ -3089,6 +3098,22 @@ buffer.</p>
 
                     <div class="param-description">
                         <p>the array buffer</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">count</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>optional, the explicit data type count, e.g. 2 for vec2</p>
 
                     </div>
 
@@ -3300,6 +3325,12 @@ passed. For example, <code>setUniformi(&quot;var&quot;, 0, 1)</code> maps to <co
                     
                 </li>
             
+                <li class="arg">
+                    
+                        <code>count</code>
+                    
+                </li>
+            
             </ul><span class="paren">)</span>
         </div>
     
@@ -3326,7 +3357,7 @@ passed. For example, <code>setUniformi(&quot;var&quot;, 0, 1)</code> maps to <co
             
         
         
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l377"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:377</code></a>
+        <a href="../files/lib_glutils_ShaderProgram.js.html#l385"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:385</code></a>
         
         </p>
 
@@ -3339,7 +3370,10 @@ passed. For example, <code>setUniformi(&quot;var&quot;, 0, 1)</code> maps to <co
     <div class="description">
         <p>A convenience method to set uniformNiv from the given ArrayBuffer.
 We determine which GL call to make based on the length of the array 
-buffer.</p>
+buffer (for 1-4 component vectors stored in a int array). To use
+this method to upload data to uniform arrays, you need to specify the
+&#39;count&#39; parameter; i.e. the data type you are using for that array. If
+specified, this will dictate whether to call uniform1fv, uniform2fv, etc.</p>
 
     </div>
 
@@ -3375,6 +3409,22 @@ buffer.</p>
 
                     <div class="param-description">
                         <p>the array buffer</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">count</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>optional, the explicit data type count, e.g. 2 for ivec2</p>
 
                     </div>
 
@@ -3425,7 +3475,7 @@ buffer.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l142"><code>lib&#x2F;SpriteBatch.js:142</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l155"><code>lib&#x2F;SpriteBatch.js:155</code></a>
         
         </p>
 
@@ -3776,7 +3826,7 @@ as the batch&#39;s shader.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l405"><code>lib&#x2F;SpriteBatch.js:405</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l418"><code>lib&#x2F;SpriteBatch.js:418</code></a>
         
         </p>
 
@@ -3839,7 +3889,7 @@ console.log(&quot;Draw calls per frame:&quot;, SpriteBatch.totalRenderCalls);</c
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l395"><code>lib&#x2F;SpriteBatch.js:395</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l408"><code>lib&#x2F;SpriteBatch.js:408</code></a>
         
         </p>
 

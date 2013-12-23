@@ -124,9 +124,12 @@ uploadData or uploadImage yourself.</p>
 and null data (e.g. transparent black). If you also pass the format and data, 
 it will be uploaded to the texture. </p>
 <p>If you pass a String or Data URI as the second parameter,
-this Texture will load an Image object asynchronously. The optional third parameter for
-this version of the constructor is genMipmaps, which defaults to false. The texture
-width and height will be zero until the image has loaded. </p>
+this Texture will load an Image object asynchronously. The optional third
+and fourth parameters are callback functions for success and failure, respectively. 
+The optional fifrth parameter for this version of the constructor is genMipmaps, which defaults to false. </p>
+<p><em>Note:</em> To avoid WebGL errors with the Image URL constructor,
+we upload a dummy 1x1 transparent texture until the async Image load has been completed. So
+the width and height will not be accurate until the onComplete callback is fired.</p>
 <p>The arguments are kept in memory for future context restoration events. If
 this is undesirable (e.g. huge buffers which need to be GC&#39;d), you should not
 pass the data in the constructor, but instead upload it after creating an uninitialized 
@@ -357,6 +360,19 @@ with asynchronous loading and context loss.</p>
     
 
     
+        <div class="example">
+            <h4>Example:</h4>
+
+            <div class="example-content">
+                <pre class="code prettyprint"><code>    new Texture(context, 256, 256); //empty 256x256 texture
+    new Texture(context, 1, 1, Texture.Format.RGBA, Texture.DataType.UNSIGNED_BYTE, 
+                new Uint8Array([255,0,0,255])); //1x1 red texture
+    new Texture(&quot;test.png&quot;); //loads image asynchronously
+    new Texture(&quot;test.png&quot;, successFunc, failFunc, useMipmaps); //extra params for image laoder </code></pre>
+
+            </div>
+        </div>
+    
 </div>
 
     </div>
@@ -551,7 +567,7 @@ with asynchronous loading and context loss.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l333"><code>lib&#x2F;Texture.js:333</code></a>
+        <a href="../files/lib_Texture.js.html#l367"><code>lib&#x2F;Texture.js:367</code></a>
         
         </p>
 
@@ -633,7 +649,7 @@ or NEAREST. If we don&#39;t satisfy these needs, an error is thrown.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l358"><code>lib&#x2F;Texture.js:358</code></a>
+        <a href="../files/lib_Texture.js.html#l393"><code>lib&#x2F;Texture.js:393</code></a>
         
         </p>
 
@@ -732,7 +748,7 @@ is currently active.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l519"><code>lib&#x2F;Texture.js:519</code></a>
+        <a href="../files/lib_Texture.js.html#l554"><code>lib&#x2F;Texture.js:554</code></a>
         
         </p>
 
@@ -849,7 +865,7 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l214"><code>lib&#x2F;Texture.js:214</code></a>
+        <a href="../files/lib_Texture.js.html#l238"><code>lib&#x2F;Texture.js:238</code></a>
         
         </p>
 
@@ -969,6 +985,12 @@ a GL reference.</p>
                     
                 </li>
             
+                <li class="arg">
+                    
+                        <code>genMipmaps</code>
+                    
+                </li>
+            
             </ul><span class="paren">)</span>
         </div>
     
@@ -998,7 +1020,7 @@ a GL reference.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l276"><code>lib&#x2F;Texture.js:276</code></a>
+        <a href="../files/lib_Texture.js.html#l300"><code>lib&#x2F;Texture.js:300</code></a>
         
         </p>
 
@@ -1103,6 +1125,22 @@ texture to change.</p>
                     
                 </li>
             
+                <li class="param">
+                    
+                        <code class="param-name">genMipmaps</code>
+                        <span class="type">Boolean</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>whether to generate mipmaps after uploading the data, default false</p>
+
+                    </div>
+
+                    
+                </li>
+            
             </ul>
         </div>
     
@@ -1123,6 +1161,24 @@ texture to change.</p>
                 <li class="arg">
                     
                         <code>domObject</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>format</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>genMipmaps</code>
                     
                 </li>
             
@@ -1155,7 +1211,7 @@ texture to change.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l309"><code>lib&#x2F;Texture.js:309</code></a>
+        <a href="../files/lib_Texture.js.html#l337"><code>lib&#x2F;Texture.js:337</code></a>
         
         </p>
 
@@ -1187,6 +1243,54 @@ HTMLVideoElement.</p>
 
                     <div class="param-description">
                         <p>the DOM image container</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">format</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the format, default gl.RGBA</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the data type, default gl.UNSIGNED_BYTE</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">genMipmaps</code>
+                        <span class="type">Boolean</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>whether to generate mipmaps after uploading the data, default false</p>
 
                     </div>
 
@@ -1234,7 +1338,7 @@ HTMLVideoElement.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l81"><code>lib&#x2F;Texture.js:81</code></a>
+        <a href="../files/lib_Texture.js.html#l92"><code>lib&#x2F;Texture.js:92</code></a>
         
         </p>
 
@@ -1279,7 +1383,7 @@ HTMLVideoElement.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l61"><code>lib&#x2F;Texture.js:61</code></a>
+        <a href="../files/lib_Texture.js.html#l72"><code>lib&#x2F;Texture.js:72</code></a>
         
         </p>
 
@@ -1328,7 +1432,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l72"><code>lib&#x2F;Texture.js:72</code></a>
+        <a href="../files/lib_Texture.js.html#l83"><code>lib&#x2F;Texture.js:83</code></a>
         
         </p>
 
@@ -1390,7 +1494,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l449"><code>lib&#x2F;Texture.js:449</code></a>
+        <a href="../files/lib_Texture.js.html#l484"><code>lib&#x2F;Texture.js:484</code></a>
         
         </p>
 
@@ -1455,7 +1559,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l486"><code>lib&#x2F;Texture.js:486</code></a>
+        <a href="../files/lib_Texture.js.html#l521"><code>lib&#x2F;Texture.js:521</code></a>
         
         </p>
 
@@ -1512,7 +1616,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l475"><code>lib&#x2F;Texture.js:475</code></a>
+        <a href="../files/lib_Texture.js.html#l510"><code>lib&#x2F;Texture.js:510</code></a>
         
         </p>
 
@@ -1569,7 +1673,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l380"><code>lib&#x2F;Texture.js:380</code></a>
+        <a href="../files/lib_Texture.js.html#l415"><code>lib&#x2F;Texture.js:415</code></a>
         
         </p>
 
@@ -1638,7 +1742,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l496"><code>lib&#x2F;Texture.js:496</code></a>
+        <a href="../files/lib_Texture.js.html#l531"><code>lib&#x2F;Texture.js:531</code></a>
         
         </p>
 
@@ -1701,7 +1805,7 @@ textures, or in some future case where NPOT textures is added as a WebGL extensi
             
         
         
-        <a href="../files/lib_Texture.js.html#l426"><code>lib&#x2F;Texture.js:426</code></a>
+        <a href="../files/lib_Texture.js.html#l461"><code>lib&#x2F;Texture.js:461</code></a>
         
         </p>
 
@@ -1767,7 +1871,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l406"><code>lib&#x2F;Texture.js:406</code></a>
+        <a href="../files/lib_Texture.js.html#l441"><code>lib&#x2F;Texture.js:441</code></a>
         
         </p>
 

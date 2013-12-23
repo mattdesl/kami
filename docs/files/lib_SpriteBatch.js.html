@@ -171,6 +171,19 @@ var SpriteBatch = new Class({
 	},
 
 	/**
+	 * This is a convenience function to set the batch&#x27;s projection
+	 * matrix to an orthographic 2D projection, based on the given screen
+	 * size. This allows users to render in 2D without any need for a camera.
+	 * 
+	 * @param  {[type]} width  [description]
+	 * @param  {[type]} height [description]
+	 * @return {[type]}        [description]
+	 */
+	resize: function(width, height) {
+		this.setProjection(width/2, height/2);
+	},
+
+	/**
 	 * The number of floats per vertex for this batcher 
 	 * (Position.xy + Color + TexCoord0.xy).
 	 *

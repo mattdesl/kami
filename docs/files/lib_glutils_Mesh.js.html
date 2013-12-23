@@ -144,8 +144,8 @@ var Mesh = new Class({
 	 * @return {[type]}                [description]
 	 */
 	initialize: function Mesh(context, isStatic, numVerts, numIndices, vertexAttribs) {
-		if (!context)
-			throw &quot;GL context not specified&quot;;
+		if (typeof context !== &quot;object&quot;)
+			throw &quot;GL context not specified to Mesh&quot;;
 		if (!numVerts)
 			throw &quot;numVerts not specified, must be &gt; 0&quot;;
 

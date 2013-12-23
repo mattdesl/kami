@@ -118,6 +118,8 @@ var FrameBuffer = new Class({
 	 * @return {[type]}        [description]
 	 */
 	initialize: function FrameBuffer(context, width, height, format) { //TODO: depth component
+		if (typeof context !== &quot;object&quot;)
+			throw &quot;GL context not specified to FrameBuffer&quot;;
 		this.id = null;
 		this.context = context;
 

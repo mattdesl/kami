@@ -197,7 +197,10 @@
             "namespace": "",
             "file": "lib/Texture.js",
             "line": 13,
-            "description": "Creates a new texture with the optional width, height, and data.\n\nIf the constructor is passed no parameters other than WebGLContext, then\nit will not be initialized and will be non-renderable. You will need to manually\nuploadData or uploadImage yourself.\n\nIf you pass a width and height after context, the texture will be initialized with that size\nand null data (e.g. transparent black). If you also pass the format and data, \nit will be uploaded to the texture. \n\nIf you pass a String or Data URI as the second parameter,\nthis Texture will load an Image object asynchronously. The optional third parameter for\nthis version of the constructor is genMipmaps, which defaults to false. The texture\nwidth and height will be zero until the image has loaded. \n\nThe arguments are kept in memory for future context restoration events. If\nthis is undesirable (e.g. huge buffers which need to be GC'd), you should not\npass the data in the constructor, but instead upload it after creating an uninitialized \ntexture. You will need to manage it yourself, either by extending the create() method, \nor listening to restored events in WebGLContext.\n\nMost users will want to use the AssetManager to create and manage their textures\nwith asynchronous loading and context loss.",
+            "description": "Creates a new texture with the optional width, height, and data.\n\nIf the constructor is passed no parameters other than WebGLContext, then\nit will not be initialized and will be non-renderable. You will need to manually\nuploadData or uploadImage yourself.\n\nIf you pass a width and height after context, the texture will be initialized with that size\nand null data (e.g. transparent black). If you also pass the format and data, \nit will be uploaded to the texture. \n\nIf you pass a String or Data URI as the second parameter,\nthis Texture will load an Image object asynchronously. The optional third\nand fourth parameters are callback functions for success and failure, respectively. \nThe optional fifrth parameter for this version of the constructor is genMipmaps, which defaults to false. \n\n_Note:_ To avoid WebGL errors with the Image URL constructor,\nwe upload a dummy 1x1 transparent texture until the async Image load has been completed. So\nthe width and height will not be accurate until the onComplete callback is fired.\n\nThe arguments are kept in memory for future context restoration events. If\nthis is undesirable (e.g. huge buffers which need to be GC'd), you should not\npass the data in the constructor, but instead upload it after creating an uninitialized \ntexture. You will need to manage it yourself, either by extending the create() method, \nor listening to restored events in WebGLContext.\n\nMost users will want to use the AssetManager to create and manage their textures\nwith asynchronous loading and context loss.",
+            "example": [
+                "\n\t\tnew Texture(context, 256, 256); //empty 256x256 texture\n\t\tnew Texture(context, 1, 1, Texture.Format.RGBA, Texture.DataType.UNSIGNED_BYTE, \n\t\t\t\t\tnew Uint8Array([255,0,0,255])); //1x1 red texture\n\t\tnew Texture(\"test.png\"); //loads image asynchronously\n\t\tnew Texture(\"test.png\", successFunc, failFunc, useMipmaps); //extra params for image laoder "
+            ],
             "is_constructor": 1,
             "params": [
                 {
@@ -641,8 +644,8 @@
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 353,
-            "description": "A convenience method to set uniformNfv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer.",
+            "line": 356,
+            "description": "A convenience method to set uniformNfv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer (for 1-4 component vectors stored in a Float32Array). To use\nthis method to upload data to uniform arrays, you need to specify the\n'count' parameter; i.e. the data type you are using for that array. If\nspecified, this will dictate whether to call uniform1fv, uniform2fv, etc.",
             "itemtype": "method",
             "name": "setUniformfv",
             "params": [
@@ -655,6 +658,11 @@
                     "name": "arrayBuffer",
                     "description": "the array buffer",
                     "type": "ArrayBuffer"
+                },
+                {
+                    "name": "count",
+                    "description": "optional, the explicit data type count, e.g. 2 for vec2",
+                    "type": "Number"
                 }
             ],
             "class": "BaseBatch",
@@ -662,8 +670,8 @@
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 377,
-            "description": "A convenience method to set uniformNiv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer.",
+            "line": 385,
+            "description": "A convenience method to set uniformNiv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer (for 1-4 component vectors stored in a int array). To use\nthis method to upload data to uniform arrays, you need to specify the\n'count' parameter; i.e. the data type you are using for that array. If\nspecified, this will dictate whether to call uniform1fv, uniform2fv, etc.",
             "itemtype": "method",
             "name": "setUniformiv",
             "params": [
@@ -676,6 +684,11 @@
                     "name": "arrayBuffer",
                     "description": "the array buffer",
                     "type": "ArrayBuffer"
+                },
+                {
+                    "name": "count",
+                    "description": "optional, the explicit data type count, e.g. 2 for ivec2",
+                    "type": "Number"
                 }
             ],
             "class": "BaseBatch",
@@ -979,6 +992,29 @@
         {
             "file": "lib/SpriteBatch.js",
             "line": 75,
+            "description": "This is a convenience function to set the batch's projection\nmatrix to an orthographic 2D projection, based on the given screen\nsize. This allows users to render in 2D without any need for a camera.",
+            "params": [
+                {
+                    "name": "width",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "height",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": "SpriteBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/SpriteBatch.js",
+            "line": 88,
             "description": "The number of floats per vertex for this batcher \n(Position.xy + Color + TexCoord0.xy).",
             "itemtype": "method",
             "name": "getVertexSize",
@@ -991,7 +1027,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 86,
+            "line": 99,
             "description": "Used internally to return the Position, Color, and TexCoord0 attributes.",
             "itemtype": "method",
             "name": "_createVertexAttribuets",
@@ -1006,7 +1042,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 105,
+            "line": 118,
             "description": "Sets the projection vector, an x and y\ndefining the middle points of your stage.",
             "itemtype": "method",
             "name": "setProjection",
@@ -1027,7 +1063,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 126,
+            "line": 139,
             "description": "Creates a default shader for this batch.",
             "itemtype": "method",
             "name": "_createShader",
@@ -1042,7 +1078,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 142,
+            "line": 155,
             "description": "This is called during rendering to update projection/transform\nmatrices and upload the new values to the shader. For example,\nif the user calls setProjection mid-draw, the batch will flush\nand this will be called before continuing to add items to the batch.\n\nYou generally should not need to call this directly.",
             "itemtype": "method",
             "name": "updateMatrices",
@@ -1053,7 +1089,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 157,
+            "line": 170,
             "description": "Called before rendering, and binds the current texture.",
             "itemtype": "method",
             "name": "_preRender",
@@ -1064,7 +1100,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 168,
+            "line": 181,
             "description": "Binds the shader, disables depth writing, \nenables blending, activates texture unit 0, and sends\ndefault matrices and sampler2D uniforms to the shader.",
             "itemtype": "method",
             "name": "begin",
@@ -1073,7 +1109,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 202,
+            "line": 215,
             "description": "Ends the sprite batcher and flushes any remaining data to the GPU.",
             "itemtype": "method",
             "name": "end",
@@ -1082,7 +1118,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 221,
+            "line": 234,
             "description": "Flushes the batch to the GPU. This should be called when\nstate changes, such as blend functions, depth or stencil states,\nshaders, and so forth.",
             "itemtype": "method",
             "name": "flush",
@@ -1091,7 +1127,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 238,
+            "line": 251,
             "description": "Adds a sprite to this batch. The sprite is drawn in \nscreen-space with the origin at the upper-left corner (y-down).",
             "itemtype": "method",
             "name": "draw",
@@ -1147,7 +1183,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 323,
+            "line": 336,
             "description": "Adds a single quad mesh to this sprite batch from the given\narray of vertices. The sprite is drawn in \nscreen-space with the origin at the upper-left corner (y-down).\n\nThis reads 20 interleaved floats from the given offset index, in the format\n\n { x, y, color, u, v,\n     ...  }",
             "itemtype": "method",
             "name": "drawVertices",
@@ -1173,7 +1209,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 395,
+            "line": 408,
             "description": "The default vertex size, i.e. number of floats per vertex.",
             "itemtype": "attribute",
             "name": "VERTEX_SIZE",
@@ -1186,7 +1222,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 405,
+            "line": 418,
             "description": "Incremented after each draw call, can be used for debugging.\n\n    SpriteBatch.totalRenderCalls = 0;\n\n    ... draw your scene ...\n\n    console.log(\"Draw calls per frame:\", SpriteBatch.totalRenderCalls);",
             "itemtype": "attribute",
             "name": "totalRenderCalls",
@@ -1198,7 +1234,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 53,
+            "line": 64,
             "description": "The WebGLTexture which backs this Texture object. This\ncan be used for low-level GL calls.",
             "type": "{WebGLTexture}",
             "class": "Texture",
@@ -1206,7 +1242,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 61,
+            "line": 72,
             "description": "The target for this texture unit, i.e. TEXTURE_2D. Subclasses\nshould override the create() method to change this, for correct\nusage with context restore.",
             "itemtype": "property",
             "name": "target",
@@ -1217,7 +1253,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 72,
+            "line": 83,
             "description": "The width of this texture, in pixels.",
             "itemtype": "property",
             "name": "width",
@@ -1228,7 +1264,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 81,
+            "line": 92,
             "description": "The height of this texture, in pixels.",
             "itemtype": "property",
             "name": "height",
@@ -1239,7 +1275,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 100,
+            "line": 111,
             "description": "When a texture is created, we keep track of the arguments provided to \nits constructor. On context loss and restore, these arguments are re-supplied\nto the Texture, so as to re-create it in its correct form.\n\nThis is mainly useful if you are procedurally creating textures and passing\ntheir data directly (e.g. for generic lookup tables in a shader). For image\nor media based textures, it would be better to use an AssetManager to manage\nthe asynchronous texture upload.\n\nUpon destroying a texture, a reference to this is also lost.",
             "type": "{Array} the array of arguments, shifted to exclude the WebGLContext parameter",
             "class": "Texture",
@@ -1247,7 +1283,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 121,
+            "line": 132,
             "description": "On instantiation and subsequent context restore, this function is called\nto parse the constructor's arguments.",
             "access": "protected",
             "tagname": "",
@@ -1256,21 +1292,21 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 163,
+            "line": 186,
             "description": "Called in the Texture constructor, and after the GL context has been re-initialized. \nSubclasses can override this to provide a custom data upload, e.g. cubemaps or compressed\ntextures.",
             "class": "Texture",
             "module": "kami"
         },
         {
             "file": "lib/Texture.js",
-            "line": 195,
+            "line": 219,
             "description": "Destroys this texture by deleting the GL resource,\nremoving it from the WebGLContext management stack,\nsetting its size to zero, and id and managed arguments to null.\n\nTrying to use this texture after may lead to undefined behaviour.",
             "class": "Texture",
             "module": "kami"
         },
         {
             "file": "lib/Texture.js",
-            "line": 214,
+            "line": 238,
             "description": "Sets the wrap mode for this texture; if the second argument\nis undefined or falsy, then both S and T wrap will use the first\nargument.\n\nYou can use Texture.Wrap constants for convenience, to avoid needing \na GL reference.",
             "itemtype": "method",
             "name": "setWrap",
@@ -1296,7 +1332,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 246,
+            "line": 270,
             "description": "Sets the min and mag filter for this texture; \nif mag is undefined or falsy, then both min and mag will use the\nfilter specified for min.\n\nYou can use Texture.Filter constants for convenience, to avoid needing \na GL reference.",
             "params": [
                 {
@@ -1320,7 +1356,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 276,
+            "line": 300,
             "description": "A low-level method to upload the specified ArrayBufferView\nto this texture. This will cause the width and height of this\ntexture to change.",
             "itemtype": "method",
             "name": "uploadData",
@@ -1349,6 +1385,11 @@
                     "name": "data",
                     "description": "the raw data for this texture, or null for an empty image",
                     "type": "ArrayBufferView"
+                },
+                {
+                    "name": "genMipmaps",
+                    "description": "whether to generate mipmaps after uploading the data, default false",
+                    "type": "Boolean"
                 }
             ],
             "class": "Texture",
@@ -1356,7 +1397,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 309,
+            "line": 337,
             "description": "Uploads ImageData, HTMLImageElement, HTMLCanvasElement or \nHTMLVideoElement.",
             "itemtype": "method",
             "name": "uploadImage",
@@ -1365,6 +1406,21 @@
                     "name": "domObject",
                     "description": "the DOM image container",
                     "type": "Object"
+                },
+                {
+                    "name": "format",
+                    "description": "the format, default gl.RGBA",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "type",
+                    "description": "the data type, default gl.UNSIGNED_BYTE",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "genMipmaps",
+                    "description": "whether to generate mipmaps after uploading the data, default false",
+                    "type": "Boolean"
                 }
             ],
             "class": "Texture",
@@ -1372,7 +1428,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 333,
+            "line": 367,
             "description": "If FORCE_POT is false, we verify this texture to see if it is valid, \nas per non-power-of-two rules. If it is non-power-of-two, it must have \na wrap mode of CLAMP_TO_EDGE, and the minification filter must be LINEAR\nor NEAREST. If we don't satisfy these needs, an error is thrown.",
             "itemtype": "method",
             "name": "_checkPOT",
@@ -1387,7 +1443,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 358,
+            "line": 393,
             "description": "Binds the texture. If unit is specified,\nit will bind the texture at the given slot\n(TEXTURE0, TEXTURE1, etc). If unit is not specified,\nit will simply bind the texture at whichever slot\nis currently active.",
             "itemtype": "method",
             "name": "bind",
@@ -1403,7 +1459,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 380,
+            "line": 415,
             "description": "A set of Filter constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Filter.NEAREST\n    Texture.Filter.NEAREST_MIPMAP_LINEAR\n    Texture.Filter.NEAREST_MIPMAP_NEAREST\n    Texture.Filter.LINEAR\n    Texture.Filter.LINEAR_MIPMAP_LINEAR\n    Texture.Filter.LINEAR_MIPMAP_NEAREST\n```"
@@ -1417,7 +1473,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 406,
+            "line": 441,
             "description": "A set of Wrap constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Wrap.CLAMP_TO_EDGE\n    Texture.Wrap.MIRRORED_REPEAT\n    Texture.Wrap.REPEAT\n```"
@@ -1431,7 +1487,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 426,
+            "line": 461,
             "description": "A set of Format constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Format.RGB\n    Texture.Format.RGBA\n    Texture.Format.LUMINANCE_ALPHA\n```"
@@ -1445,7 +1501,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 449,
+            "line": 484,
             "description": "A set of DataType constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.DataType.UNSIGNED_BYTE \n    Texture.DataType.FLOAT \n```"
@@ -1459,7 +1515,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 475,
+            "line": 510,
             "description": "The default wrap mode when creating new textures. If a custom \nprovider was specified, it may choose to override this default mode.",
             "itemtype": "attribute",
             "name": "DEFAULT_WRAP",
@@ -1471,7 +1527,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 486,
+            "line": 521,
             "description": "The default filter mode when creating new textures. If a custom\nprovider was specified, it may choose to override this default mode.",
             "itemtype": "attribute",
             "name": "DEFAULT_FILTER",
@@ -1483,7 +1539,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 496,
+            "line": 531,
             "description": "By default, we do some error checking when creating textures\nto ensure that they will be \"renderable\" by WebGL. Non-power-of-two\ntextures must use CLAMP_TO_EDGE as their wrap mode, and NEAREST or LINEAR\nas their wrap mode. Further, trying to generate mipmaps for a NPOT image\nwill lead to errors. \n\nHowever, you can disable this error checking by setting `FORCE_POT` to true.\nThis may be useful if you are running on specific hardware that supports POT \ntextures, or in some future case where NPOT textures is added as a WebGL extension.",
             "itemtype": "attribute",
             "name": "FORCE_POT",
@@ -1495,7 +1551,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 519,
+            "line": 554,
             "description": "Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.\nReturns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,\nLUMINANCE_ALPHA, RGB, or RGBA.",
             "itemtype": "method",
             "name": "getNumComponents",
@@ -1671,14 +1727,14 @@
         {
             "file": "lib/index-umd.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-20.",
+            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-23.",
             "class": "",
             "module": "kami"
         },
         {
             "file": "lib/index.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nCreated on 2013-12-20.",
+            "description": "Auto-generated Kami index file.\nCreated on 2013-12-23.",
             "class": "",
             "module": "kami"
         }
@@ -1705,28 +1761,32 @@
             "line": " lib/glutils/ShaderProgram.js:37"
         },
         {
+            "message": "Missing item type\nThis is a convenience function to set the batch's projection\nmatrix to an orthographic 2D projection, based on the given screen\nsize. This allows users to render in 2D without any need for a camera.",
+            "line": " lib/SpriteBatch.js:75"
+        },
+        {
             "message": "Missing item type\nThe WebGLTexture which backs this Texture object. This\ncan be used for low-level GL calls.",
-            "line": " lib/Texture.js:53"
+            "line": " lib/Texture.js:64"
         },
         {
             "message": "Missing item type\nWhen a texture is created, we keep track of the arguments provided to \nits constructor. On context loss and restore, these arguments are re-supplied\nto the Texture, so as to re-create it in its correct form.\n\nThis is mainly useful if you are procedurally creating textures and passing\ntheir data directly (e.g. for generic lookup tables in a shader). For image\nor media based textures, it would be better to use an AssetManager to manage\nthe asynchronous texture upload.\n\nUpon destroying a texture, a reference to this is also lost.",
-            "line": " lib/Texture.js:100"
+            "line": " lib/Texture.js:111"
         },
         {
             "message": "Missing item type\nOn instantiation and subsequent context restore, this function is called\nto parse the constructor's arguments.",
-            "line": " lib/Texture.js:121"
+            "line": " lib/Texture.js:132"
         },
         {
             "message": "Missing item type\nCalled in the Texture constructor, and after the GL context has been re-initialized. \nSubclasses can override this to provide a custom data upload, e.g. cubemaps or compressed\ntextures.",
-            "line": " lib/Texture.js:163"
+            "line": " lib/Texture.js:186"
         },
         {
             "message": "Missing item type\nDestroys this texture by deleting the GL resource,\nremoving it from the WebGLContext management stack,\nsetting its size to zero, and id and managed arguments to null.\n\nTrying to use this texture after may lead to undefined behaviour.",
-            "line": " lib/Texture.js:195"
+            "line": " lib/Texture.js:219"
         },
         {
             "message": "Missing item type\nSets the min and mag filter for this texture; \nif mag is undefined or falsy, then both min and mag will use the\nfilter specified for min.\n\nYou can use Texture.Filter constants for convenience, to avoid needing \na GL reference.",
-            "line": " lib/Texture.js:246"
+            "line": " lib/Texture.js:270"
         },
         {
             "message": "Missing item type",
@@ -1749,11 +1809,11 @@
             "line": " lib/WebGLContext.js:194"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-20.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-23.",
             "line": " lib/index-umd.js:1"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2013-12-20.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2013-12-23.",
             "line": " lib/index.js:1"
         }
     ]
