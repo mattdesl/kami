@@ -205,9 +205,22 @@ var Texture = new Class({
 		//		--&gt; new Texture(gl);
 		//			  creates a new texture but WITHOUT uploading any data. 
 
+		/**
+		 * @property {GLenum} wrapS the wrap S
+		 */
 		this.wrapS = Texture.DEFAULT_WRAP;
+		/**
+		 * @property {GLenum} wrapT the wrap T
+		 */
 		this.wrapT = Texture.DEFAULT_WRAP;
+		/**
+		 * @property {GLenum} minFilter the minifcation filter
+		 */
 		this.minFilter = Texture.DEFAULT_FILTER;
+		
+		/**
+		 * @property {GLenum} magFilter the magnification filter
+		 */
 		this.magFilter = Texture.DEFAULT_FILTER;
 
 		/**
@@ -221,7 +234,8 @@ var Texture = new Class({
 		 * the asynchronous texture upload.
 		 *
 		 * Upon destroying a texture, a reference to this is also lost.
-		 * 
+		 *
+		 * @property managedArgs
 		 * @type {Array} the array of arguments, shifted to exclude the WebGLContext parameter
 		 */
 		this.managedArgs = Array.prototype.slice.call(arguments, 1);
@@ -289,6 +303,8 @@ var Texture = new Class({
 	 * Called in the Texture constructor, and after the GL context has been re-initialized. 
 	 * Subclasses can override this to provide a custom data upload, e.g. cubemaps or compressed
 	 * textures.
+	 *
+	 * @method  create
 	 */
 	create: function() {
 		this.gl = this.context.gl; 
@@ -324,6 +340,8 @@ var Texture = new Class({
 	 * setting its size to zero, and id and managed arguments to null.
 	 * 
 	 * Trying to use this texture after may lead to undefined behaviour.
+	 *
+	 * @method  destroy
 	 */
 	destroy: function() {
 		if (this.id &amp;&amp; this.gl)
@@ -376,7 +394,8 @@ var Texture = new Class({
 	 *
 	 * You can use Texture.Filter constants for convenience, to avoid needing 
 	 * a GL reference.
-	 * 
+	 *
+	 * @method  setFilter
 	 * @param {GLenum} min the minification filter
 	 * @param {GLenum} mag the magnification filter
 	 * @param {Boolean} ignoreBind if true, the bind will be ignored. 
@@ -508,7 +527,7 @@ var Texture = new Class({
 			gl.activeTexture(gl.TEXTURE0 + unit);
 		gl.bindTexture(this.target, this.id);
 	},
-
+	
 	toString: function() {
 		return this.id + &quot;:&quot; + this.width + &quot;x&quot; + this.height + &quot;&quot;;
 	}

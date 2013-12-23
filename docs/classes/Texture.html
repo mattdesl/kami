@@ -423,10 +423,31 @@ with asynchronous loading and context loss.</p>
                             </li>
                         
                             <li class="index-item method">
+                                <a href="#method_create">create</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_destroy">destroy</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
                                 <a href="#method_getNumComponents">getNumComponents</a>
 
                                 
                                     <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_setFilter">setFilter</a>
+
                                 
                                 
                             </li>
@@ -470,6 +491,27 @@ with asynchronous loading and context loss.</p>
                             </li>
                         
                             <li class="index-item property">
+                                <a href="#property_magFilter the magnification filter">magFilter the magnification filter</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_managedArgs">managedArgs</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_minFilter the minifcation filter">minFilter the minifcation filter</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
                                 <a href="#property_target">target</a>
 
                                 
@@ -478,6 +520,20 @@ with asynchronous loading and context loss.</p>
                         
                             <li class="index-item property">
                                 <a href="#property_width">width</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_wrapS the wrap S">wrapS the wrap S</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_wrapT the wrap T">wrapT the wrap T</a>
 
                                 
                                 
@@ -571,7 +627,7 @@ with asynchronous loading and context loss.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l367"><code>lib&#x2F;Texture.js:367</code></a>
+        <a href="../files/lib_Texture.js.html#l386"><code>lib&#x2F;Texture.js:386</code></a>
         
         </p>
 
@@ -653,7 +709,7 @@ or NEAREST. If we don&#39;t satisfy these needs, an error is thrown.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l393"><code>lib&#x2F;Texture.js:393</code></a>
+        <a href="../files/lib_Texture.js.html#l412"><code>lib&#x2F;Texture.js:412</code></a>
         
         </p>
 
@@ -696,6 +752,121 @@ is currently active.</p>
             
             </ul>
         </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_create" class="method item">
+    <h3 class="name"><code>create</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l200"><code>lib&#x2F;Texture.js:200</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called in the Texture constructor, and after the GL context has been re-initialized. 
+Subclasses can override this to provide a custom data upload, e.g. cubemaps or compressed
+textures.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_destroy" class="method item">
+    <h3 class="name"><code>destroy</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l235"><code>lib&#x2F;Texture.js:235</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Destroys this texture by deleting the GL resource,
+removing it from the WebGLContext management stack,
+setting its size to zero, and id and managed arguments to null.</p>
+<p>Trying to use this texture after may lead to undefined behaviour.</p>
+
+    </div>
+
     
 
     
@@ -752,7 +923,7 @@ is currently active.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l554"><code>lib&#x2F;Texture.js:554</code></a>
+        <a href="../files/lib_Texture.js.html#l573"><code>lib&#x2F;Texture.js:573</code></a>
         
         </p>
 
@@ -815,6 +986,143 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
 </div>
 
                 
+                    <div id="method_setFilter" class="method item">
+    <h3 class="name"><code>setFilter</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>min</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>mag</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>ignoreBind</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l288"><code>lib&#x2F;Texture.js:288</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the min and mag filter for this texture; 
+if mag is undefined or falsy, then both min and mag will use the
+filter specified for min.</p>
+<p>You can use Texture.Filter constants for convenience, to avoid needing 
+a GL reference.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">min</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the minification filter</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">mag</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the magnification filter</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">ignoreBind</code>
+                        <span class="type">Boolean</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>if true, the bind will be ignored.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="method_setWrap" class="method item">
     <h3 class="name"><code>setWrap</code></h3>
 
@@ -869,7 +1177,7 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l238"><code>lib&#x2F;Texture.js:238</code></a>
+        <a href="../files/lib_Texture.js.html#l256"><code>lib&#x2F;Texture.js:256</code></a>
         
         </p>
 
@@ -1024,7 +1332,7 @@ a GL reference.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l300"><code>lib&#x2F;Texture.js:300</code></a>
+        <a href="../files/lib_Texture.js.html#l319"><code>lib&#x2F;Texture.js:319</code></a>
         
         </p>
 
@@ -1215,7 +1523,7 @@ texture to change.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l337"><code>lib&#x2F;Texture.js:337</code></a>
+        <a href="../files/lib_Texture.js.html#l356"><code>lib&#x2F;Texture.js:356</code></a>
         
         </p>
 
@@ -1364,6 +1672,146 @@ HTMLVideoElement.</p>
 </div>
 
                 
+                    <div id="property_magFilter the magnification filter" class="property item">
+    <h3 class="name"><code>magFilter the magnification filter</code></h3>
+    <span class="type">GLenum</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l119"><code>lib&#x2F;Texture.js:119</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_managedArgs" class="property item">
+    <h3 class="name"><code>managedArgs</code></h3>
+    <span class="type">Array the array of arguments, shifted to exclude the WebGLContext parameter</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l124"><code>lib&#x2F;Texture.js:124</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>When a texture is created, we keep track of the arguments provided to 
+its constructor. On context loss and restore, these arguments are re-supplied
+to the Texture, so as to re-create it in its correct form.</p>
+<p>This is mainly useful if you are procedurally creating textures and passing
+their data directly (e.g. for generic lookup tables in a shader). For image
+or media based textures, it would be better to use an AssetManager to manage
+the asynchronous texture upload.</p>
+<p>Upon destroying a texture, a reference to this is also lost.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_minFilter the minifcation filter" class="property item">
+    <h3 class="name"><code>minFilter the minifcation filter</code></h3>
+    <span class="type">GLenum</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l114"><code>lib&#x2F;Texture.js:114</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="property_target" class="property item">
     <h3 class="name"><code>target</code></h3>
     <span class="type">GLenum</span>
@@ -1458,6 +1906,94 @@ usage with context restore.</p>
 </div>
 
                 
+                    <div id="property_wrapS the wrap S" class="property item">
+    <h3 class="name"><code>wrapS the wrap S</code></h3>
+    <span class="type">GLenum</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l106"><code>lib&#x2F;Texture.js:106</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_wrapT the wrap T" class="property item">
+    <h3 class="name"><code>wrapT the wrap T</code></h3>
+    <span class="type">GLenum</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l110"><code>lib&#x2F;Texture.js:110</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
             </div>
         
 
@@ -1498,7 +2034,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l484"><code>lib&#x2F;Texture.js:484</code></a>
+        <a href="../files/lib_Texture.js.html#l503"><code>lib&#x2F;Texture.js:503</code></a>
         
         </p>
 
@@ -1563,7 +2099,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l521"><code>lib&#x2F;Texture.js:521</code></a>
+        <a href="../files/lib_Texture.js.html#l540"><code>lib&#x2F;Texture.js:540</code></a>
         
         </p>
 
@@ -1620,7 +2156,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l510"><code>lib&#x2F;Texture.js:510</code></a>
+        <a href="../files/lib_Texture.js.html#l529"><code>lib&#x2F;Texture.js:529</code></a>
         
         </p>
 
@@ -1677,7 +2213,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l415"><code>lib&#x2F;Texture.js:415</code></a>
+        <a href="../files/lib_Texture.js.html#l434"><code>lib&#x2F;Texture.js:434</code></a>
         
         </p>
 
@@ -1746,7 +2282,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l531"><code>lib&#x2F;Texture.js:531</code></a>
+        <a href="../files/lib_Texture.js.html#l550"><code>lib&#x2F;Texture.js:550</code></a>
         
         </p>
 
@@ -1809,7 +2345,7 @@ textures, or in some future case where NPOT textures is added as a WebGL extensi
             
         
         
-        <a href="../files/lib_Texture.js.html#l461"><code>lib&#x2F;Texture.js:461</code></a>
+        <a href="../files/lib_Texture.js.html#l480"><code>lib&#x2F;Texture.js:480</code></a>
         
         </p>
 
@@ -1875,7 +2411,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l441"><code>lib&#x2F;Texture.js:441</code></a>
+        <a href="../files/lib_Texture.js.html#l460"><code>lib&#x2F;Texture.js:460</code></a>
         
         </p>
 
