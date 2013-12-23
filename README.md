@@ -1,11 +1,10 @@
 ## kami
 
-Kami is a fast and lightweight WebGL sprite rendering framework. It can be used for 2D or 3D purposes, and aims to support modern WebGL features like compressed textures.
-
-- Minimal set of WebGL utilities for compiling shaders, managing asynchronous assets, handling context loss, and working with vertex data and textures.
-- Optimized sprite batcher for rendering complex 2D scenes. 
+Kami is a fast and lightweight WebGL sprite rendering framework. 
 
 It is ideal for tinkering with WebGL, building your game engine on top of, or writing applications that require low-level control over vertex data, textures, and so forth. 
+
+**This library is still in development.**
 
 ## Docs
 
@@ -91,20 +90,11 @@ Most of the code looks exactly the same, except all of Kami's objects are export
 </script>
 ```
 
-## Road Map
+## Road Map / TODOs
 
 - WebGL2 utils: compressed textures, texture arrays, float textures, instanced draws, etc.
-- Cube maps, mipmaps, and other Texture utils
-- more AssetManager loader plugins
-- FrameBuffer utility for render-to-texture (should support MRTs for WebGL2)
-- Advanced batcher that batches up to 4 textures in a single draw call
-- More shader examples
-
-## Features
-
-- Texture
-	- Upload pixels directly with custom format / data type
-	- Supports data URI to GL Texture, or asynchronous src path using the Image object
-	- Control over mipmap generation, texture filters, wrap modes.
-- Multiple contexts, context loss/destroy management
-- Optimized sprite batcher with color tinting
+- Cube maps and other Texture utils
+- clean up asset loading and kami-assets
+- MRTs for FrameBuffer utility (WebGL2)
+- SpriteBatch should use matrices (projeciton/transform) 
+- SpriteBatch needs rotation
