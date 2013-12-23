@@ -34,13 +34,11 @@ document.body.appendChild(context.view);
 //Create a new batcher for 2D sprites
 var batch = new SpriteBatch(context);
 
-//Create an asset manager
-//This re-loads everything for us on context loss...
-var assets = new AssetManager(context);
+//Create a new texture. This will load the URL asynchronously
+var tex0 = new Texture(context, "img/mysprite.png");
 
-//Add a new asset, this will return a Texture object 
-//which we can use for drawing
-var tex0 = assets.load("img/grass.png");
+//kami aliases some Texture GLenums for convenience
+tex0.setFilter(Texture.Filter.LINEAR);
 
 //Start our render loop
 requestAnimationFrame(render);
@@ -48,24 +46,30 @@ requestAnimationFrame(render);
 function render() {
 	requestAnimationFrame(render);
 
-	//We update the assets every frame. This method returns
-	//true when all assets have been updated.
-	if (assets.update()) { //assets have been loaded.
-		//start the batch...
-		batch.begin();
+	var gl = context.gl;
 
-		//draw the texture at (75, 75) with a size of 100x100
-		batch.draw(tex1, 75, 75, 100, 100);
+	//clear the GL canvas
+	gl.clear(gl.COLOR_BUFFER_BIT);
 
-		//flush to GPU
-		batch.end();
-	} else {
-		//The images are loading... here might render a loading bar.
-	}
+	//start the batch...
+	batch.begin();
+
+	//draw the texture at (75, 75) with a size of 100x100
+	batch.draw(tex1, 75, 75, 100, 100);
+
+	//draw it some other places
+	batch.draw(tex1, 0, 0, 15, 25);
+	batch.draw(tex1, 100, 100);
+
+	//flush sprites to GPU
+	batch.end();
 }
 ```
 
-See the `demos` folder for more. 
+## demos
+
+The `demos` folder is outdated and will be replaced by `kami-demos`, see here:   
+https://github.com/mattdesl/kami-demos 
 
 ## Using without Node
 
