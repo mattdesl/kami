@@ -1426,42 +1426,46 @@
         {
             "file": "lib/Texture.js",
             "line": 106,
+            "description": "The S wrap parameter.",
             "itemtype": "property",
-            "name": "wrapS the wrap S",
+            "name": "wrapS",
             "type": "GLenum",
             "class": "Texture",
             "module": "kami"
         },
         {
             "file": "lib/Texture.js",
-            "line": 110,
+            "line": 111,
+            "description": "The T wrap parameter.",
             "itemtype": "property",
-            "name": "wrapT the wrap T",
+            "name": "wrapT",
             "type": "GLenum",
             "class": "Texture",
             "module": "kami"
         },
         {
             "file": "lib/Texture.js",
-            "line": 114,
+            "line": 116,
+            "description": "The minifcation filter.",
             "itemtype": "property",
-            "name": "minFilter the minifcation filter",
+            "name": "minFilter",
             "type": "GLenum",
             "class": "Texture",
             "module": "kami"
         },
         {
             "file": "lib/Texture.js",
-            "line": 119,
+            "line": 122,
+            "description": "The magnification filter.",
             "itemtype": "property",
-            "name": "magFilter the magnification filter",
+            "name": "magFilter",
             "type": "GLenum",
             "class": "Texture",
             "module": "kami"
         },
         {
             "file": "lib/Texture.js",
-            "line": 124,
+            "line": 128,
             "description": "When a texture is created, we keep track of the arguments provided to \nits constructor. On context loss and restore, these arguments are re-supplied\nto the Texture, so as to re-create it in its correct form.\n\nThis is mainly useful if you are procedurally creating textures and passing\ntheir data directly (e.g. for generic lookup tables in a shader). For image\nor media based textures, it would be better to use an AssetManager to manage\nthe asynchronous texture upload.\n\nUpon destroying a texture, a reference to this is also lost.",
             "itemtype": "property",
             "name": "managedArgs",
@@ -1471,7 +1475,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 146,
+            "line": 150,
             "description": "On instantiation and subsequent context restore, this function is called\nto parse the constructor's arguments.",
             "access": "protected",
             "tagname": "",
@@ -1480,7 +1484,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 200,
+            "line": 204,
             "description": "Called in the Texture constructor, and after the GL context has been re-initialized. \nSubclasses can override this to provide a custom data upload, e.g. cubemaps or compressed\ntextures.",
             "itemtype": "method",
             "name": "create",
@@ -1489,7 +1493,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 235,
+            "line": 239,
             "description": "Destroys this texture by deleting the GL resource,\nremoving it from the WebGLContext management stack,\nsetting its size to zero, and id and managed arguments to null.\n\nTrying to use this texture after may lead to undefined behaviour.",
             "itemtype": "method",
             "name": "destroy",
@@ -1498,7 +1502,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 256,
+            "line": 260,
             "description": "Sets the wrap mode for this texture; if the second argument\nis undefined or falsy, then both S and T wrap will use the first\nargument.\n\nYou can use Texture.Wrap constants for convenience, to avoid needing \na GL reference.",
             "itemtype": "method",
             "name": "setWrap",
@@ -1524,7 +1528,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 288,
+            "line": 292,
             "description": "Sets the min and mag filter for this texture; \nif mag is undefined or falsy, then both min and mag will use the\nfilter specified for min.\n\nYou can use Texture.Filter constants for convenience, to avoid needing \na GL reference.",
             "itemtype": "method",
             "name": "setFilter",
@@ -1550,7 +1554,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 319,
+            "line": 323,
             "description": "A low-level method to upload the specified ArrayBufferView\nto this texture. This will cause the width and height of this\ntexture to change.",
             "itemtype": "method",
             "name": "uploadData",
@@ -1591,7 +1595,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 356,
+            "line": 360,
             "description": "Uploads ImageData, HTMLImageElement, HTMLCanvasElement or \nHTMLVideoElement.",
             "itemtype": "method",
             "name": "uploadImage",
@@ -1622,7 +1626,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 386,
+            "line": 390,
             "description": "If FORCE_POT is false, we verify this texture to see if it is valid, \nas per non-power-of-two rules. If it is non-power-of-two, it must have \na wrap mode of CLAMP_TO_EDGE, and the minification filter must be LINEAR\nor NEAREST. If we don't satisfy these needs, an error is thrown.",
             "itemtype": "method",
             "name": "_checkPOT",
@@ -1637,7 +1641,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 412,
+            "line": 416,
             "description": "Binds the texture. If unit is specified,\nit will bind the texture at the given slot\n(TEXTURE0, TEXTURE1, etc). If unit is not specified,\nit will simply bind the texture at whichever slot\nis currently active.",
             "itemtype": "method",
             "name": "bind",
@@ -1653,7 +1657,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 434,
+            "line": 438,
             "description": "A set of Filter constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Filter.NEAREST\n    Texture.Filter.NEAREST_MIPMAP_LINEAR\n    Texture.Filter.NEAREST_MIPMAP_NEAREST\n    Texture.Filter.LINEAR\n    Texture.Filter.LINEAR_MIPMAP_LINEAR\n    Texture.Filter.LINEAR_MIPMAP_NEAREST\n```"
@@ -1667,7 +1671,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 460,
+            "line": 464,
             "description": "A set of Wrap constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Wrap.CLAMP_TO_EDGE\n    Texture.Wrap.MIRRORED_REPEAT\n    Texture.Wrap.REPEAT\n```"
@@ -1681,7 +1685,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 480,
+            "line": 484,
             "description": "A set of Format constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Format.RGB\n    Texture.Format.RGBA\n    Texture.Format.LUMINANCE_ALPHA\n```"
@@ -1695,7 +1699,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 503,
+            "line": 507,
             "description": "A set of DataType constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.DataType.UNSIGNED_BYTE \n    Texture.DataType.FLOAT \n```"
@@ -1709,7 +1713,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 529,
+            "line": 533,
             "description": "The default wrap mode when creating new textures. If a custom \nprovider was specified, it may choose to override this default mode.",
             "itemtype": "attribute",
             "name": "DEFAULT_WRAP",
@@ -1721,7 +1725,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 540,
+            "line": 544,
             "description": "The default filter mode when creating new textures. If a custom\nprovider was specified, it may choose to override this default mode.",
             "itemtype": "attribute",
             "name": "DEFAULT_FILTER",
@@ -1733,7 +1737,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 550,
+            "line": 554,
             "description": "By default, we do some error checking when creating textures\nto ensure that they will be \"renderable\" by WebGL. Non-power-of-two\ntextures must use CLAMP_TO_EDGE as their wrap mode, and NEAREST or LINEAR\nas their wrap mode. Further, trying to generate mipmaps for a NPOT image\nwill lead to errors. \n\nHowever, you can disable this error checking by setting `FORCE_POT` to true.\nThis may be useful if you are running on specific hardware that supports POT \ntextures, or in some future case where NPOT textures is added as a WebGL extension.",
             "itemtype": "attribute",
             "name": "FORCE_POT",
@@ -1745,7 +1749,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 573,
+            "line": 577,
             "description": "Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.\nReturns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,\nLUMINANCE_ALPHA, RGB, or RGBA.",
             "itemtype": "method",
             "name": "getNumComponents",
@@ -1956,7 +1960,7 @@
         },
         {
             "message": "Missing item type\nOn instantiation and subsequent context restore, this function is called\nto parse the constructor's arguments.",
-            "line": " lib/Texture.js:146"
+            "line": " lib/Texture.js:150"
         },
         {
             "message": "Missing item type",

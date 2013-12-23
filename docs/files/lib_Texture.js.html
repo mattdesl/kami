@@ -206,20 +206,24 @@ var Texture = new Class({
 		//			  creates a new texture but WITHOUT uploading any data. 
 
 		/**
-		 * @property {GLenum} wrapS the wrap S
+		 * The S wrap parameter.
+		 * @property {GLenum} wrapS
 		 */
 		this.wrapS = Texture.DEFAULT_WRAP;
 		/**
-		 * @property {GLenum} wrapT the wrap T
+		 * The T wrap parameter.
+		 * @property {GLenum} wrapT
 		 */
 		this.wrapT = Texture.DEFAULT_WRAP;
 		/**
-		 * @property {GLenum} minFilter the minifcation filter
+		 * The minifcation filter.
+		 * @property {GLenum} minFilter 
 		 */
 		this.minFilter = Texture.DEFAULT_FILTER;
 		
 		/**
-		 * @property {GLenum} magFilter the magnification filter
+		 * The magnification filter.
+		 * @property {GLenum} magFilter 
 		 */
 		this.magFilter = Texture.DEFAULT_FILTER;
 
@@ -527,7 +531,7 @@ var Texture = new Class({
 			gl.activeTexture(gl.TEXTURE0 + unit);
 		gl.bindTexture(this.target, this.id);
 	},
-	
+
 	toString: function() {
 		return this.id + &quot;:&quot; + this.width + &quot;x&quot; + this.height + &quot;&quot;;
 	}
