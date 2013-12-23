@@ -43,7 +43,11 @@
             
                 <li><a href="../classes/BaseBatch.html">BaseBatch</a></li>
             
+                <li><a href="../classes/FrameBuffer.html">FrameBuffer</a></li>
+            
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
+            
+                <li><a href="../classes/ShaderProgram.html">ShaderProgram</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
             
@@ -111,7 +115,9 @@ var FrameBuffer = new Class({
 	 * won&#x27;t dispose of it upon destruction. This is an advanced version of the
 	 * constructor that assumes the user is giving us a valid Texture that can be bound (i.e.
 	 * no async Image textures).
-	 * 
+	 *
+	 * @class  FrameBuffer
+	 * @constructor
 	 * @param  {[type]} width  [description]
 	 * @param  {[type]} height [description]
 	 * @param  {[type]} filter [description]
@@ -120,9 +126,27 @@ var FrameBuffer = new Class({
 	initialize: function FrameBuffer(context, width, height, format) { //TODO: depth component
 		if (typeof context !== &quot;object&quot;)
 			throw &quot;GL context not specified to FrameBuffer&quot;;
+	
+
+		/**
+		 * The underlying ID of the GL frame buffer object.
+		 *
+		 * @property {WebGLFramebuffer} id
+		 */		
 		this.id = null;
+
+		/**
+		 * The WebGLContext backed by this frame buffer.
+		 *
+		 * @property {WebGLContext} context
+		 */
 		this.context = context;
 
+		/**
+		 * The Texture backed by this frame buffer.
+		 *
+		 * @property {Texture} Texture
+		 */
 		//this Texture is now managed.
 		this.texture = new Texture(context, width, height, format);
 
@@ -131,18 +155,39 @@ var FrameBuffer = new Class({
 		this.create();
 	},
 
+	/**
+	 * A read-only property which returns the width of the backing texture. 
+	 * 
+	 * @readOnly
+	 * @property width
+	 * @type {Number}
+	 */
 	width: {
 		get: function() {
 			return this.texture.width
 		}
 	},
 
+	/**
+	 * A read-only property which returns the height of the backing texture. 
+	 * 
+	 * @readOnly
+	 * @property height
+	 * @type {Number}
+	 */
 	height: {
 		get: function() {
 			return this.texture.height;
 		}
 	},
 
+
+	/**
+	 * Called during initialization to setup the frame buffer; also called on
+	 * context restore. Users will not need to call this directly.
+	 * 
+	 * @method create
+	 */
 	create: function() {
 		this.gl = this.context.gl; 
 		var gl = this.gl;
@@ -179,6 +224,12 @@ var FrameBuffer = new Class({
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	},
 
+
+	/**
+	 * Destroys this frame buffer. Using this object after destroying it will have
+	 * undefined results. 
+	 * @method destroy
+	 */
 	destroy: function() {
 		var gl = this.gl;
 
@@ -193,12 +244,22 @@ var FrameBuffer = new Class({
 		this.texture = null;
 	},
 
+	/**
+	 * Binds this framebuffer and sets the viewport to the expected size.
+	 * @method begin
+	 */
 	begin: function() {
 		var gl = this.gl;
 		gl.viewport(0, 0, this.texture.width, this.texture.height);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
 	},
 
+	/**
+	 * Binds the default frame buffer (the screen) and sets the viewport back
+	 * to the size of the WebGLContext.
+	 * 
+	 * @method end
+	 */
 	end: function() {
 		var gl = this.gl;
 		gl.viewport(0, 0, this.context.width, this.context.height);

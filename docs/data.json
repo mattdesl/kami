@@ -9,7 +9,9 @@
         "lib/glutils/FrameBuffer.js": {
             "name": "lib/glutils/FrameBuffer.js",
             "modules": {},
-            "classes": {},
+            "classes": {
+                "FrameBuffer": 1
+            },
             "fors": {},
             "namespaces": {}
         },
@@ -27,7 +29,9 @@
         "lib/glutils/ShaderProgram.js": {
             "name": "lib/glutils/ShaderProgram.js",
             "modules": {},
-            "classes": {},
+            "classes": {
+                "ShaderProgram": 1
+            },
             "fors": {},
             "namespaces": {}
         },
@@ -94,7 +98,9 @@
             "name": "kami",
             "submodules": {},
             "classes": {
+                "FrameBuffer": 1,
                 "Mesh": 1,
+                "ShaderProgram": 1,
                 "BaseBatch": 1,
                 "SpriteBatch": 1,
                 "Texture": 1,
@@ -108,6 +114,41 @@
         }
     },
     "classes": {
+        "FrameBuffer": {
+            "name": "FrameBuffer",
+            "shortname": "FrameBuffer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "kami",
+            "file": "lib/glutils/FrameBuffer.js",
+            "line": 7,
+            "description": "Creates a new Frame Buffer Object with the given width and height.\n\nIf width and height are non-numbers, this method expects the\nfirst parameter to be a Texture object which should be acted upon. \nIn this case, the FrameBuffer does not \"own\" the texture, and so it\nwon't dispose of it upon destruction. This is an advanced version of the\nconstructor that assumes the user is giving us a valid Texture that can be bound (i.e.\nno async Image textures).",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "width",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "height",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "filter",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            }
+        },
         "Mesh": {
             "name": "Mesh",
             "shortname": "Mesh",
@@ -121,6 +162,43 @@
             "file": "lib/glutils/Mesh.js",
             "line": 8,
             "description": "A mesh class that wraps VBO and IBO."
+        },
+        "ShaderProgram": {
+            "name": "ShaderProgram",
+            "shortname": "ShaderProgram",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "kami",
+            "namespace": "",
+            "file": "lib/glutils/ShaderProgram.js",
+            "line": 10,
+            "description": "Creates a new ShaderProgram from the given source, and an optional map of attribute\nlocations as <name, index> pairs.\n\n_Note:_ Chrome version 31 was giving me issues with attribute locations -- you may\nwant to omit this to let the browser pick the locations for you.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "context",
+                    "description": "the context to manage this object",
+                    "type": "WebGLContext"
+                },
+                {
+                    "name": "vertSource",
+                    "description": "the vertex shader source",
+                    "type": "String"
+                },
+                {
+                    "name": "fragSource",
+                    "description": "the fragment shader source",
+                    "type": "String"
+                },
+                {
+                    "name": "attributeLocations",
+                    "description": "the attribute locations",
+                    "type": "Object"
+                }
+            ]
         },
         "BaseBatch": {
             "name": "BaseBatch",
@@ -281,30 +359,82 @@
     "classitems": [
         {
             "file": "lib/glutils/FrameBuffer.js",
-            "line": 7,
-            "description": "Creates a new Frame Buffer Object with the given width and height.\n\nIf width and height are non-numbers, this method expects the\nfirst parameter to be a Texture object which should be acted upon. \nIn this case, the FrameBuffer does not \"own\" the texture, and so it\nwon't dispose of it upon destruction. This is an advanced version of the\nconstructor that assumes the user is giving us a valid Texture that can be bound (i.e.\nno async Image textures).",
-            "params": [
-                {
-                    "name": "width",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "height",
-                    "description": "[description]",
-                    "type": "[type]"
-                },
-                {
-                    "name": "filter",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": "Mesh"
+            "line": 29,
+            "description": "The underlying ID of the GL frame buffer object.",
+            "itemtype": "property",
+            "name": "id",
+            "type": "WebGLFramebuffer",
+            "class": "FrameBuffer"
+        },
+        {
+            "file": "lib/glutils/FrameBuffer.js",
+            "line": 36,
+            "description": "The WebGLContext backed by this frame buffer.",
+            "itemtype": "property",
+            "name": "context",
+            "type": "WebGLContext",
+            "class": "FrameBuffer"
+        },
+        {
+            "file": "lib/glutils/FrameBuffer.js",
+            "line": 43,
+            "description": "The Texture backed by this frame buffer.",
+            "itemtype": "property",
+            "name": "Texture",
+            "type": "Texture",
+            "class": "FrameBuffer"
+        },
+        {
+            "file": "lib/glutils/FrameBuffer.js",
+            "line": 56,
+            "description": "A read-only property which returns the width of the backing texture.",
+            "readonly": "",
+            "itemtype": "property",
+            "name": "width",
+            "type": "{Number}",
+            "class": "FrameBuffer"
+        },
+        {
+            "file": "lib/glutils/FrameBuffer.js",
+            "line": 69,
+            "description": "A read-only property which returns the height of the backing texture.",
+            "readonly": "",
+            "itemtype": "property",
+            "name": "height",
+            "type": "{Number}",
+            "class": "FrameBuffer"
+        },
+        {
+            "file": "lib/glutils/FrameBuffer.js",
+            "line": 83,
+            "description": "Called during initialization to setup the frame buffer; also called on\ncontext restore. Users will not need to call this directly.",
+            "itemtype": "method",
+            "name": "create",
+            "class": "FrameBuffer"
+        },
+        {
+            "file": "lib/glutils/FrameBuffer.js",
+            "line": 126,
+            "description": "Destroys this frame buffer. Using this object after destroying it will have\nundefined results.",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "FrameBuffer"
+        },
+        {
+            "file": "lib/glutils/FrameBuffer.js",
+            "line": 145,
+            "description": "Binds this framebuffer and sets the viewport to the expected size.",
+            "itemtype": "method",
+            "name": "begin",
+            "class": "FrameBuffer"
+        },
+        {
+            "file": "lib/glutils/FrameBuffer.js",
+            "line": 155,
+            "description": "Binds the default frame buffer (the screen) and sets the viewport back\nto the size of the WebGLContext.",
+            "itemtype": "method",
+            "name": "end",
+            "class": "FrameBuffer"
         },
         {
             "file": "lib/glutils/Mesh.js",
@@ -405,14 +535,34 @@
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 37,
+            "line": 52,
             "description": "This is called during the ShaderProgram constructor,\nand may need to be called again after context loss and restore.",
-            "class": "BaseBatch",
+            "itemtype": "method",
+            "name": "create",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 188,
+            "line": 177,
+            "description": "Called to bind this shader. Note that there is no \"unbind\" since\ntechnically such a thing is not possible in the programmable pipeline.\n\nYou must bind a shader before settings its uniforms.",
+            "itemtype": "method",
+            "name": "bind",
+            "class": "ShaderProgram",
+            "module": "kami"
+        },
+        {
+            "file": "lib/glutils/ShaderProgram.js",
+            "line": 190,
+            "description": "Destroys this shader and its resources. You should not try to use this\nafter destroying it.",
+            "itemtype": "method",
+            "name": "destroy",
+            "class": "ShaderProgram",
+            "module": "kami"
+        },
+        {
+            "file": "lib/glutils/ShaderProgram.js",
+            "line": 218,
             "description": "Returns the cached uniform info (size, type, location).\nIf the uniform is not found in the cache, it is assumed\nto not exist, and this method returns null.\n\nThis may return null even if the uniform is defined in GLSL:\nif it is _inactive_ (i.e. not used in the program) then it may\nbe optimized out.",
             "itemtype": "method",
             "name": "getUniformInfo",
@@ -427,12 +577,12 @@
                 "description": "an object containing location, size, and type",
                 "type": "Object"
             },
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 205,
+            "line": 235,
             "description": "Returns the cached attribute info (size, type, location).\nIf the attribute is not found in the cache, it is assumed\nto not exist, and this method returns null.\n\nThis may return null even if the attribute is defined in GLSL:\nif it is _inactive_ (i.e. not used in the program or disabled) \nthen it may be optimized out.",
             "itemtype": "method",
             "name": "getAttributeInfo",
@@ -447,12 +597,12 @@
                 "description": "an object containing location, size and type",
                 "type": "Object"
             },
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 223,
+            "line": 253,
             "description": "Returns the cached uniform location object.\nIf the uniform is not found, this method returns null.",
             "itemtype": "method",
             "name": "getAttributeLocation",
@@ -467,12 +617,12 @@
                 "description": "the location object",
                 "type": "GLint"
             },
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 236,
+            "line": 266,
             "description": "Returns the cached uniform location object, assuming it exists\nand is active. Note that uniforms may be inactive if \nthe GLSL compiler deemed them unused.",
             "itemtype": "method",
             "name": "getUniformLocation",
@@ -487,12 +637,12 @@
                 "description": "the location object",
                 "type": "WebGLUniformLocation"
             },
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 250,
+            "line": 280,
             "description": "Returns true if the uniform is active and found in this\ncompiled program. Note that uniforms may be inactive if \nthe GLSL compiler deemed them unused.",
             "itemtype": "method",
             "name": "hasUniform",
@@ -507,12 +657,12 @@
                 "description": "true if the uniform is found and active",
                 "type": "Boolean"
             },
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 263,
+            "line": 293,
             "description": "Returns true if the attribute is active and found in this\ncompiled program.",
             "itemtype": "method",
             "name": "hasAttribute",
@@ -527,12 +677,12 @@
                 "description": "true if the attribute is found and active",
                 "type": "Boolean"
             },
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 275,
+            "line": 305,
             "description": "Returns the uniform value by name.",
             "itemtype": "method",
             "name": "getUniform",
@@ -547,12 +697,12 @@
                 "description": "The value of the WebGL uniform",
                 "type": "Any"
             },
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 286,
+            "line": 316,
             "description": "Returns the uniform value at the specified WebGLUniformLocation.",
             "itemtype": "method",
             "name": "getUniformAt",
@@ -567,12 +717,12 @@
                 "description": "The value of the WebGL uniform",
                 "type": "Any"
             },
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 297,
+            "line": 327,
             "description": "A convenience method to set uniformi from the given arguments.\nWe determine which GL call to make based on the number of arguments\npassed. For example, `setUniformi(\"var\", 0, 1)` maps to `gl.uniform2i`.",
             "itemtype": "method",
             "name": "setUniformi",
@@ -603,12 +753,12 @@
                     "type": "GLint"
                 }
             ],
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 324,
+            "line": 354,
             "description": "A convenience method to set uniformf from the given arguments.\nWe determine which GL call to make based on the number of arguments\npassed. For example, `setUniformf(\"var\", 0, 1)` maps to `gl.uniform2f`.",
             "itemtype": "method",
             "name": "setUniformf",
@@ -639,12 +789,12 @@
                     "type": "GLfloat"
                 }
             ],
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 356,
+            "line": 386,
             "description": "A convenience method to set uniformNfv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer (for 1-4 component vectors stored in a Float32Array). To use\nthis method to upload data to uniform arrays, you need to specify the\n'count' parameter; i.e. the data type you are using for that array. If\nspecified, this will dictate whether to call uniform1fv, uniform2fv, etc.",
             "itemtype": "method",
             "name": "setUniformfv",
@@ -665,12 +815,12 @@
                     "type": "Number"
                 }
             ],
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 385,
+            "line": 415,
             "description": "A convenience method to set uniformNiv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer (for 1-4 component vectors stored in a int array). To use\nthis method to upload data to uniform arrays, you need to specify the\n'count' parameter; i.e. the data type you are using for that array. If\nspecified, this will dictate whether to call uniform1fv, uniform2fv, etc.",
             "itemtype": "method",
             "name": "setUniformiv",
@@ -691,7 +841,7 @@
                     "type": "Number"
                 }
             ],
-            "class": "BaseBatch",
+            "class": "ShaderProgram",
             "module": "kami"
         },
         {
@@ -1745,20 +1895,12 @@
             "line": " lib/glutils/Mesh.js:16"
         },
         {
-            "message": "Missing item type\nCreates a new Frame Buffer Object with the given width and height.\n\nIf width and height are non-numbers, this method expects the\nfirst parameter to be a Texture object which should be acted upon. \nIn this case, the FrameBuffer does not \"own\" the texture, and so it\nwon't dispose of it upon destruction. This is an advanced version of the\nconstructor that assumes the user is giving us a valid Texture that can be bound (i.e.\nno async Image textures).",
-            "line": " lib/glutils/FrameBuffer.js:7"
-        },
-        {
             "message": "Missing item type\nCreates a new Mesh with the provided parameters.\n\nIf numIndices is 0 or falsy, no index buffer will be used\nand indices will be an empty ArrayBuffer and a null indexBuffer.\n\nIf isStatic is true, then vertexUsage and indexUsage will\nbe set to gl.STATIC_DRAW. Otherwise they will use gl.DYNAMIC_DRAW.\nYou may want to adjust these after initialization for further control.",
             "line": " lib/glutils/Mesh.js:31"
         },
         {
             "message": "Missing item type\nLocation is optional and for advanced users that\nwant vertex arrays to match across shaders. Any non-numerical\nvalue will be converted to null, and ignored. If a numerical\nvalue is given, it will override the position of this attribute\nwhen given to a mesh.",
             "line": " lib/glutils/Mesh.js:248"
-        },
-        {
-            "message": "Missing item type\nThis is called during the ShaderProgram constructor,\nand may need to be called again after context loss and restore.",
-            "line": " lib/glutils/ShaderProgram.js:37"
         },
         {
             "message": "Missing item type\nThis is a convenience function to set the batch's projection\nmatrix to an orthographic 2D projection, based on the given screen\nsize. This allows users to render in 2D without any need for a camera.",

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>WebGLContext - kami</title>
+    <title>FrameBuffer - kami</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -96,7 +96,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>WebGLContext Class</h1>
+                        <h1>FrameBuffer Class</h1>
 <div class="box meta">
     
 
@@ -104,7 +104,7 @@
 
     
         <div class="foundat">
-            Defined in: <a href="../files/lib_WebGLContext.js.html#l8"><code>lib&#x2F;WebGLContext.js:8</code></a>
+            Defined in: <a href="../files/lib_glutils_FrameBuffer.js.html#l7"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:7</code></a>
         </div>
     
 
@@ -120,18 +120,21 @@
 
 
 <div class="box intro">
-    <p>A thin wrapper around WebGLRenderingContext which handles
-context loss and restore with various rendering objects (textures,
-shaders and buffers). This also handles general viewport management.</p>
-<p>If the view is not specified, a canvas will be created.</p>
+    <p>Creates a new Frame Buffer Object with the given width and height.</p>
+<p>If width and height are non-numbers, this method expects the
+first parameter to be a Texture object which should be acted upon. 
+In this case, the FrameBuffer does not &quot;own&quot; the texture, and so it
+won&#39;t dispose of it upon destruction. This is an advanced version of the
+constructor that assumes the user is giving us a valid Texture that can be bound (i.e.
+no async Image textures).</p>
 
 </div>
 
 
     <div class="constructor">
         <h2>Constructor</h2>
-        <div id="method_WebGLContext" class="method item">
-    <h3 class="name"><code>WebGLContext</code></h3>
+        <div id="method_FrameBuffer" class="method item">
+    <h3 class="name"><code>FrameBuffer</code></h3>
 
     
         <div class="args">
@@ -151,13 +154,7 @@ shaders and buffers). This also handles general viewport management.</p>
             
                 <li class="arg">
                     
-                        <code>view</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>contextAttribuets</code>
+                        <code>filter</code>
                     
                 </li>
             
@@ -165,6 +162,10 @@ shaders and buffers). This also handles general viewport management.</p>
         </div>
     
 
+    
+        <span class="returns-inline">
+            <span class="type">type</span>
+        </span>
     
 
     
@@ -190,7 +191,7 @@ shaders and buffers). This also handles general viewport management.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l8"><code>lib&#x2F;WebGLContext.js:8</code></a>
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l7"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:7</code></a>
         
         </p>
 
@@ -213,13 +214,13 @@ shaders and buffers). This also handles general viewport management.</p>
                 <li class="param">
                     
                         <code class="param-name">width</code>
-                        <span class="type">Number</span>
+                        <span class="type">type</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>the width of the GL canvas</p>
+                        <p>[description]</p>
 
                     </div>
 
@@ -229,13 +230,13 @@ shaders and buffers). This also handles general viewport management.</p>
                 <li class="param">
                     
                         <code class="param-name">height</code>
-                        <span class="type">Number</span>
+                        <span class="type">type</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>the height of the GL canvas</p>
+                        <p>[description]</p>
 
                     </div>
 
@@ -244,31 +245,14 @@ shaders and buffers). This also handles general viewport management.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">view</code>
-                        <span class="type">HTMLCanvasElement</span>
+                        <code class="param-name">filter</code>
+                        <span class="type">type</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>the optional DOM canvas element</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">contextAttribuets</code>
-                        <span class="type">Object</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>an object containing context attribs which
-                                  will be used during GL initialization</p>
+                        <p>[description]</p>
 
                     </div>
 
@@ -279,6 +263,20 @@ shaders and buffers). This also handles general viewport management.</p>
         </div>
     
 
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">type</span>:
+                    
+                    <p>[description]</p>
+
+                
+            </div>
+        </div>
     
 
     
@@ -292,12 +290,12 @@ shaders and buffers). This also handles general viewport management.</p>
         <li class="api-class-tab index"><a href="#index">Index</a></li>
 
         
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
         
             <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
         
         
-        
-            <li class="api-class-tab events"><a href="#events">Events</a></li>
         
     </ul>
 
@@ -305,6 +303,42 @@ shaders and buffers). This also handles general viewport management.</p>
         <div id="index" class="api-class-tabpanel index">
             <h2 class="off-left">Item Index</h2>
 
+            
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods">
+                        
+                            <li class="index-item method">
+                                <a href="#method_begin">begin</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_create">create</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_destroy">destroy</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_end">end</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
             
 
             
@@ -314,14 +348,7 @@ shaders and buffers). This also handles general viewport management.</p>
                     <ul class="index-list properties">
                         
                             <li class="index-item property">
-                                <a href="#property_contextAttributes">contextAttributes</a>
-
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item property">
-                                <a href="#property_gl">gl</a>
+                                <a href="#property_context">context</a>
 
                                 
                                 
@@ -335,21 +362,14 @@ shaders and buffers). This also handles general viewport management.</p>
                             </li>
                         
                             <li class="index-item property">
-                                <a href="#property_managedObjects">managedObjects</a>
+                                <a href="#property_id">id</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item property">
-                                <a href="#property_valid">valid</a>
-
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item property">
-                                <a href="#property_view">view</a>
+                                <a href="#property_Texture">Texture</a>
 
                                 
                                 
@@ -369,40 +389,25 @@ shaders and buffers). This also handles general viewport management.</p>
             
 
             
-                <div class="index-section events">
-                    <h3>Events</h3>
-
-                    <ul class="index-list events">
-                        
-                            <li class="index-item event">
-                                <a href="#event_lost">lost</a>
-
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item event">
-                                <a href="#event_restored">restored</a>
-
-                                
-                                
-                            </li>
-                        
-                    </ul>
-                </div>
-            
         </div>
 
         
-
-        
-            <div id="properties" class="api-class-tabpanel">
-                <h2 class="off-left">Properties</h2>
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="property_contextAttributes" class="property item">
-    <h3 class="name"><code>contextAttributes</code></h3>
-    <span class="type">Object</span>
+                    <div id="method_begin" class="method item">
+    <h3 class="name"><code>begin</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
 
     
 
@@ -423,9 +428,10 @@ shaders and buffers). This also handles general viewport management.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l72"><code>lib&#x2F;WebGLContext.js:72</code></a>
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l145"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:145</code></a>
         
         </p>
+
 
         
 
@@ -433,8 +439,7 @@ shaders and buffers). This also handles general viewport management.</p>
     </div>
 
     <div class="description">
-        <p>The context attributes for initializing the GL state. This might include
-anti-aliasing, alpha settings, verison, and so forth.</p>
+        <p>Binds this framebuffer and sets the viewport to the expected size.</p>
 
     </div>
 
@@ -446,9 +451,18 @@ anti-aliasing, alpha settings, verison, and so forth.</p>
 </div>
 
                 
-                    <div id="property_gl" class="property item">
-    <h3 class="name"><code>gl</code></h3>
-    <span class="type">WebGLRenderingContext</span>
+                    <div id="method_create" class="method item">
+    <h3 class="name"><code>create</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
 
     
 
@@ -469,7 +483,174 @@ anti-aliasing, alpha settings, verison, and so forth.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l36"><code>lib&#x2F;WebGLContext.js:36</code></a>
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l83"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:83</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called during initialization to setup the frame buffer; also called on
+context restore. Users will not need to call this directly.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_destroy" class="method item">
+    <h3 class="name"><code>destroy</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l126"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:126</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Destroys this frame buffer. Using this object after destroying it will have
+undefined results.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_end" class="method item">
+    <h3 class="name"><code>end</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l155"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:155</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Binds the default frame buffer (the screen) and sets the viewport back
+to the size of the WebGLContext.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+                
+                    <div id="property_context" class="property item">
+    <h3 class="name"><code>context</code></h3>
+    <span class="type"><a href="../classes/WebGLContext.html" class="crosslink">WebGLContext</a></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l36"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:36</code></a>
         
         </p>
 
@@ -479,10 +660,7 @@ anti-aliasing, alpha settings, verison, and so forth.</p>
     </div>
 
     <div class="description">
-        <p>The actual GL context. You can use this for
-raw GL calls or to access GLenum constants. This
-will be updated on context restore. While the WebGLContext
-is not <code>valid</code>, you should not try to access GL state.</p>
+        <p>The WebGLContext backed by this frame buffer.</p>
 
     </div>
 
@@ -517,7 +695,7 @@ is not <code>valid</code>, you should not try to access GL state.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l64"><code>lib&#x2F;WebGLContext.js:64</code></a>
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l69"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:69</code></a>
         
         </p>
 
@@ -527,7 +705,7 @@ is not <code>valid</code>, you should not try to access GL state.</p>
     </div>
 
     <div class="description">
-        <p>The height of this canvas.</p>
+        <p>A read-only property which returns the height of the backing texture.</p>
 
     </div>
 
@@ -539,9 +717,9 @@ is not <code>valid</code>, you should not try to access GL state.</p>
 </div>
 
                 
-                    <div id="property_managedObjects" class="property item">
-    <h3 class="name"><code>managedObjects</code></h3>
-    <span class="type">Array</span>
+                    <div id="property_id" class="property item">
+    <h3 class="name"><code>id</code></h3>
+    <span class="type">WebGLFramebuffer</span>
 
     
 
@@ -562,7 +740,7 @@ is not <code>valid</code>, you should not try to access GL state.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l26"><code>lib&#x2F;WebGLContext.js:26</code></a>
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l29"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:29</code></a>
         
         </p>
 
@@ -572,10 +750,7 @@ is not <code>valid</code>, you should not try to access GL state.</p>
     </div>
 
     <div class="description">
-        <p>The list of rendering objects (shaders, VBOs, textures, etc) which are 
-currently being managed. Any object with a &quot;create&quot; method can be added
-to this list. Upon destroying the rendering object, it should be removed.
-See addManagedObject and removeManagedObject.</p>
+        <p>The underlying ID of the GL frame buffer object.</p>
 
     </div>
 
@@ -587,9 +762,9 @@ See addManagedObject and removeManagedObject.</p>
 </div>
 
                 
-                    <div id="property_valid" class="property item">
-    <h3 class="name"><code>valid</code></h3>
-    <span class="type">Boolean</span>
+                    <div id="property_Texture" class="property item">
+    <h3 class="name"><code>Texture</code></h3>
+    <span class="type"><a href="../classes/Texture.html" class="crosslink">Texture</a></span>
 
     
 
@@ -610,7 +785,7 @@ See addManagedObject and removeManagedObject.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l80"><code>lib&#x2F;WebGLContext.js:80</code></a>
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l43"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:43</code></a>
         
         </p>
 
@@ -620,53 +795,7 @@ See addManagedObject and removeManagedObject.</p>
     </div>
 
     <div class="description">
-        <p>Whether this context is &#39;valid&#39;, i.e. renderable. A context that has been lost
-(and not yet restored) or destroyed is invalid.</p>
-
-    </div>
-
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="property_view" class="property item">
-    <h3 class="name"><code>view</code></h3>
-    <span class="type">Number</span>
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_WebGLContext.js.html#l47"><code>lib&#x2F;WebGLContext.js:47</code></a>
-        
-        </p>
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>The canvas DOM element for this context.</p>
+        <p>The Texture backed by this frame buffer.</p>
 
     </div>
 
@@ -701,7 +830,7 @@ See addManagedObject and removeManagedObject.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l56"><code>lib&#x2F;WebGLContext.js:56</code></a>
+        <a href="../files/lib_glutils_FrameBuffer.js.html#l56"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:56</code></a>
         
         </p>
 
@@ -711,7 +840,7 @@ See addManagedObject and removeManagedObject.</p>
     </div>
 
     <div class="description">
-        <p>The width of this canvas.</p>
+        <p>A read-only property which returns the width of the backing texture.</p>
 
     </div>
 
@@ -728,108 +857,6 @@ See addManagedObject and removeManagedObject.</p>
 
         
 
-        
-            <div id="events" class="api-class-tabpanel">
-                <h2 class="off-left">Events</h2>
-
-                
-                    <div id="event_lost" class="events item">
-    <h3 class="name"><code>lost</code></h3>
-    <span class="type">Signal</span>
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_WebGLContext.js.html#l88"><code>lib&#x2F;WebGLContext.js:88</code></a>
-        
-        </p>
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>A signal dispatched when GL context is lost. </p>
-<p>The first argument passed to the listener is the WebGLContext
-managing the context loss.</p>
-
-    </div>
-
-    
-
-
-    
-</div>
-
-                
-                    <div id="event_restored" class="events item">
-    <h3 class="name"><code>restored</code></h3>
-    <span class="type">Signal</span>
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="../files/lib_WebGLContext.js.html#l98"><code>lib&#x2F;WebGLContext.js:98</code></a>
-        
-        </p>
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>A signal dispatched when GL context is restored, after all the managed
-objects have been recreated.</p>
-<p>The first argument passed to the listener is the WebGLContext
-which managed the restoration.</p>
-<p>This does not gaurentee that all objects will be renderable.
-For example, a Texture with an ImageProvider may still be loading
-asynchronously.</p>
-
-    </div>
-
-    
-
-
-    
-</div>
-
-                
-            </div>
         
     </div>
 </div>
