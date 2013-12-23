@@ -55,11 +55,11 @@ function render() {
 	batch.begin();
 
 	//draw the texture at (75, 75) with a size of 100x100
-	batch.draw(tex1, 75, 75, 100, 100);
+	batch.draw(tex0, 75, 75, 100, 100);
 
 	//draw it some other places
-	batch.draw(tex1, 0, 0, 15, 25);
-	batch.draw(tex1, 100, 100);
+	batch.draw(tex0, 0, 0, 15, 25);
+	batch.draw(tex0, 100, 100);
 
 	//flush sprites to GPU
 	batch.end();
