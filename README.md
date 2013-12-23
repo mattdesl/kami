@@ -8,7 +8,7 @@ It is ideal for tinkering with WebGL, building your game engine on top of, or wr
 
 ## Docs
 
-... soon to be online ...
+[Kami API Docs](http://mattdesl.github.io/kami/docs/)
 
 ## Usage
 
