@@ -128,10 +128,6 @@ var Texture = new Class({
 	 * and fourth parameters are callback functions for success and failure, respectively. 
 	 * The optional fifrth parameter for this version of the constructor is genMipmaps, which defaults to false. 
 	 * 
-	 * _Note:_ To avoid WebGL errors with the Image URL constructor,
-	 * we upload a dummy 1x1 transparent texture until the async Image load has been completed. So
-	 * the width and height will not be accurate until the onComplete callback is fired.
-	 * 
 	 * The arguments are kept in memory for future context restoration events. If
 	 * this is undesirable (e.g. huge buffers which need to be GC&#x27;d), you should not
 	 * pass the data in the constructor, but instead upload it after creating an uninitialized 
@@ -180,7 +176,7 @@ var Texture = new Class({
 		 * @type {GLenum}
 		 * @default  gl.TEXTURE_2D
 		 */
-		this.target = null; //initialized in create()
+		this.target = context.gl.TEXTURE_2D;
 
 		/**
 		 * The width of this texture, in pixels.
@@ -250,12 +246,16 @@ var Texture = new Class({
 	},
 
 	/**
-	 * On instantiation and subsequent context restore, this function is called
-	 * to parse the constructor&#x27;s arguments.
+	 * This can be called after creating a Texture to load an Image object asynchronously,
+	 * or upload image data directly. It takes the same parameters as the constructor, except 
+	 * for the context which has already been established. 
+	 *
+	 * Users will generally not need to call this directly. 
 	 * 
 	 * @protected
+	 * @method  setup
 	 */
-	_handleCreate: function(width, height, format, dataType, data, genMipmaps) {
+	setup: function(width, height, format, dataType, data, genMipmaps) {
 		var gl = this.gl;
 
 		//If the first argument is a string, assume it&#x27;s an Image loader
@@ -269,11 +269,14 @@ var Texture = new Class({
 
 			var self = this;
 
-			//Unfortunately, requestAnimationFrame fires before img.onload events in Chrome, even
-			//if the image is already &#x27;complete&#x27; (from cache). So we need to upload 1x1
-			//transparent dummy data to ensure that the user isn&#x27;t trying to render 
-			//a Texture that hasn&#x27;t been created yet.
-			self.uploadData(1, 1);
+			//If you try to render a texture that is not yet &quot;renderable&quot; (i.e. the 
+			//async load hasn&#x27;t completed yet, which is always the case in Chrome since requestAnimationFrame
+			//fires before img.onload), WebGL will throw us errors. So instead we will just upload some
+			//dummy data until the texture load is complete. Users can disable this with the global flag.
+			if (Texture.USE_DUMMY_1x1_DATA) {
+				self.uploadData(1, 1);
+				this.width = this.height = 0;
+			}
 
 			img.onload = function() {
 				self.uploadImage(img, undefined, undefined, genMipmaps);
@@ -282,14 +285,14 @@ var Texture = new Class({
 			}
 			img.onerror = function() {
 				// console.warn(&quot;Error loading image: &quot;+path);
-				if (genMipmaps) //we gen mipmaps on the 1x1 dummy
+				if (genMipmaps) //we still need to gen mipmaps on the 1x1 dummy
 					gl.generateMipmap(gl.TEXTURE_2D);
 				if (failCB)
 					failCB();
 			}
 			img.onabort = function() {
 				// console.warn(&quot;Image load aborted: &quot;+path);
-				if (genMipmaps) //we gen mipmaps on the 1x1 dummy
+				if (genMipmaps) //we still need to gen mipmaps on the 1x1 dummy
 					gl.generateMipmap(gl.TEXTURE_2D);
 				if (failCB)
 					failCB();
@@ -334,7 +337,7 @@ var Texture = new Class({
 		this.setFilter(this.minFilter, this.magFilter, false);
 		
 		if (this.managedArgs.length !== 0) {
-			this._handleCreate.apply(this, this.managedArgs);
+			this.setup.apply(this, this.managedArgs);
 		}
 	},
 
@@ -440,7 +443,7 @@ var Texture = new Class({
 	uploadData: function(width, height, format, type, data, genMipmaps) {
 		var gl = this.gl;
 
-		this.format = format || gl.RGBA;
+		format = format || gl.RGBA;
 		type = type || gl.UNSIGNED_BYTE;
 		data = data || null; //make sure falsey value is null for texImage2D
 
@@ -451,8 +454,8 @@ var Texture = new Class({
 
 		this.bind();
 
-		gl.texImage2D(this.target, 0, this.format, 
-					  this.width, this.height, 0, this.format,
+		gl.texImage2D(this.target, 0, format, 
+					  this.width, this.height, 0, format,
 					  type, data);
 
 		if (genMipmaps)
@@ -472,7 +475,7 @@ var Texture = new Class({
 	uploadImage: function(domObject, format, type, genMipmaps) {
 		var gl = this.gl;
 
-		this.format = format || gl.RGBA;
+		format = format || gl.RGBA;
 		type = type || gl.UNSIGNED_BYTE;
 		
 		this.width = domObject.width;
@@ -482,7 +485,7 @@ var Texture = new Class({
 
 		this.bind();
 
-		gl.texImage2D(this.target, 0, this.format, this.format,
+		gl.texImage2D(this.target, 0, format, format,
 					  type, domObject);
 
 		if (genMipmaps)
@@ -676,6 +679,9 @@ Texture.UNPACK_ALIGNMENT = 1;
 Texture.UNPACK_PREMULTIPLY_ALPHA = true; 
 Texture.UNPACK_COLORSPACE_CONVERSION = undefined;
 
+//for the Image constructor we need to handle things a bit differently..
+Texture.USE_DUMMY_1x1_DATA = true;
+
 /**
  * Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.
  * Returns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,
@@ -701,21 +707,6 @@ Texture.getNumComponents = function(format) {
 	}
 	return null;
 };
-
-//Unmanaged textures:
-//	HTML elements like Image, Video, Canvas
-//	pixels buffer from Canvas
-//	pixels array
-
-//Need special handling:
-//  context.onContextLost.add(function() {
-//  	createDynamicTexture();
-//  }.bind(this));
-
-//Managed textures:
-//	images specified with a path
-//	this will use Image under the hood
-
 
 module.exports = Texture;
     </pre>

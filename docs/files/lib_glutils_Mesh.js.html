@@ -176,10 +176,11 @@ var Mesh = new Class({
 		this._vertexAttribs = null;
 
 		/** 
-		 * @property
-		 * @private
+		 * The stride for one vertex _in bytes_. 
+		 * 
+		 * @property {Number} vertexStride
 		 */
-		this._vertexStride = null;
+		this.vertexStride = null;
 
 		this.numVerts = numVerts;
 		this.numIndices = numIndices || 0;
@@ -194,7 +195,7 @@ var Mesh = new Class({
 		var totalNumComponents = 0;
 		for (var i=0; i&lt;this._vertexAttribs.length; i++)
 			totalNumComponents += this._vertexAttribs[i].offsetCount;
-		this._vertexStride = totalNumComponents * 4; // in bytes
+		this.vertexStride = totalNumComponents * 4; // in bytes
 
 		this.vertices = new Float32Array(this.numVerts);
 		this.indices = new Uint16Array(this.numIndices);
@@ -220,8 +221,8 @@ var Mesh = new Class({
 	},
 
 	destroy: function() {
-		this.vertices = [];
-		this.indices = [];
+		this.vertices = null;
+		this.indices = null;
 		if (this.vertexBuffer &amp;&amp; this.gl)
 			this.gl.deleteBuffer(this.vertexBuffer);
 		if (this.indexBuffer &amp;&amp; this.gl)
@@ -292,7 +293,7 @@ var Mesh = new Class({
 		var gl = this.gl;
 
 		var offset = 0;
-		var stride = this._vertexStride;
+		var stride = this.vertexStride;
 
 		//bind and update our vertex data before binding attributes
 		this._updateBuffers();

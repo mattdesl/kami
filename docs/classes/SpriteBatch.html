@@ -329,13 +329,6 @@ and a dynamic vertex buffer that is updated with bufferSubData.</p>
                                 
                             </li>
                         
-                            <li class="index-item method inherited">
-                                <a href="#method__postRender">_postRender</a>
-
-                                
-                                
-                            </li>
-                        
                             <li class="index-item method protected inherited">
                                 <a href="#method__preRender">_preRender</a>
 
@@ -393,6 +386,13 @@ and a dynamic vertex buffer that is updated with bufferSubData.</p>
                             </li>
                         
                             <li class="index-item method inherited">
+                                <a href="#method_setBlendFunction">setBlendFunction</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
                                 <a href="#method_setColor">setColor</a>
 
                                 
@@ -424,7 +424,35 @@ and a dynamic vertex buffer that is updated with bufferSubData.</p>
                     <ul class="index-list properties">
                         
                             <li class="index-item property inherited">
+                                <a href="#property_blendDst">blendDst</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property inherited">
+                                <a href="#property_blendingEnabled">blendingEnabled</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property inherited">
+                                <a href="#property_blendSrc">blendSrc</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property inherited">
                                 <a href="#property_color">color</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property inherited">
+                                <a href="#property_drawing">drawing</a>
 
                                 
                                 
@@ -534,7 +562,7 @@ and a dynamic vertex buffer that is updated with bufferSubData.</p>
             
         
         
-        <a href="../files/lib_BaseBatch.js.html#l182"><code>lib&#x2F;BaseBatch.js:182</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l289"><code>lib&#x2F;BaseBatch.js:289</code></a>
         
         </p>
 
@@ -768,7 +796,7 @@ should only be implemented by subclasses.</p>
             
         
         
-        <a href="../files/lib_BaseBatch.js.html#l240"><code>lib&#x2F;BaseBatch.js:240</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l347"><code>lib&#x2F;BaseBatch.js:347</code></a>
         
         </p>
 
@@ -803,59 +831,6 @@ subclasses of BaseBatch.</p>
                 
             </div>
         </div>
-    
-
-    
-</div>
-
-                
-                    <div id="method__postRender" class="method item inherited">
-    <h3 class="name"><code>_postRender</code></h3>
-
-    
-        <span class="paren">()</span>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                <p>Inherited from
-                <a href="../classes/BaseBatch.html#method__postRender">BaseBatch</a>:
-            
-        
-        
-        <a href="../files/lib_BaseBatch.js.html#l313"><code>lib&#x2F;BaseBatch.js:313</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Called after flushing the batch. This method
-does nothing by default.</p>
-
-    </div>
-
-    
-
     
 
     
@@ -1005,7 +980,7 @@ default matrices and sampler2D uniforms to the shader.</p>
             
         
         
-        <a href="../files/lib_BaseBatch.js.html#l383"><code>lib&#x2F;BaseBatch.js:383</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l498"><code>lib&#x2F;BaseBatch.js:498</code></a>
         
         </p>
 
@@ -1121,7 +1096,7 @@ batch after destroying it can lead to unpredictable behaviour.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l251"><code>lib&#x2F;SpriteBatch.js:251</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l238"><code>lib&#x2F;SpriteBatch.js:238</code></a>
         
         </p>
 
@@ -1351,7 +1326,7 @@ screen-space with the origin at the upper-left corner (y-down).</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l336"><code>lib&#x2F;SpriteBatch.js:336</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l323"><code>lib&#x2F;SpriteBatch.js:323</code></a>
         
         </p>
 
@@ -1467,7 +1442,7 @@ screen-space with the origin at the upper-left corner (y-down).</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l215"><code>lib&#x2F;SpriteBatch.js:215</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l205"><code>lib&#x2F;SpriteBatch.js:205</code></a>
         
         </p>
 
@@ -1522,7 +1497,7 @@ screen-space with the origin at the upper-left corner (y-down).</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l234"><code>lib&#x2F;SpriteBatch.js:234</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l221"><code>lib&#x2F;SpriteBatch.js:221</code></a>
         
         </p>
 
@@ -1621,6 +1596,119 @@ shaders, and so forth.</p>
 </div>
 
                 
+                    <div id="method_setBlendFunction" class="method item inherited">
+    <h3 class="name"><code>setBlendFunction</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>blendSrc</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>blendDst</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/BaseBatch.html#method_setBlendFunction">BaseBatch</a>:
+            
+        
+        
+        <a href="../files/lib_BaseBatch.js.html#l193"><code>lib&#x2F;BaseBatch.js:193</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the blend source and destination parameters. This is 
+a convenience function for the blendSrc and blendDst setters.
+If we are currently drawing, this will flush the batch.</p>
+<p>Setting either to <code>null</code> or a falsy value tells the SpriteBatch
+to ignore gl.blendFunc. This is useful if you wish to use your
+own blendFunc or blendFuncSeparate.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">blendSrc</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the source blend parameter</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">blendDst</code>
+                        <span class="type">GLenum</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the destination blend parameter</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="method_setColor" class="method item inherited">
     <h3 class="name"><code>setColor</code></h3>
 
@@ -1678,7 +1766,7 @@ shaders, and so forth.</p>
             
         
         
-        <a href="../files/lib_BaseBatch.js.html#l143"><code>lib&#x2F;BaseBatch.js:143</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l243"><code>lib&#x2F;BaseBatch.js:243</code></a>
         
         </p>
 
@@ -1691,11 +1779,14 @@ shaders, and so forth.</p>
     <div class="description">
         <p>Sets the color of this sprite batcher, which is used in subsequent draw
 calls. This does not flush the batch.</p>
-<p>If three or more arguments are specified, this method assumes that RGB 
-or RGBA float values (0.0 to 1.0) are being passed. </p>
-<p>If less than three arguments are specified, we only consider the first 
+<p>If r, g, b, are all numbers, this method assumes that RGB 
+or RGBA float values (0.0 to 1.0) are being passed. Alpha defaults to one
+if undefined.</p>
+<p>If the first three arguments are not numbers, we only consider the first argument
 and assign it to all four components -- this is useful for setting transparency 
-in a premultiplied alpha stage.</p>
+in a premultiplied alpha stage. </p>
+<p>If the first argument is invalid or not a number,
+the color defaults to (1, 1, 1, 1).</p>
 
     </div>
 
@@ -1960,6 +2051,142 @@ and this will be called before continuing to add items to the batch.</p>
                 <h2 class="off-left">Properties</h2>
 
                 
+                    <div id="property_blendDst" class="property item inherited">
+    <h3 class="name"><code>blendDst</code></h3>
+    <span class="type">GLenum</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/BaseBatch.html#property_blendDst">BaseBatch</a>:
+            
+        
+        
+        <a href="../files/lib_BaseBatch.js.html#l149"><code>lib&#x2F;BaseBatch.js:149</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the blend source parameters. 
+If we are currently drawing, this will flush the batch.</p>
+<p>Setting either src or dst to <code>null</code> or a falsy value tells the SpriteBatch
+to ignore gl.blendFunc. This is useful if you wish to use your
+own blendFunc or blendFuncSeparate.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_blendingEnabled" class="property item inherited">
+    <h3 class="name"><code>blendingEnabled</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/BaseBatch.html#property_blendingEnabled">BaseBatch</a>:
+            
+        
+        
+        <a href="../files/lib_BaseBatch.js.html#l117"><code>lib&#x2F;BaseBatch.js:117</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A property to enable or disable blending for this sprite batch. If
+we are currently drawing, this will first flush the batch, and then
+update GL_BLEND state (enabled or disabled) with our new value.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_blendSrc" class="property item inherited">
+    <h3 class="name"><code>blendSrc</code></h3>
+    <span class="type">GLenum</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/BaseBatch.html#property_blendSrc">BaseBatch</a>:
+            
+        
+        
+        <a href="../files/lib_BaseBatch.js.html#l171"><code>lib&#x2F;BaseBatch.js:171</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Sets the blend destination parameters. 
+If we are currently drawing, this will flush the batch.</p>
+<p>Setting either src or dst to <code>null</code> or a falsy value tells the SpriteBatch
+to ignore gl.blendFunc. This is useful if you wish to use your
+own blendFunc or blendFuncSeparate.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="property_color" class="property item inherited">
     <h3 class="name"><code>color</code></h3>
     <span class="type">Number</span>
@@ -1980,7 +2207,7 @@ and this will be called before continuing to add items to the batch.</p>
             
         
         
-        <a href="../files/lib_BaseBatch.js.html#l84"><code>lib&#x2F;BaseBatch.js:84</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l90"><code>lib&#x2F;BaseBatch.js:90</code></a>
         
         </p>
 
@@ -1992,6 +2219,48 @@ and this will be called before continuing to add items to the batch.</p>
     <div class="description">
         <p>The ABGR packed color, as a single float. The default
 value is the color white (255, 255, 255, 255).</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_drawing" class="property item inherited">
+    <h3 class="name"><code>drawing</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/BaseBatch.html#property_drawing">BaseBatch</a>:
+            
+        
+        
+        <a href="../files/lib_BaseBatch.js.html#l80"><code>lib&#x2F;BaseBatch.js:80</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Whether we are currently drawing to the batch. Do not modify.</p>
 
     </div>
 
@@ -2070,7 +2339,7 @@ default shader yoursel.</p>
             
         
         
-        <a href="../files/lib_BaseBatch.js.html#l93"><code>lib&#x2F;BaseBatch.js:93</code></a>
+        <a href="../files/lib_BaseBatch.js.html#l99"><code>lib&#x2F;BaseBatch.js:99</code></a>
         
         </p>
 
@@ -2276,7 +2545,7 @@ as the batch&#39;s shader.</p>
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l418"><code>lib&#x2F;SpriteBatch.js:418</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l405"><code>lib&#x2F;SpriteBatch.js:405</code></a>
         
         </p>
 
@@ -2339,7 +2608,7 @@ console.log(&quot;Draw calls per frame:&quot;, SpriteBatch.totalRenderCalls);</c
             
         
         
-        <a href="../files/lib_SpriteBatch.js.html#l408"><code>lib&#x2F;SpriteBatch.js:408</code></a>
+        <a href="../files/lib_SpriteBatch.js.html#l395"><code>lib&#x2F;SpriteBatch.js:395</code></a>
         
         </p>
 

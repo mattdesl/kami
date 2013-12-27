@@ -209,10 +209,10 @@ var SpriteBatch = new Class({
 		var gl = this.context.gl;
 
 		return [ 
-			new Mesh.Attrib(&quot;Position&quot;, 2),
+			new Mesh.Attrib(ShaderProgram.POSITION_ATTRIBUTE, 2),
 			 //pack the color using some crazy wizardry 
-			new Mesh.Attrib(&quot;Color&quot;, 4, null, gl.UNSIGNED_BYTE, true, 1),
-			new Mesh.Attrib(&quot;TexCoord0&quot;, 2)
+			new Mesh.Attrib(ShaderProgram.COLOR_ATTRIBUTE, 4, null, gl.UNSIGNED_BYTE, true, 1),
+			new Mesh.Attrib(ShaderProgram.TEXCOORD_ATTRIBUTE+&quot;0&quot;, 2)
 		];
 	},
 
@@ -302,16 +302,6 @@ var SpriteBatch = new Class({
 
 		//disable depth mask
 		gl.depthMask(false);
-
-		//premultiplied alpha
-		if (this._blendEnabled) {
-			gl.enable(gl.BLEND);
-
-			//set either to -1 if you want to call your own 
-			//blendFunc or blendFuncSeparate
-			if (this._blendSrc !== -1 &amp;&amp; this._blendDst !== -1)
-				gl.blendFunc(this._blendSrc, this._blendDst); 
-		}
 	},
 
 	/**
@@ -328,9 +318,6 @@ var SpriteBatch = new Class({
 		BaseBatch.prototype.end.call(this);
 
 		gl.depthMask(true);
-
-		if (this._blendEnabled)
-			gl.disable(gl.BLEND);
 	},
 
 	/**
@@ -546,18 +533,22 @@ SpriteBatch.DEFAULT_FRAG_SHADER = [
 ].join(&#x27;\n&#x27;);
 
 SpriteBatch.DEFAULT_VERT_SHADER = [
-	&quot;attribute vec2 Position;&quot;,
-	&quot;attribute vec4 Color;&quot;,
-	&quot;attribute vec2 TexCoord0;&quot;,
+	&quot;attribute vec2 &quot;+ShaderProgram.POSITION_ATTRIBUTE+&quot;;&quot;,
+	&quot;attribute vec4 &quot;+ShaderProgram.COLOR_ATTRIBUTE+&quot;;&quot;,
+	&quot;attribute vec2 &quot;+ShaderProgram.TEXCOORD_ATTRIBUTE+&quot;0;&quot;,
 
 	&quot;uniform vec2 u_projection;&quot;,
 	&quot;varying vec2 vTexCoord0;&quot;,
 	&quot;varying vec4 vColor;&quot;,
 
-	&quot;void main(void) {&quot;,
-	&quot;   gl_Position = vec4( Position.x / u_projection.x - 1.0, Position.y / -u_projection.y + 1.0 , 0.0, 1.0);&quot;,
-	&quot;   vTexCoord0 = TexCoord0;&quot;,
-	&quot;   vColor = Color;&quot;,
+	&quot;void main(void) {&quot;, ///TODO: use a projection and transform matrix
+	&quot;   gl_Position = vec4( &quot;
+		+ShaderProgram.POSITION_ATTRIBUTE
+		+&quot;.x / u_projection.x - 1.0, &quot;
+		+ShaderProgram.POSITION_ATTRIBUTE
+		+&quot;.y / -u_projection.y + 1.0 , 0.0, 1.0);&quot;,
+	&quot;   vTexCoord0 = &quot;+ShaderProgram.TEXCOORD_ATTRIBUTE+&quot;0;&quot;,
+	&quot;   vColor = &quot;+ShaderProgram.COLOR_ATTRIBUTE+&quot;;&quot;,
 	&quot;}&quot;
 ].join(&#x27;\n&#x27;);
 

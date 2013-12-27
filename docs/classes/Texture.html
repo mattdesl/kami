@@ -131,9 +131,6 @@ it will be uploaded to the texture. </p>
 this Texture will load an Image object asynchronously. The optional third
 and fourth parameters are callback functions for success and failure, respectively. 
 The optional fifrth parameter for this version of the constructor is genMipmaps, which defaults to false. </p>
-<p><em>Note:</em> To avoid WebGL errors with the Image URL constructor,
-we upload a dummy 1x1 transparent texture until the async Image load has been completed. So
-the width and height will not be accurate until the onComplete callback is fired.</p>
 <p>The arguments are kept in memory for future context restoration events. If
 this is undesirable (e.g. huge buffers which need to be GC&#39;d), you should not
 pass the data in the constructor, but instead upload it after creating an uninitialized 
@@ -452,6 +449,13 @@ with asynchronous loading and context loss.</p>
                                 
                             </li>
                         
+                            <li class="index-item method protected">
+                                <a href="#method_setup">setup</a>
+
+                                
+                                
+                            </li>
+                        
                             <li class="index-item method">
                                 <a href="#method_setWrap">setWrap</a>
 
@@ -627,7 +631,7 @@ with asynchronous loading and context loss.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l390"><code>lib&#x2F;Texture.js:390</code></a>
+        <a href="../files/lib_Texture.js.html#l393"><code>lib&#x2F;Texture.js:393</code></a>
         
         </p>
 
@@ -709,7 +713,7 @@ or NEAREST. If we don&#39;t satisfy these needs, an error is thrown.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l416"><code>lib&#x2F;Texture.js:416</code></a>
+        <a href="../files/lib_Texture.js.html#l419"><code>lib&#x2F;Texture.js:419</code></a>
         
         </p>
 
@@ -792,7 +796,7 @@ is currently active.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l204"><code>lib&#x2F;Texture.js:204</code></a>
+        <a href="../files/lib_Texture.js.html#l207"><code>lib&#x2F;Texture.js:207</code></a>
         
         </p>
 
@@ -849,7 +853,7 @@ textures.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l239"><code>lib&#x2F;Texture.js:239</code></a>
+        <a href="../files/lib_Texture.js.html#l242"><code>lib&#x2F;Texture.js:242</code></a>
         
         </p>
 
@@ -923,7 +927,7 @@ setting its size to zero, and id and managed arguments to null.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l577"><code>lib&#x2F;Texture.js:577</code></a>
+        <a href="../files/lib_Texture.js.html#l583"><code>lib&#x2F;Texture.js:583</code></a>
         
         </p>
 
@@ -1040,7 +1044,7 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l292"><code>lib&#x2F;Texture.js:292</code></a>
+        <a href="../files/lib_Texture.js.html#l295"><code>lib&#x2F;Texture.js:295</code></a>
         
         </p>
 
@@ -1123,6 +1127,66 @@ a GL reference.</p>
 </div>
 
                 
+                    <div id="method_setup" class="method item protected">
+    <h3 class="name"><code>setup</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag protected">protected</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/lib_Texture.js.html#l146"><code>lib&#x2F;Texture.js:146</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>This can be called after creating a Texture to load an Image object asynchronously,
+or upload image data directly. It takes the same parameters as the constructor, except 
+for the context which has already been established. </p>
+<p>Users will generally not need to call this directly.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
                     <div id="method_setWrap" class="method item">
     <h3 class="name"><code>setWrap</code></h3>
 
@@ -1177,7 +1241,7 @@ a GL reference.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l260"><code>lib&#x2F;Texture.js:260</code></a>
+        <a href="../files/lib_Texture.js.html#l263"><code>lib&#x2F;Texture.js:263</code></a>
         
         </p>
 
@@ -1332,7 +1396,7 @@ a GL reference.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l323"><code>lib&#x2F;Texture.js:323</code></a>
+        <a href="../files/lib_Texture.js.html#l326"><code>lib&#x2F;Texture.js:326</code></a>
         
         </p>
 
@@ -1523,7 +1587,7 @@ texture to change.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l360"><code>lib&#x2F;Texture.js:360</code></a>
+        <a href="../files/lib_Texture.js.html#l363"><code>lib&#x2F;Texture.js:363</code></a>
         
         </p>
 
@@ -1650,7 +1714,7 @@ HTMLVideoElement.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l92"><code>lib&#x2F;Texture.js:92</code></a>
+        <a href="../files/lib_Texture.js.html#l88"><code>lib&#x2F;Texture.js:88</code></a>
         
         </p>
 
@@ -1695,7 +1759,7 @@ HTMLVideoElement.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l122"><code>lib&#x2F;Texture.js:122</code></a>
+        <a href="../files/lib_Texture.js.html#l118"><code>lib&#x2F;Texture.js:118</code></a>
         
         </p>
 
@@ -1740,7 +1804,7 @@ HTMLVideoElement.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l128"><code>lib&#x2F;Texture.js:128</code></a>
+        <a href="../files/lib_Texture.js.html#l124"><code>lib&#x2F;Texture.js:124</code></a>
         
         </p>
 
@@ -1792,7 +1856,7 @@ the asynchronous texture upload.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l116"><code>lib&#x2F;Texture.js:116</code></a>
+        <a href="../files/lib_Texture.js.html#l112"><code>lib&#x2F;Texture.js:112</code></a>
         
         </p>
 
@@ -1837,7 +1901,7 @@ the asynchronous texture upload.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l72"><code>lib&#x2F;Texture.js:72</code></a>
+        <a href="../files/lib_Texture.js.html#l68"><code>lib&#x2F;Texture.js:68</code></a>
         
         </p>
 
@@ -1886,7 +1950,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l83"><code>lib&#x2F;Texture.js:83</code></a>
+        <a href="../files/lib_Texture.js.html#l79"><code>lib&#x2F;Texture.js:79</code></a>
         
         </p>
 
@@ -1931,7 +1995,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l106"><code>lib&#x2F;Texture.js:106</code></a>
+        <a href="../files/lib_Texture.js.html#l102"><code>lib&#x2F;Texture.js:102</code></a>
         
         </p>
 
@@ -1976,7 +2040,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l111"><code>lib&#x2F;Texture.js:111</code></a>
+        <a href="../files/lib_Texture.js.html#l107"><code>lib&#x2F;Texture.js:107</code></a>
         
         </p>
 
@@ -2038,7 +2102,7 @@ usage with context restore.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l507"><code>lib&#x2F;Texture.js:507</code></a>
+        <a href="../files/lib_Texture.js.html#l510"><code>lib&#x2F;Texture.js:510</code></a>
         
         </p>
 
@@ -2103,7 +2167,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l544"><code>lib&#x2F;Texture.js:544</code></a>
+        <a href="../files/lib_Texture.js.html#l547"><code>lib&#x2F;Texture.js:547</code></a>
         
         </p>
 
@@ -2160,7 +2224,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l533"><code>lib&#x2F;Texture.js:533</code></a>
+        <a href="../files/lib_Texture.js.html#l536"><code>lib&#x2F;Texture.js:536</code></a>
         
         </p>
 
@@ -2217,7 +2281,7 @@ provider was specified, it may choose to override this default mode.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l438"><code>lib&#x2F;Texture.js:438</code></a>
+        <a href="../files/lib_Texture.js.html#l441"><code>lib&#x2F;Texture.js:441</code></a>
         
         </p>
 
@@ -2286,7 +2350,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l554"><code>lib&#x2F;Texture.js:554</code></a>
+        <a href="../files/lib_Texture.js.html#l557"><code>lib&#x2F;Texture.js:557</code></a>
         
         </p>
 
@@ -2349,7 +2413,7 @@ textures, or in some future case where NPOT textures is added as a WebGL extensi
             
         
         
-        <a href="../files/lib_Texture.js.html#l484"><code>lib&#x2F;Texture.js:484</code></a>
+        <a href="../files/lib_Texture.js.html#l487"><code>lib&#x2F;Texture.js:487</code></a>
         
         </p>
 
@@ -2415,7 +2479,7 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
             
         
         
-        <a href="../files/lib_Texture.js.html#l464"><code>lib&#x2F;Texture.js:464</code></a>
+        <a href="../files/lib_Texture.js.html#l467"><code>lib&#x2F;Texture.js:467</code></a>
         
         </p>
 

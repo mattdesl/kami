@@ -304,7 +304,7 @@ var WebGLContext = new Class({
 	destroy: function() {
 		for (var i=0; i&lt;this.managedObjects.length; i++) {
 			var obj = this.managedObjects[i];
-			if (obj &amp;&amp; typeof obj.destroy)
+			if (obj &amp;&amp; typeof obj.destroy === &quot;function&quot;)
 				obj.destroy();
 		}
 		this.managedObjects.length = 0;

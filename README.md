@@ -68,7 +68,7 @@ function render() {
 
 ## demos
 
-The `demos` folder is outdated and will be replaced by `kami-demos`, see here:   
+The demos are hosted in another package, see here:
 https://github.com/mattdesl/kami-demos 
 
 ## Using without Node
@@ -96,7 +96,7 @@ Most of the code looks exactly the same, except all of Kami's objects are export
 
 ## Road Map / TODOs
 
-- WebGL2 utils: compressed textures, texture arrays, float textures, instanced draws, etc.
+- WebGL2 utils: compressed textures (done, see kami-demos), texture arrays, float textures, instanced draws, etc.
 - Cube maps and other Texture utils
 - clean up asset loading and kami-assets
 - MRTs for FrameBuffer utility (WebGL2)

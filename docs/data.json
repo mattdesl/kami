@@ -275,7 +275,7 @@
             "namespace": "",
             "file": "lib/Texture.js",
             "line": 13,
-            "description": "Creates a new texture with the optional width, height, and data.\n\nIf the constructor is passed no parameters other than WebGLContext, then\nit will not be initialized and will be non-renderable. You will need to manually\nuploadData or uploadImage yourself.\n\nIf you pass a width and height after context, the texture will be initialized with that size\nand null data (e.g. transparent black). If you also pass the format and data, \nit will be uploaded to the texture. \n\nIf you pass a String or Data URI as the second parameter,\nthis Texture will load an Image object asynchronously. The optional third\nand fourth parameters are callback functions for success and failure, respectively. \nThe optional fifrth parameter for this version of the constructor is genMipmaps, which defaults to false. \n\n_Note:_ To avoid WebGL errors with the Image URL constructor,\nwe upload a dummy 1x1 transparent texture until the async Image load has been completed. So\nthe width and height will not be accurate until the onComplete callback is fired.\n\nThe arguments are kept in memory for future context restoration events. If\nthis is undesirable (e.g. huge buffers which need to be GC'd), you should not\npass the data in the constructor, but instead upload it after creating an uninitialized \ntexture. You will need to manage it yourself, either by extending the create() method, \nor listening to restored events in WebGLContext.\n\nMost users will want to use the AssetManager to create and manage their textures\nwith asynchronous loading and context loss.",
+            "description": "Creates a new texture with the optional width, height, and data.\n\nIf the constructor is passed no parameters other than WebGLContext, then\nit will not be initialized and will be non-renderable. You will need to manually\nuploadData or uploadImage yourself.\n\nIf you pass a width and height after context, the texture will be initialized with that size\nand null data (e.g. transparent black). If you also pass the format and data, \nit will be uploaded to the texture. \n\nIf you pass a String or Data URI as the second parameter,\nthis Texture will load an Image object asynchronously. The optional third\nand fourth parameters are callback functions for success and failure, respectively. \nThe optional fifrth parameter for this version of the constructor is genMipmaps, which defaults to false. \n\nThe arguments are kept in memory for future context restoration events. If\nthis is undesirable (e.g. huge buffers which need to be GC'd), you should not\npass the data in the constructor, but instead upload it after creating an uninitialized \ntexture. You will need to manage it yourself, either by extending the create() method, \nor listening to restored events in WebGLContext.\n\nMost users will want to use the AssetManager to create and manage their textures\nwith asynchronous loading and context loss.",
             "example": [
                 "\n\t\tnew Texture(context, 256, 256); //empty 256x256 texture\n\t\tnew Texture(context, 1, 1, Texture.Format.RGBA, Texture.DataType.UNSIGNED_BYTE, \n\t\t\t\t\tnew Uint8Array([255,0,0,255])); //1x1 red texture\n\t\tnew Texture(context, \"test.png\"); //loads image asynchronously\n\t\tnew Texture(context, \"test.png\", successFunc, failFunc, useMipmaps); //extra params for image laoder "
             ],
@@ -422,7 +422,7 @@
         },
         {
             "file": "lib/glutils/FrameBuffer.js",
-            "line": 145,
+            "line": 147,
             "description": "Binds this framebuffer and sets the viewport to the expected size.",
             "itemtype": "method",
             "name": "begin",
@@ -430,7 +430,7 @@
         },
         {
             "file": "lib/glutils/FrameBuffer.js",
-            "line": 155,
+            "line": 157,
             "description": "Binds the default frame buffer (the screen) and sets the viewport back\nto the size of the WebGLContext.",
             "itemtype": "method",
             "name": "end",
@@ -498,16 +498,16 @@
         {
             "file": "lib/glutils/Mesh.js",
             "line": 76,
+            "description": "The stride for one vertex _in bytes_.",
             "itemtype": "property",
-            "name": "",
-            "access": "private",
-            "tagname": "",
+            "name": "vertexStride",
+            "type": "Number",
             "class": "Mesh",
             "module": "kami"
         },
         {
             "file": "lib/glutils/Mesh.js",
-            "line": 248,
+            "line": 249,
             "description": "Location is optional and for advanced users that\nwant vertex arrays to match across shaders. Any non-numerical\nvalue will be converted to null, and ignored. If a numerical\nvalue is given, it will override the position of this attribute\nwhen given to a mesh.",
             "params": [
                 {
@@ -845,6 +845,54 @@
             "module": "kami"
         },
         {
+            "file": "lib/glutils/ShaderProgram.js",
+            "line": 444,
+            "description": "This is a convenience function to pass a Matrix3 (from vecmath,\nkami's preferred math library) or a Float32Array (e.g. gl-matrix)\nto a shader. If mat is an object with \"val\", it is considered to be\na Matrix3, otherwise assumed to be a typed array being passed directly\nto the shader.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the uniform name",
+                    "type": "String"
+                },
+                {
+                    "name": "mat",
+                    "description": "a Matrix3 or Float32Array",
+                    "type": "Matrix3|Float32Array"
+                },
+                {
+                    "name": "transpose",
+                    "description": "whether to transpose the matrix, default false",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "ShaderProgram",
+            "module": "kami"
+        },
+        {
+            "file": "lib/glutils/ShaderProgram.js",
+            "line": 466,
+            "description": "This is a convenience function to pass a Matrix4 (from vecmath,\nkami's preferred math library) or a Float32Array (e.g. gl-matrix)\nto a shader. If mat is an object with \"val\", it is considered to be\na Matrix4, otherwise assumed to be a typed array being passed directly\nto the shader.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the uniform name",
+                    "type": "String"
+                },
+                {
+                    "name": "mat",
+                    "description": "a Matrix4 or Float32Array",
+                    "type": "Matrix4|Float32Array"
+                },
+                {
+                    "name": "transpose",
+                    "description": "whether to transpose the matrix, default false",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "ShaderProgram",
+            "module": "kami"
+        },
+        {
             "file": "lib/BaseBatch.js",
             "line": 56,
             "description": "This shader will be used whenever \"null\" is passed\nas the batch's shader.",
@@ -866,7 +914,17 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 84,
+            "line": 80,
+            "description": "Whether we are currently drawing to the batch. Do not modify.",
+            "itemtype": "property",
+            "name": "drawing",
+            "type": "Boolean",
+            "class": "BaseBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/BaseBatch.js",
+            "line": 90,
             "description": "The ABGR packed color, as a single float. The default\nvalue is the color white (255, 255, 255, 255).",
             "itemtype": "property",
             "name": "color",
@@ -877,7 +935,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 93,
+            "line": 99,
             "description": "Whether to premultiply alpha on calls to setColor. \nThis is true by default, so that we can conveniently write:\n\n    batch.setColor(1, 0, 0, 0.25); //tints red with 25% opacity\n\nIf false, you must premultiply the colors yourself to achieve\nthe same tint, like so:\n\n    batch.setColor(0.25, 0, 0, 0.25);",
             "itemtype": "property",
             "name": "premultiplied",
@@ -888,7 +946,58 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 111,
+            "line": 117,
+            "description": "A property to enable or disable blending for this sprite batch. If\nwe are currently drawing, this will first flush the batch, and then\nupdate GL_BLEND state (enabled or disabled) with our new value.",
+            "itemtype": "property",
+            "name": "blendingEnabled",
+            "type": "Boolean",
+            "class": "BaseBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/BaseBatch.js",
+            "line": 149,
+            "description": "Sets the blend source parameters. \nIf we are currently drawing, this will flush the batch.\n\nSetting either src or dst to `null` or a falsy value tells the SpriteBatch\nto ignore gl.blendFunc. This is useful if you wish to use your\nown blendFunc or blendFuncSeparate.",
+            "itemtype": "property",
+            "name": "blendDst",
+            "type": "GLenum",
+            "class": "BaseBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/BaseBatch.js",
+            "line": 171,
+            "description": "Sets the blend destination parameters. \nIf we are currently drawing, this will flush the batch.\n\nSetting either src or dst to `null` or a falsy value tells the SpriteBatch\nto ignore gl.blendFunc. This is useful if you wish to use your\nown blendFunc or blendFuncSeparate.",
+            "itemtype": "property",
+            "name": "blendSrc",
+            "type": "GLenum",
+            "class": "BaseBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/BaseBatch.js",
+            "line": 193,
+            "description": "Sets the blend source and destination parameters. This is \na convenience function for the blendSrc and blendDst setters.\nIf we are currently drawing, this will flush the batch.\n\nSetting either to `null` or a falsy value tells the SpriteBatch\nto ignore gl.blendFunc. This is useful if you wish to use your\nown blendFunc or blendFuncSeparate.",
+            "itemtype": "method",
+            "name": "setBlendFunction",
+            "params": [
+                {
+                    "name": "blendSrc",
+                    "description": "the source blend parameter",
+                    "type": "GLenum"
+                },
+                {
+                    "name": "blendDst",
+                    "description": "the destination blend parameter",
+                    "type": "GLenum"
+                }
+            ],
+            "class": "BaseBatch",
+            "module": "kami"
+        },
+        {
+            "file": "lib/BaseBatch.js",
+            "line": 211,
             "description": "This is a setter/getter for this batch's current ShaderProgram.\nIf this is set when the batch is drawing, the state will be flushed\nto the GPU and the new shader will then be bound.\n\nIf `null` or a falsy value is specified, the batch's `defaultShader` will be used. \n\nNote that shaders are bound on batch.begin().",
             "itemtype": "property",
             "name": "shader",
@@ -898,8 +1007,8 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 143,
-            "description": "Sets the color of this sprite batcher, which is used in subsequent draw\ncalls. This does not flush the batch.\n\nIf three or more arguments are specified, this method assumes that RGB \nor RGBA float values (0.0 to 1.0) are being passed. \n\nIf less than three arguments are specified, we only consider the first \nand assign it to all four components -- this is useful for setting transparency \nin a premultiplied alpha stage.",
+            "line": 243,
+            "description": "Sets the color of this sprite batcher, which is used in subsequent draw\ncalls. This does not flush the batch.\n\nIf r, g, b, are all numbers, this method assumes that RGB \nor RGBA float values (0.0 to 1.0) are being passed. Alpha defaults to one\nif undefined.\n\nIf the first three arguments are not numbers, we only consider the first argument\nand assign it to all four components -- this is useful for setting transparency \nin a premultiplied alpha stage. \n\nIf the first argument is invalid or not a number,\nthe color defaults to (1, 1, 1, 1).",
             "itemtype": "method",
             "name": "setColor",
             "params": [
@@ -929,7 +1038,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 182,
+            "line": 289,
             "description": "Called from the constructor to create a new Mesh \nbased on the expected batch size. Should set up\nverts & indices properly.\n\nUsers should not call this directly; instead, it\nshould only be implemented by subclasses.",
             "itemtype": "method",
             "name": "_createMesh",
@@ -945,7 +1054,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 225,
+            "line": 332,
             "description": "Returns a shader for this batch. If you plan to support\nmultiple instances of your batch, it may or may not be wise\nto use a shared shader to save resources.\n\nThis method initially throws an error; so it must be overridden by\nsubclasses of BaseBatch.",
             "itemtype": "method",
             "name": "_createShader",
@@ -958,7 +1067,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 240,
+            "line": 347,
             "description": "Returns an array of vertex attributes for this mesh; \nsubclasses should implement this with the attributes \nexpected for their batch.\n\nThis method initially throws an error; so it must be overridden by\nsubclasses of BaseBatch.",
             "itemtype": "method",
             "name": "_createVertexAttributes",
@@ -971,7 +1080,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 256,
+            "line": 363,
             "description": "Returns the number of floats per vertex for this batcher.\n\nThis method initially throws an error; so it must be overridden by\nsubclasses of BaseBatch.",
             "itemtype": "method",
             "name": "getVertexSize",
@@ -984,7 +1093,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 270,
+            "line": 377,
             "description": "Begins the sprite batch. This will bind the shader\nand mesh. Subclasses may want to disable depth or \nset up blending.",
             "itemtype": "method",
             "name": "begin",
@@ -993,7 +1102,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 288,
+            "line": 400,
             "description": "Ends the sprite batch. This will flush any remaining \ndata and set GL state back to normal.",
             "itemtype": "method",
             "name": "end",
@@ -1002,7 +1111,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 304,
+            "line": 421,
             "description": "Called before rendering to bind new textures.\nThis method does nothing by default.",
             "itemtype": "method",
             "name": "_preRender",
@@ -1011,16 +1120,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 313,
-            "description": "Called after flushing the batch. This method\ndoes nothing by default.",
-            "itemtype": "method",
-            "name": "_postRender",
-            "class": "BaseBatch",
-            "module": "kami"
-        },
-        {
-            "file": "lib/BaseBatch.js",
-            "line": 322,
+            "line": 430,
             "description": "Flushes the batch by pushing the current data\nto GL.",
             "itemtype": "method",
             "name": "flush",
@@ -1029,7 +1129,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 348,
+            "line": 463,
             "description": "Adds a sprite to this batch.\nThe specifics depend on the sprite batch implementation.",
             "itemtype": "method",
             "name": "draw",
@@ -1085,7 +1185,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 366,
+            "line": 481,
             "description": "Adds a single quad mesh to this sprite batch from the given\narray of vertices.\nThe specifics depend on the sprite batch implementation.",
             "itemtype": "method",
             "name": "drawVertices",
@@ -1111,7 +1211,7 @@
         },
         {
             "file": "lib/BaseBatch.js",
-            "line": 383,
+            "line": 498,
             "description": "Destroys the batch, deleting its buffers and removing it from the\nWebGLContext management. Trying to use this\nbatch after destroying it can lead to unpredictable behaviour.\n\nIf `ownsShader` is true, this will also delete the `defaultShader` object.",
             "itemtype": "method",
             "name": "destroy",
@@ -1259,7 +1359,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 215,
+            "line": 205,
             "description": "Ends the sprite batcher and flushes any remaining data to the GPU.",
             "itemtype": "method",
             "name": "end",
@@ -1268,7 +1368,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 234,
+            "line": 221,
             "description": "Flushes the batch to the GPU. This should be called when\nstate changes, such as blend functions, depth or stencil states,\nshaders, and so forth.",
             "itemtype": "method",
             "name": "flush",
@@ -1277,7 +1377,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 251,
+            "line": 238,
             "description": "Adds a sprite to this batch. The sprite is drawn in \nscreen-space with the origin at the upper-left corner (y-down).",
             "itemtype": "method",
             "name": "draw",
@@ -1333,7 +1433,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 336,
+            "line": 323,
             "description": "Adds a single quad mesh to this sprite batch from the given\narray of vertices. The sprite is drawn in \nscreen-space with the origin at the upper-left corner (y-down).\n\nThis reads 20 interleaved floats from the given offset index, in the format\n\n { x, y, color, u, v,\n     ...  }",
             "itemtype": "method",
             "name": "drawVertices",
@@ -1359,7 +1459,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 408,
+            "line": 395,
             "description": "The default vertex size, i.e. number of floats per vertex.",
             "itemtype": "attribute",
             "name": "VERTEX_SIZE",
@@ -1372,7 +1472,7 @@
         },
         {
             "file": "lib/SpriteBatch.js",
-            "line": 418,
+            "line": 405,
             "description": "Incremented after each draw call, can be used for debugging.\n\n    SpriteBatch.totalRenderCalls = 0;\n\n    ... draw your scene ...\n\n    console.log(\"Draw calls per frame:\", SpriteBatch.totalRenderCalls);",
             "itemtype": "attribute",
             "name": "totalRenderCalls",
@@ -1384,7 +1484,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 64,
+            "line": 60,
             "description": "The WebGLTexture which backs this Texture object. This\ncan be used for low-level GL calls.",
             "type": "{WebGLTexture}",
             "class": "Texture",
@@ -1392,7 +1492,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 72,
+            "line": 68,
             "description": "The target for this texture unit, i.e. TEXTURE_2D. Subclasses\nshould override the create() method to change this, for correct\nusage with context restore.",
             "itemtype": "property",
             "name": "target",
@@ -1403,7 +1503,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 83,
+            "line": 79,
             "description": "The width of this texture, in pixels.",
             "itemtype": "property",
             "name": "width",
@@ -1414,7 +1514,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 92,
+            "line": 88,
             "description": "The height of this texture, in pixels.",
             "itemtype": "property",
             "name": "height",
@@ -1425,7 +1525,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 106,
+            "line": 102,
             "description": "The S wrap parameter.",
             "itemtype": "property",
             "name": "wrapS",
@@ -1435,7 +1535,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 111,
+            "line": 107,
             "description": "The T wrap parameter.",
             "itemtype": "property",
             "name": "wrapT",
@@ -1445,7 +1545,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 116,
+            "line": 112,
             "description": "The minifcation filter.",
             "itemtype": "property",
             "name": "minFilter",
@@ -1455,7 +1555,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 122,
+            "line": 118,
             "description": "The magnification filter.",
             "itemtype": "property",
             "name": "magFilter",
@@ -1465,7 +1565,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 128,
+            "line": 124,
             "description": "When a texture is created, we keep track of the arguments provided to \nits constructor. On context loss and restore, these arguments are re-supplied\nto the Texture, so as to re-create it in its correct form.\n\nThis is mainly useful if you are procedurally creating textures and passing\ntheir data directly (e.g. for generic lookup tables in a shader). For image\nor media based textures, it would be better to use an AssetManager to manage\nthe asynchronous texture upload.\n\nUpon destroying a texture, a reference to this is also lost.",
             "itemtype": "property",
             "name": "managedArgs",
@@ -1475,16 +1575,18 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 150,
-            "description": "On instantiation and subsequent context restore, this function is called\nto parse the constructor's arguments.",
+            "line": 146,
+            "description": "This can be called after creating a Texture to load an Image object asynchronously,\nor upload image data directly. It takes the same parameters as the constructor, except \nfor the context which has already been established. \n\nUsers will generally not need to call this directly.",
             "access": "protected",
             "tagname": "",
+            "itemtype": "method",
+            "name": "setup",
             "class": "Texture",
             "module": "kami"
         },
         {
             "file": "lib/Texture.js",
-            "line": 204,
+            "line": 207,
             "description": "Called in the Texture constructor, and after the GL context has been re-initialized. \nSubclasses can override this to provide a custom data upload, e.g. cubemaps or compressed\ntextures.",
             "itemtype": "method",
             "name": "create",
@@ -1493,7 +1595,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 239,
+            "line": 242,
             "description": "Destroys this texture by deleting the GL resource,\nremoving it from the WebGLContext management stack,\nsetting its size to zero, and id and managed arguments to null.\n\nTrying to use this texture after may lead to undefined behaviour.",
             "itemtype": "method",
             "name": "destroy",
@@ -1502,7 +1604,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 260,
+            "line": 263,
             "description": "Sets the wrap mode for this texture; if the second argument\nis undefined or falsy, then both S and T wrap will use the first\nargument.\n\nYou can use Texture.Wrap constants for convenience, to avoid needing \na GL reference.",
             "itemtype": "method",
             "name": "setWrap",
@@ -1528,7 +1630,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 292,
+            "line": 295,
             "description": "Sets the min and mag filter for this texture; \nif mag is undefined or falsy, then both min and mag will use the\nfilter specified for min.\n\nYou can use Texture.Filter constants for convenience, to avoid needing \na GL reference.",
             "itemtype": "method",
             "name": "setFilter",
@@ -1554,7 +1656,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 323,
+            "line": 326,
             "description": "A low-level method to upload the specified ArrayBufferView\nto this texture. This will cause the width and height of this\ntexture to change.",
             "itemtype": "method",
             "name": "uploadData",
@@ -1595,7 +1697,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 360,
+            "line": 363,
             "description": "Uploads ImageData, HTMLImageElement, HTMLCanvasElement or \nHTMLVideoElement.",
             "itemtype": "method",
             "name": "uploadImage",
@@ -1626,7 +1728,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 390,
+            "line": 393,
             "description": "If FORCE_POT is false, we verify this texture to see if it is valid, \nas per non-power-of-two rules. If it is non-power-of-two, it must have \na wrap mode of CLAMP_TO_EDGE, and the minification filter must be LINEAR\nor NEAREST. If we don't satisfy these needs, an error is thrown.",
             "itemtype": "method",
             "name": "_checkPOT",
@@ -1641,7 +1743,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 416,
+            "line": 419,
             "description": "Binds the texture. If unit is specified,\nit will bind the texture at the given slot\n(TEXTURE0, TEXTURE1, etc). If unit is not specified,\nit will simply bind the texture at whichever slot\nis currently active.",
             "itemtype": "method",
             "name": "bind",
@@ -1657,7 +1759,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 438,
+            "line": 441,
             "description": "A set of Filter constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Filter.NEAREST\n    Texture.Filter.NEAREST_MIPMAP_LINEAR\n    Texture.Filter.NEAREST_MIPMAP_NEAREST\n    Texture.Filter.LINEAR\n    Texture.Filter.LINEAR_MIPMAP_LINEAR\n    Texture.Filter.LINEAR_MIPMAP_NEAREST\n```"
@@ -1671,7 +1773,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 464,
+            "line": 467,
             "description": "A set of Wrap constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Wrap.CLAMP_TO_EDGE\n    Texture.Wrap.MIRRORED_REPEAT\n    Texture.Wrap.REPEAT\n```"
@@ -1685,7 +1787,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 484,
+            "line": 487,
             "description": "A set of Format constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.Format.RGB\n    Texture.Format.RGBA\n    Texture.Format.LUMINANCE_ALPHA\n```"
@@ -1699,7 +1801,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 507,
+            "line": 510,
             "description": "A set of DataType constants that match their GL counterparts.\nThis is for convenience, to avoid the need for a GL rendering context.",
             "example": [
                 "\n```\n    Texture.DataType.UNSIGNED_BYTE \n    Texture.DataType.FLOAT \n```"
@@ -1713,7 +1815,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 533,
+            "line": 536,
             "description": "The default wrap mode when creating new textures. If a custom \nprovider was specified, it may choose to override this default mode.",
             "itemtype": "attribute",
             "name": "DEFAULT_WRAP",
@@ -1725,7 +1827,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 544,
+            "line": 547,
             "description": "The default filter mode when creating new textures. If a custom\nprovider was specified, it may choose to override this default mode.",
             "itemtype": "attribute",
             "name": "DEFAULT_FILTER",
@@ -1737,7 +1839,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 554,
+            "line": 557,
             "description": "By default, we do some error checking when creating textures\nto ensure that they will be \"renderable\" by WebGL. Non-power-of-two\ntextures must use CLAMP_TO_EDGE as their wrap mode, and NEAREST or LINEAR\nas their wrap mode. Further, trying to generate mipmaps for a NPOT image\nwill lead to errors. \n\nHowever, you can disable this error checking by setting `FORCE_POT` to true.\nThis may be useful if you are running on specific hardware that supports POT \ntextures, or in some future case where NPOT textures is added as a WebGL extension.",
             "itemtype": "attribute",
             "name": "FORCE_POT",
@@ -1749,7 +1851,7 @@
         },
         {
             "file": "lib/Texture.js",
-            "line": 577,
+            "line": 583,
             "description": "Utility to get the number of components for the given GLenum, e.g. gl.RGBA returns 4.\nReturns null if the specified format is not of type DEPTH_COMPONENT, ALPHA, LUMINANCE,\nLUMINANCE_ALPHA, RGB, or RGBA.",
             "itemtype": "method",
             "name": "getNumComponents",
@@ -1925,14 +2027,14 @@
         {
             "file": "lib/index-umd.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-23.",
+            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-26.",
             "class": "",
             "module": "kami"
         },
         {
             "file": "lib/index.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nCreated on 2013-12-23.",
+            "description": "Auto-generated Kami index file.\nCreated on 2013-12-26.",
             "class": "",
             "module": "kami"
         }
@@ -1948,7 +2050,15 @@
         },
         {
             "message": "Missing item type\nLocation is optional and for advanced users that\nwant vertex arrays to match across shaders. Any non-numerical\nvalue will be converted to null, and ignored. If a numerical\nvalue is given, it will override the position of this attribute\nwhen given to a mesh.",
-            "line": " lib/glutils/Mesh.js:248"
+            "line": " lib/glutils/Mesh.js:249"
+        },
+        {
+            "message": "Missing item type\nThis is a convenience function to pass a Matrix3 (from vecmath,\nkami's preferred math library) or a Float32Array (e.g. gl-matrix)\nto a shader. If mat is an object with \"val\", it is considered to be\na Matrix3, otherwise assumed to be a typed array being passed directly\nto the shader.",
+            "line": " lib/glutils/ShaderProgram.js:444"
+        },
+        {
+            "message": "Missing item type\nThis is a convenience function to pass a Matrix4 (from vecmath,\nkami's preferred math library) or a Float32Array (e.g. gl-matrix)\nto a shader. If mat is an object with \"val\", it is considered to be\na Matrix4, otherwise assumed to be a typed array being passed directly\nto the shader.",
+            "line": " lib/glutils/ShaderProgram.js:466"
         },
         {
             "message": "Missing item type\nThis is a convenience function to set the batch's projection\nmatrix to an orthographic 2D projection, based on the given screen\nsize. This allows users to render in 2D without any need for a camera.",
@@ -1956,11 +2066,7 @@
         },
         {
             "message": "Missing item type\nThe WebGLTexture which backs this Texture object. This\ncan be used for low-level GL calls.",
-            "line": " lib/Texture.js:64"
-        },
-        {
-            "message": "Missing item type\nOn instantiation and subsequent context restore, this function is called\nto parse the constructor's arguments.",
-            "line": " lib/Texture.js:150"
+            "line": " lib/Texture.js:60"
         },
         {
             "message": "Missing item type",
@@ -1983,11 +2089,11 @@
             "line": " lib/WebGLContext.js:194"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-23.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2013-12-26.",
             "line": " lib/index-umd.js:1"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2013-12-23.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2013-12-26.",
             "line": " lib/index.js:1"
         }
     ]
