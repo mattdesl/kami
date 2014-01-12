@@ -514,7 +514,7 @@ var BaseBatch = new Class({
 
 		this.mesh.unbind(this.shader);
 
-		if (this._blendEnabled) {
+		if (this._blendingEnabled) {
 			var gl = this.context.gl;
 			gl.disable(gl.BLEND);
 		}
@@ -542,7 +542,7 @@ var BaseBatch = new Class({
 		var gl = this.context.gl;
 
 		//premultiplied alpha
-		if (this._blendEnabled) {
+		if (this._blendingEnabled) {
 			//set either to null if you want to call your own 
 			//blendFunc or blendFuncSeparate
 			if (this._blendSrc &amp;&amp; this._blendDst)
@@ -611,7 +611,7 @@ var BaseBatch = new Class({
 		this.indices = null;
 		this.size = this.maxVertices = 0;
 
-		if (this.defaultShader)
+		if (this.ownsShader &amp;&amp; this.defaultShader)
 			this.defaultShader.destroy();
 		this.defaultShader = null;
 		this._shader = null; // remove reference to whatever shader is currently being used
