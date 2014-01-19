@@ -10,8 +10,8 @@
   "license": "MIT",
   "dependencies": {
     "signals": "git://github.com/millermedeiros/js-signals#v1.0.0",
-    "klasse": "git://github.com/mattdesl/klasse#v1.0.0",
-    "number-util": "git://github.com/mattdesl/number-util#v1.0.1"
+    "klasse": "~1.0.6",
+    "number-util": "~1.0.1"
   },
   "repository": {
     "type": "git",
