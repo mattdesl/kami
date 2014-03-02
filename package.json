@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "signals": "git://github.com/millermedeiros/js-signals#v1.0.0",
+    "signals": "~1.0.0",
     "klasse": "~1.0.6",
     "number-util": "~1.0.1"
   },
