@@ -1,6 +1,6 @@
 {
   "name": "kami",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "WebGL utilities for performant and flexible 2D and 3D rendering.",
   "main": "lib/index.js",
   "scripts": {
