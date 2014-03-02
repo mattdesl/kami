@@ -2,7 +2,7 @@
     "project": {
         "name": "kami",
         "description": "WebGL utilities for performant and flexible 2D and 3D rendering.",
-        "version": "0.1.0",
+        "version": "0.2.2",
         "url": ""
     },
     "files": {
@@ -2027,14 +2027,14 @@
         {
             "file": "lib/index-umd.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-01-12.",
+            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-03-02.",
             "class": "",
             "module": "kami"
         },
         {
             "file": "lib/index.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nCreated on 2014-01-12.",
+            "description": "Auto-generated Kami index file.\nCreated on 2014-03-02.",
             "class": "",
             "module": "kami"
         }
@@ -2089,11 +2089,11 @@
             "line": " lib/WebGLContext.js:194"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-01-12.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-03-02.",
             "line": " lib/index-umd.js:1"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2014-01-12.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2014-03-02.",
             "line": " lib/index.js:1"
         }
     ]

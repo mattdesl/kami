@@ -25,6 +25,6 @@
     "load-grunt-tasks": "~0.2.0",
     "grunt-contrib-yuidoc": "~0.5.0",
     "grunt-contrib-uglify": "~0.2.5",
-    "grunt-autoindex": "git://github.com/mattdesl/grunt-autoindex#v1.0.0"
+    "grunt-autoindex": "~0.1.1"
   }
 }
