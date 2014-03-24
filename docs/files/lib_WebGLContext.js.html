@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.2.2</em>
+            <em>API Docs for: 0.4.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -113,6 +113,12 @@ var Signal = require(&#x27;signals&#x27;);
  * shaders and buffers). This also handles general viewport management.
  *
  * If the view is not specified, a canvas will be created.
+ *
+ * If the &#x60;view&#x60; parameter is an instanceof WebGLRenderingContext,
+ * we will use its canvas and context without fetching another through &#x60;getContext&#x60;.
+ * Passing a canvas that has already had &#x60;getContext(&#x27;webgl&#x27;)&#x60; called will not cause
+ * errors, but in certain debuggers (e.g. Chrome WebGL Inspector) only the latest
+ * context will be traced.
  * 
  * @class  WebGLContext
  * @constructor
@@ -145,6 +151,14 @@ var WebGLContext = new Class({
 		 * @type {WebGLRenderingContext}
 		 */
 		this.gl = null;
+
+		if (view &amp;&amp; typeof window.WebGLRenderingContext !== &quot;undefined&quot;
+				 &amp;&amp; view instanceof window.WebGLRenderingContext) {
+			view = view.canvas;
+			this.gl = view;
+			this.valid = true;
+			contextAttributes = undefined; //just ignore new attribs...
+		}
 
 		/**
 		 * The canvas DOM element for this context.
@@ -222,7 +236,8 @@ var WebGLContext = new Class({
 			this._contextRestored(ev);
 		}.bind(this));
 			
-		this._initContext();
+		if (!this.valid) //would only be valid if WebGLRenderingContext was passed 
+			this._initContext();
 
 		this.resize(this.width, this.height);
 	},

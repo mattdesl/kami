@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.2.2</em>
+            <em>API Docs for: 0.4.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -124,6 +124,11 @@
 context loss and restore with various rendering objects (textures,
 shaders and buffers). This also handles general viewport management.</p>
 <p>If the view is not specified, a canvas will be created.</p>
+<p>If the <code>view</code> parameter is an instanceof WebGLRenderingContext,
+we will use its canvas and context without fetching another through <code>getContext</code>.
+Passing a canvas that has already had <code>getContext(&#39;webgl&#39;)</code> called will not cause
+errors, but in certain debuggers (e.g. Chrome WebGL Inspector) only the latest
+context will be traced.</p>
 
 </div>
 
@@ -423,7 +428,7 @@ shaders and buffers). This also handles general viewport management.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l72"><code>lib&#x2F;WebGLContext.js:72</code></a>
+        <a href="../files/lib_WebGLContext.js.html#l86"><code>lib&#x2F;WebGLContext.js:86</code></a>
         
         </p>
 
@@ -469,7 +474,7 @@ anti-aliasing, alpha settings, verison, and so forth.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l36"><code>lib&#x2F;WebGLContext.js:36</code></a>
+        <a href="../files/lib_WebGLContext.js.html#l42"><code>lib&#x2F;WebGLContext.js:42</code></a>
         
         </p>
 
@@ -517,7 +522,7 @@ is not <code>valid</code>, you should not try to access GL state.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l64"><code>lib&#x2F;WebGLContext.js:64</code></a>
+        <a href="../files/lib_WebGLContext.js.html#l78"><code>lib&#x2F;WebGLContext.js:78</code></a>
         
         </p>
 
@@ -562,7 +567,7 @@ is not <code>valid</code>, you should not try to access GL state.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l26"><code>lib&#x2F;WebGLContext.js:26</code></a>
+        <a href="../files/lib_WebGLContext.js.html#l32"><code>lib&#x2F;WebGLContext.js:32</code></a>
         
         </p>
 
@@ -610,7 +615,7 @@ See addManagedObject and removeManagedObject.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l80"><code>lib&#x2F;WebGLContext.js:80</code></a>
+        <a href="../files/lib_WebGLContext.js.html#l94"><code>lib&#x2F;WebGLContext.js:94</code></a>
         
         </p>
 
@@ -656,7 +661,7 @@ See addManagedObject and removeManagedObject.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l47"><code>lib&#x2F;WebGLContext.js:47</code></a>
+        <a href="../files/lib_WebGLContext.js.html#l61"><code>lib&#x2F;WebGLContext.js:61</code></a>
         
         </p>
 
@@ -701,7 +706,7 @@ See addManagedObject and removeManagedObject.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l56"><code>lib&#x2F;WebGLContext.js:56</code></a>
+        <a href="../files/lib_WebGLContext.js.html#l70"><code>lib&#x2F;WebGLContext.js:70</code></a>
         
         </p>
 
@@ -756,7 +761,7 @@ See addManagedObject and removeManagedObject.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l88"><code>lib&#x2F;WebGLContext.js:88</code></a>
+        <a href="../files/lib_WebGLContext.js.html#l102"><code>lib&#x2F;WebGLContext.js:102</code></a>
         
         </p>
 
@@ -802,7 +807,7 @@ managing the context loss.</p>
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l98"><code>lib&#x2F;WebGLContext.js:98</code></a>
+        <a href="../files/lib_WebGLContext.js.html#l112"><code>lib&#x2F;WebGLContext.js:112</code></a>
         
         </p>
 

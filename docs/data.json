@@ -2,7 +2,7 @@
     "project": {
         "name": "kami",
         "description": "WebGL utilities for performant and flexible 2D and 3D rendering.",
-        "version": "0.2.2",
+        "version": "0.4.0",
         "url": ""
     },
     "files": {
@@ -330,7 +330,7 @@
             "namespace": "",
             "file": "lib/WebGLContext.js",
             "line": 8,
-            "description": "A thin wrapper around WebGLRenderingContext which handles\ncontext loss and restore with various rendering objects (textures,\nshaders and buffers). This also handles general viewport management.\n\nIf the view is not specified, a canvas will be created.",
+            "description": "A thin wrapper around WebGLRenderingContext which handles\ncontext loss and restore with various rendering objects (textures,\nshaders and buffers). This also handles general viewport management.\n\nIf the view is not specified, a canvas will be created.\n\nIf the `view` parameter is an instanceof WebGLRenderingContext,\nwe will use its canvas and context without fetching another through `getContext`.\nPassing a canvas that has already had `getContext('webgl')` called will not cause\nerrors, but in certain debuggers (e.g. Chrome WebGL Inspector) only the latest\ncontext will be traced.",
             "is_constructor": 1,
             "params": [
                 {
@@ -1878,7 +1878,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 26,
+            "line": 32,
             "description": "The list of rendering objects (shaders, VBOs, textures, etc) which are \ncurrently being managed. Any object with a \"create\" method can be added\nto this list. Upon destroying the rendering object, it should be removed.\nSee addManagedObject and removeManagedObject.",
             "itemtype": "property",
             "name": "managedObjects",
@@ -1888,7 +1888,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 36,
+            "line": 42,
             "description": "The actual GL context. You can use this for\nraw GL calls or to access GLenum constants. This\nwill be updated on context restore. While the WebGLContext\nis not `valid`, you should not try to access GL state.",
             "itemtype": "property",
             "name": "gl",
@@ -1898,7 +1898,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 47,
+            "line": 61,
             "description": "The canvas DOM element for this context.",
             "itemtype": "property",
             "name": "view",
@@ -1908,7 +1908,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 56,
+            "line": 70,
             "description": "The width of this canvas.",
             "itemtype": "property",
             "name": "width",
@@ -1918,7 +1918,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 64,
+            "line": 78,
             "description": "The height of this canvas.",
             "itemtype": "property",
             "name": "height",
@@ -1928,7 +1928,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 72,
+            "line": 86,
             "description": "The context attributes for initializing the GL state. This might include\nanti-aliasing, alpha settings, verison, and so forth.",
             "itemtype": "property",
             "name": "contextAttributes",
@@ -1938,7 +1938,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 80,
+            "line": 94,
             "description": "Whether this context is 'valid', i.e. renderable. A context that has been lost\n(and not yet restored) or destroyed is invalid.",
             "itemtype": "property",
             "name": "valid",
@@ -1948,7 +1948,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 88,
+            "line": 102,
             "description": "A signal dispatched when GL context is lost. \n\nThe first argument passed to the listener is the WebGLContext\nmanaging the context loss.",
             "itemtype": "event",
             "name": "lost",
@@ -1958,7 +1958,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 98,
+            "line": 112,
             "description": "A signal dispatched when GL context is restored, after all the managed\nobjects have been recreated.\n\nThe first argument passed to the listener is the WebGLContext\nwhich managed the restoration.\n\nThis does not gaurentee that all objects will be renderable.\nFor example, a Texture with an ImageProvider may still be loading\nasynchronously.",
             "itemtype": "event",
             "name": "restored",
@@ -1968,7 +1968,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 146,
+            "line": 161,
             "description": "Updates the width and height of this WebGL context, resizes\nthe canvas view, and calls gl.viewport() with the new size.",
             "params": [
                 {
@@ -1987,7 +1987,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 164,
+            "line": 179,
             "description": "(internal use)\nA managed object is anything with a \"create\" function, that will\nrestore GL state after context loss.",
             "params": [
                 {
@@ -2001,7 +2001,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 175,
+            "line": 190,
             "description": "(internal use)\nRemoves a managed object from the cache. This is useful to destroy\na texture or shader, and have it no longer re-load on context restore.\n\nReturns the object that was removed, or null if it was not found in the cache.",
             "params": [
                 {
@@ -2019,7 +2019,7 @@
         },
         {
             "file": "lib/WebGLContext.js",
-            "line": 194,
+            "line": 209,
             "description": "Calls destroy() on each managed object, then removes references to these objects\nand the GL rendering context. This also removes references to the view and sets\nthe context's width and height to zero.\n\nAttempting to use this WebGLContext or the GL rendering context after destroying it\nwill lead to undefined behaviour.",
             "class": "WebGLContext",
             "module": "kami"
@@ -2027,14 +2027,14 @@
         {
             "file": "lib/index-umd.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-03-02.",
+            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-03-24.",
             "class": "",
             "module": "kami"
         },
         {
             "file": "lib/index.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nCreated on 2014-03-02.",
+            "description": "Auto-generated Kami index file.\nCreated on 2014-03-24.",
             "class": "",
             "module": "kami"
         }
@@ -2074,26 +2074,26 @@
         },
         {
             "message": "Missing item type\nUpdates the width and height of this WebGL context, resizes\nthe canvas view, and calls gl.viewport() with the new size.",
-            "line": " lib/WebGLContext.js:146"
+            "line": " lib/WebGLContext.js:161"
         },
         {
             "message": "Missing item type\n(internal use)\nA managed object is anything with a \"create\" function, that will\nrestore GL state after context loss.",
-            "line": " lib/WebGLContext.js:164"
+            "line": " lib/WebGLContext.js:179"
         },
         {
             "message": "Missing item type\n(internal use)\nRemoves a managed object from the cache. This is useful to destroy\na texture or shader, and have it no longer re-load on context restore.\n\nReturns the object that was removed, or null if it was not found in the cache.",
-            "line": " lib/WebGLContext.js:175"
+            "line": " lib/WebGLContext.js:190"
         },
         {
             "message": "Missing item type\nCalls destroy() on each managed object, then removes references to these objects\nand the GL rendering context. This also removes references to the view and sets\nthe context's width and height to zero.\n\nAttempting to use this WebGLContext or the GL rendering context after destroying it\nwill lead to undefined behaviour.",
-            "line": " lib/WebGLContext.js:194"
+            "line": " lib/WebGLContext.js:209"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-03-02.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-03-24.",
             "line": " lib/index-umd.js:1"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2014-03-02.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2014-03-24.",
             "line": " lib/index.js:1"
         }
     ]
