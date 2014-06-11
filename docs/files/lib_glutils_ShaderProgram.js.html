@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.4.0</em>
+            <em>API Docs for: 0.5.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -298,10 +298,10 @@ var ShaderProgram = new Class({
 		if (this.context)
 			this.context.removeManagedObject(this);
 
-		if (this.gl) {
+		if (this.gl &amp;&amp; this.program) {
 			var gl = this.gl;
-			gl.detachShader(this.vertShader);
-			gl.detachShader(this.fragShader);
+			gl.detachShader(this.program, this.vertShader);
+			gl.detachShader(this.program, this.fragShader);
 
 			gl.deleteShader(this.vertShader);
 			gl.deleteShader(this.fragShader);
@@ -439,9 +439,10 @@ var ShaderProgram = new Class({
 	 * @param {GLint} w  the w component for ivec4
 	 */
 	setUniformi: function(name, x, y, z, w) {
+		&#x27;use strict&#x27;;
 		var gl = this.gl;
 		var loc = this.getUniformLocation(name);
-		if (!loc) 
+		if (loc === null)
 			return false;
 		switch (arguments.length) {
 			case 2: gl.uniform1i(loc, x); return true;
@@ -466,9 +467,10 @@ var ShaderProgram = new Class({
 	 * @param {GLfloat} w  the w component for vec4
 	 */
 	setUniformf: function(name, x, y, z, w) {
+		&#x27;use strict&#x27;;
 		var gl = this.gl;
 		var loc = this.getUniformLocation(name);
-		if (!loc) 
+		if (loc === null)
 			return false;
 		switch (arguments.length) {
 			case 2: gl.uniform1f(loc, x); return true;
@@ -499,10 +501,11 @@ var ShaderProgram = new Class({
 	 * @param {Number} count            optional, the explicit data type count, e.g. 2 for vec2
 	 */
 	setUniformfv: function(name, arrayBuffer, count) {
+		&#x27;use strict&#x27;;
 		count = count || arrayBuffer.length;
 		var gl = this.gl;
 		var loc = this.getUniformLocation(name);
-		if (!loc) 
+		if (loc === null)
 			return false;
 		switch (count) {
 			case 1: gl.uniform1fv(loc, arrayBuffer); return true;
@@ -528,10 +531,11 @@ var ShaderProgram = new Class({
 	 * @param {Number} count            optional, the explicit data type count, e.g. 2 for ivec2
 	 */
 	setUniformiv: function(name, arrayBuffer, count) {
+		&#x27;use strict&#x27;;
 		count = count || arrayBuffer.length;
 		var gl = this.gl;
 		var loc = this.getUniformLocation(name);
-		if (!loc) 
+		if (loc === null)
 			return false;
 		switch (count) {
 			case 1: gl.uniform1iv(loc, arrayBuffer); return true;
@@ -555,12 +559,13 @@ var ShaderProgram = new Class({
 	 * @param {Boolean} transpose whether to transpose the matrix, default false
 	 */
 	setUniformMatrix3: function(name, mat, transpose) {
+		&#x27;use strict&#x27;;
 		var arr = typeof mat === &quot;object&quot; &amp;&amp; mat.val ? mat.val : mat;
 		transpose = !!transpose; //to boolean
 
 		var gl = this.gl;
 		var loc = this.getUniformLocation(name);
-		if (!loc) 
+		if (loc === null)
 			return false;
 		gl.uniformMatrix3fv(loc, transpose, arr)
 	},
@@ -577,12 +582,13 @@ var ShaderProgram = new Class({
 	 * @param {Boolean} transpose whether to transpose the matrix, default false
 	 */
 	setUniformMatrix4: function(name, mat, transpose) {
+		&#x27;use strict&#x27;;
 		var arr = typeof mat === &quot;object&quot; &amp;&amp; mat.val ? mat.val : mat;
 		transpose = !!transpose; //to boolean
 
 		var gl = this.gl;
 		var loc = this.getUniformLocation(name);
-		if (!loc) 
+		if (loc === null)
 			return false;
 		gl.uniformMatrix4fv(loc, transpose, arr)
 	} 

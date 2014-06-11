@@ -2,7 +2,7 @@
     "project": {
         "name": "kami",
         "description": "WebGL utilities for performant and flexible 2D and 3D rendering.",
-        "version": "0.4.0",
+        "version": "0.5.1",
         "url": ""
     },
     "files": {
@@ -758,7 +758,7 @@
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 354,
+            "line": 355,
             "description": "A convenience method to set uniformf from the given arguments.\nWe determine which GL call to make based on the number of arguments\npassed. For example, `setUniformf(\"var\", 0, 1)` maps to `gl.uniform2f`.",
             "itemtype": "method",
             "name": "setUniformf",
@@ -794,7 +794,7 @@
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 386,
+            "line": 388,
             "description": "A convenience method to set uniformNfv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer (for 1-4 component vectors stored in a Float32Array). To use\nthis method to upload data to uniform arrays, you need to specify the\n'count' parameter; i.e. the data type you are using for that array. If\nspecified, this will dictate whether to call uniform1fv, uniform2fv, etc.",
             "itemtype": "method",
             "name": "setUniformfv",
@@ -820,7 +820,7 @@
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 415,
+            "line": 418,
             "description": "A convenience method to set uniformNiv from the given ArrayBuffer.\nWe determine which GL call to make based on the length of the array \nbuffer (for 1-4 component vectors stored in a int array). To use\nthis method to upload data to uniform arrays, you need to specify the\n'count' parameter; i.e. the data type you are using for that array. If\nspecified, this will dictate whether to call uniform1fv, uniform2fv, etc.",
             "itemtype": "method",
             "name": "setUniformiv",
@@ -846,7 +846,7 @@
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 444,
+            "line": 448,
             "description": "This is a convenience function to pass a Matrix3 (from vecmath,\nkami's preferred math library) or a Float32Array (e.g. gl-matrix)\nto a shader. If mat is an object with \"val\", it is considered to be\na Matrix3, otherwise assumed to be a typed array being passed directly\nto the shader.",
             "params": [
                 {
@@ -870,7 +870,7 @@
         },
         {
             "file": "lib/glutils/ShaderProgram.js",
-            "line": 466,
+            "line": 471,
             "description": "This is a convenience function to pass a Matrix4 (from vecmath,\nkami's preferred math library) or a Float32Array (e.g. gl-matrix)\nto a shader. If mat is an object with \"val\", it is considered to be\na Matrix4, otherwise assumed to be a typed array being passed directly\nto the shader.",
             "params": [
                 {
@@ -1872,7 +1872,7 @@
         },
         {
             "file": "lib/TextureRegion.js",
-            "line": 48,
+            "line": 47,
             "class": "WebGLContext",
             "module": "kami"
         },
@@ -2027,14 +2027,14 @@
         {
             "file": "lib/index-umd.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-03-24.",
+            "description": "Auto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-06-11.",
             "class": "",
             "module": "kami"
         },
         {
             "file": "lib/index.js",
             "line": 1,
-            "description": "Auto-generated Kami index file.\nCreated on 2014-03-24.",
+            "description": "Auto-generated Kami index file.\nCreated on 2014-06-11.",
             "class": "",
             "module": "kami"
         }
@@ -2054,11 +2054,11 @@
         },
         {
             "message": "Missing item type\nThis is a convenience function to pass a Matrix3 (from vecmath,\nkami's preferred math library) or a Float32Array (e.g. gl-matrix)\nto a shader. If mat is an object with \"val\", it is considered to be\na Matrix3, otherwise assumed to be a typed array being passed directly\nto the shader.",
-            "line": " lib/glutils/ShaderProgram.js:444"
+            "line": " lib/glutils/ShaderProgram.js:448"
         },
         {
             "message": "Missing item type\nThis is a convenience function to pass a Matrix4 (from vecmath,\nkami's preferred math library) or a Float32Array (e.g. gl-matrix)\nto a shader. If mat is an object with \"val\", it is considered to be\na Matrix4, otherwise assumed to be a typed array being passed directly\nto the shader.",
-            "line": " lib/glutils/ShaderProgram.js:466"
+            "line": " lib/glutils/ShaderProgram.js:471"
         },
         {
             "message": "Missing item type\nThis is a convenience function to set the batch's projection\nmatrix to an orthographic 2D projection, based on the given screen\nsize. This allows users to render in 2D without any need for a camera.",
@@ -2070,7 +2070,7 @@
         },
         {
             "message": "Missing item type",
-            "line": " lib/TextureRegion.js:48"
+            "line": " lib/TextureRegion.js:47"
         },
         {
             "message": "Missing item type\nUpdates the width and height of this WebGL context, resizes\nthe canvas view, and calls gl.viewport() with the new size.",
@@ -2089,11 +2089,11 @@
             "line": " lib/WebGLContext.js:209"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-03-24.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nDependencies are placed on the top-level namespace, for convenience.\nCreated on 2014-06-11.",
             "line": " lib/index-umd.js:1"
         },
         {
-            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2014-03-24.",
+            "message": "Missing item type\nAuto-generated Kami index file.\nCreated on 2014-06-11.",
             "line": " lib/index.js:1"
         }
     ]
