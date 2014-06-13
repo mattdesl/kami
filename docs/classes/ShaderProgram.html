@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.5.1</em>
+            <em>API Docs for: 0.5.2</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -47,6 +47,8 @@
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
+                <li><a href="../classes/Mesh.Attrib.html">Mesh.Attrib</a></li>
+            
                 <li><a href="../classes/ShaderProgram.html">ShaderProgram</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
@@ -59,7 +61,17 @@
 
             <ul id="api-modules" class="apis modules">
             
-                <li><a href="../modules/kami.html">kami</a></li>
+                <li><a href="../modules/kami-batch.html">kami-batch</a></li>
+            
+                <li><a href="../modules/kami-context.html">kami-context</a></li>
+            
+                <li><a href="../modules/kami-fbo.html">kami-fbo</a></li>
+            
+                <li><a href="../modules/kami-mesh-buffer.html">kami-mesh-buffer</a></li>
+            
+                <li><a href="../modules/kami-shader.html">kami-shader</a></li>
+            
+                <li><a href="../modules/kami-texture.html">kami-texture</a></li>
             
             </ul>
         </div>
@@ -103,14 +115,10 @@
     
 
     
-        <div class="foundat">
-            Defined in: <a href="../files/lib_glutils_ShaderProgram.js.html#l10"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:10</code></a>
-        </div>
-    
 
     
         
-            Module: <a href="../modules/kami.html">kami</a>
+            Module: <a href="../modules/kami-shader.html">kami-shader</a>
         
     
 
@@ -185,12 +193,8 @@ want to omit this to let the browser pick the locations for you.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l10"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:10</code></a>
         
         </p>
 
@@ -213,7 +217,7 @@ want to omit this to let the browser pick the locations for you.</p>
                 <li class="param">
                     
                         <code class="param-name">context</code>
-                        <span class="type"><a href="../classes/WebGLContext.html" class="crosslink">WebGLContext</a></span>
+                        <span class="type">WebGLRenderingContext | <a href="../classes/WebGLContext.html" class="crosslink">WebGLContext</a></span>
                     
 
                     
@@ -293,6 +297,8 @@ want to omit this to let the browser pick the locations for you.</p>
         
             <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
         
+        
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
         
         
         
@@ -418,6 +424,21 @@ want to omit this to let the browser pick the locations for you.</p>
             
 
             
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties">
+                        
+                            <li class="index-item property">
+                                <a href="#property_VERBOSE_COMPILE">VERBOSE_COMPILE</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
 
             
 
@@ -456,12 +477,8 @@ want to omit this to let the browser pick the locations for you.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l177"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:177</code></a>
         
         </p>
 
@@ -513,12 +530,8 @@ technically such a thing is not possible in the programmable pipeline.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l52"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:52</code></a>
         
         </p>
 
@@ -569,12 +582,8 @@ and may need to be called again after context loss and restore.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l190"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:190</code></a>
         
         </p>
 
@@ -639,12 +648,8 @@ after destroying it.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l235"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:235</code></a>
         
         </p>
 
@@ -751,12 +756,8 @@ then it may be optimized out.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l253"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:253</code></a>
         
         </p>
 
@@ -859,12 +860,8 @@ If the uniform is not found, this method returns null.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l305"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:305</code></a>
         
         </p>
 
@@ -966,12 +963,8 @@ If the uniform is not found, this method returns null.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l316"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:316</code></a>
         
         </p>
 
@@ -1073,12 +1066,8 @@ If the uniform is not found, this method returns null.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l218"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:218</code></a>
         
         </p>
 
@@ -1185,12 +1174,8 @@ be optimized out.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l266"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:266</code></a>
         
         </p>
 
@@ -1294,12 +1279,8 @@ the GLSL compiler deemed them unused.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l293"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:293</code></a>
         
         </p>
 
@@ -1402,12 +1383,8 @@ compiled program.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l280"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:280</code></a>
         
         </p>
 
@@ -1531,12 +1508,8 @@ the GLSL compiler deemed them unused.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l355"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:355</code></a>
         
         </p>
 
@@ -1698,12 +1671,8 @@ passed. For example, <code>setUniformf(&quot;var&quot;, 0, 1)</code> maps to <co
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l388"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:388</code></a>
         
         </p>
 
@@ -1848,12 +1817,8 @@ specified, this will dictate whether to call uniform1fv, uniform2fv, etc.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l327"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:327</code></a>
         
         </p>
 
@@ -2015,12 +1980,8 @@ passed. For example, <code>setUniformi(&quot;var&quot;, 0, 1)</code> maps to <co
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_ShaderProgram.js.html#l418"><code>lib&#x2F;glutils&#x2F;ShaderProgram.js:418</code></a>
         
         </p>
 
@@ -2107,6 +2068,58 @@ specified, this will dictate whether to call uniform1fv, uniform2fv, etc.</p>
             </div>
         
 
+        
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+                
+                    <div id="property_VERBOSE_COMPILE" class="property item">
+    <h3 class="name"><code>VERBOSE_COMPILE</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Whether to include verbose warnings during shader compilation.
+This includes:</p>
+<ul>
+<li>Printing full shaders (with line numbers) when there is an error</li>
+<li>Printing warnings even if the shader compiled successfully</li>
+</ul>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
         
 
         

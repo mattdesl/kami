@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.5.1</em>
+            <em>API Docs for: 0.5.2</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -47,6 +47,8 @@
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
+                <li><a href="../classes/Mesh.Attrib.html">Mesh.Attrib</a></li>
+            
                 <li><a href="../classes/ShaderProgram.html">ShaderProgram</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
@@ -59,7 +61,17 @@
 
             <ul id="api-modules" class="apis modules">
             
-                <li><a href="../modules/kami.html">kami</a></li>
+                <li><a href="../modules/kami-batch.html">kami-batch</a></li>
+            
+                <li><a href="../modules/kami-context.html">kami-context</a></li>
+            
+                <li><a href="../modules/kami-fbo.html">kami-fbo</a></li>
+            
+                <li><a href="../modules/kami-mesh-buffer.html">kami-mesh-buffer</a></li>
+            
+                <li><a href="../modules/kami-shader.html">kami-shader</a></li>
+            
+                <li><a href="../modules/kami-texture.html">kami-texture</a></li>
             
             </ul>
         </div>
@@ -103,14 +115,10 @@
     
 
     
-        <div class="foundat">
-            Defined in: <a href="../files/lib_WebGLContext.js.html#l8"><code>lib&#x2F;WebGLContext.js:8</code></a>
-        </div>
-    
 
     
         
-            Module: <a href="../modules/kami.html">kami</a>
+            Module: <a href="../modules/kami-context.html">kami-context</a>
         
     
 
@@ -123,12 +131,15 @@
     <p>A thin wrapper around WebGLRenderingContext which handles
 context loss and restore with various rendering objects (textures,
 shaders and buffers). This also handles general viewport management.</p>
-<p>If the view is not specified, a canvas will be created.</p>
-<p>If the <code>view</code> parameter is an instanceof WebGLRenderingContext,
-we will use its canvas and context without fetching another through <code>getContext</code>.
-Passing a canvas that has already had <code>getContext(&#39;webgl&#39;)</code> called will not cause
-errors, but in certain debuggers (e.g. Chrome WebGL Inspector) only the latest
+<p>If the <code>canvas</code> option isn&#39;t specified, a new canvas will be created.</p>
+<p>If <code>gl</code> is specified and is an instance of WebGLRenderingContext, the <code>canvas</code> 
+and <code>attributes</code> options will be ignored and we will use <code>gl</code> without fetching another <code>getContext</code>.
+Providing a canvas that has <code>getContext(&#39;webgl&#39;)</code> already called will not cause
+errors, but in certain debuggers (e.g. Chrome WebGL Inspector), only the latest
 context will be traced.</p>
+<p>If <code>handleContextLoss</code> is true (default), this will attempt to re-create the context
+manually (i.e. no &quot;Rats! WebGL hit a snag!&quot; message), by iterating through all &#39;managed objects&#39;
+and calling create() on them.</p>
 
 </div>
 
@@ -144,25 +155,7 @@ context will be traced.</p>
             
                 <li class="arg">
                     
-                        <code>width</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>height</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>view</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>contextAttribuets</code>
+                        <code>options</code>
                     
                 </li>
             
@@ -190,12 +183,8 @@ context will be traced.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_WebGLContext.js.html#l8"><code>lib&#x2F;WebGLContext.js:8</code></a>
         
         </p>
 
@@ -217,66 +206,106 @@ context will be traced.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">width</code>
-                        <span class="type">Number</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the width of the GL canvas</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">height</code>
-                        <span class="type">Number</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the height of the GL canvas</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">view</code>
-                        <span class="type">HTMLCanvasElement</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>the optional DOM canvas element</p>
-
-                    </div>
-
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">contextAttribuets</code>
+                        <code class="param-name">options</code>
                         <span class="type">Object</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>an object containing context attribs which
-                                  will be used during GL initialization</p>
+                        <p>some options for creation</p>
 
                     </div>
 
+                    
+                        <ul class="params-list">
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">width</code>
+                                    <span class="type">Number</span>
+                                
+
+                                <div class="param-description">
+                                    <p>the width of the GL canvas</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">height</code>
+                                    <span class="type">Number</span>
+                                
+
+                                <div class="param-description">
+                                    <p>the height of the GL canvas</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">canvas</code>
+                                    <span class="type">HTMLCanvasElement</span>
+                                
+
+                                <div class="param-description">
+                                    <p>the optional DOM canvas element</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">attributes</code>
+                                    <span class="type">Object</span>
+                                
+
+                                <div class="param-description">
+                                    <p>an object containing context attribs which
+                                  will be used during GL initialization</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">gl</code>
+                                    <span class="type">WebGLRenderingContext</span>
+                                
+
+                                <div class="param-description">
+                                    <p>the already-initialized GL context to use</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">handleContextLoss</code>
+                                    <span class="type">Boolean</span>
+                                
+
+                                <div class="param-description">
+                                    <p>whether to try and manage context loss, default true</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                        </ul>
                     
                 </li>
             
@@ -297,6 +326,8 @@ context will be traced.</p>
         <li class="api-class-tab index"><a href="#index">Index</a></li>
 
         
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
         
             <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
         
@@ -311,12 +342,55 @@ context will be traced.</p>
             <h2 class="off-left">Item Index</h2>
 
             
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods">
+                        
+                            <li class="index-item method private">
+                                <a href="#method_addManagedObject">addManagedObject</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_destroy">destroy</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_removeManagedObject">removeManagedObject</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_resize">resize</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
 
             
                 <div class="index-section properties">
                     <h3>Properties</h3>
 
                     <ul class="index-list properties">
+                        
+                            <li class="index-item property">
+                                <a href="#property_canvas">canvas</a>
+
+                                
+                                
+                            </li>
                         
                             <li class="index-item property">
                                 <a href="#property_contextAttributes">contextAttributes</a>
@@ -353,10 +427,12 @@ context will be traced.</p>
                                 
                             </li>
                         
-                            <li class="index-item property">
+                            <li class="index-item property deprecated">
                                 <a href="#property_view">view</a>
 
                                 
+                                
+                                    <span class="flag deprecated">deprecated</span>
                                 
                             </li>
                         
@@ -399,10 +475,417 @@ context will be traced.</p>
         </div>
 
         
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_addManagedObject" class="method item private">
+    <h3 class="name"><code>addManagedObject</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>tex</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>(internal use)
+A managed object is anything with a &quot;create&quot; function, that will
+restore GL state after context loss.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">tex</code>
+                        <span class="type">type</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>[description]</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_destroy" class="method item">
+    <h3 class="name"><code>destroy</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Calls destroy() on each managed object, then removes references to these objects
+and the GL rendering context. This also removes references to the view and sets
+the context&#39;s width and height to zero.</p>
+<p>Attempting to use this WebGLContext or the GL rendering context after destroying it
+will lead to undefined behaviour.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_removeManagedObject" class="method item private">
+    <h3 class="name"><code>removeManagedObject</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>obj</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>(internal use)
+Removes a managed object from the cache. This is useful to destroy
+a texture or shader, and have it no longer re-load on context restore.</p>
+<p>Returns the object that was removed, or null if it was not found in the cache.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">obj</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the object to be managed</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    <p>the removed object, or null</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_resize" class="method item">
+    <h3 class="name"><code>resize</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>width</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>height</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Updates the width and height of this WebGL context, resizes
+the canvas view, and calls gl.viewport() with the new size.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">width</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the new width</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">height</code>
+                        <span class="type">Number</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the new height</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
 
         
             <div id="properties" class="api-class-tabpanel">
                 <h2 class="off-left">Properties</h2>
+
+                
+                    <div id="property_canvas" class="property item">
+    <h3 class="name"><code>canvas</code></h3>
+    <span class="type">HTMLCanvasElement</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+            
+        
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The canvas DOM element for this context.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
 
                 
                     <div id="property_contextAttributes" class="property item">
@@ -423,12 +906,8 @@ context will be traced.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_WebGLContext.js.html#l86"><code>lib&#x2F;WebGLContext.js:86</code></a>
         
         </p>
 
@@ -469,12 +948,8 @@ anti-aliasing, alpha settings, verison, and so forth.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_WebGLContext.js.html#l42"><code>lib&#x2F;WebGLContext.js:42</code></a>
         
         </p>
 
@@ -517,12 +992,8 @@ is not <code>valid</code>, you should not try to access GL state.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_WebGLContext.js.html#l78"><code>lib&#x2F;WebGLContext.js:78</code></a>
         
         </p>
 
@@ -562,12 +1033,8 @@ is not <code>valid</code>, you should not try to access GL state.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_WebGLContext.js.html#l32"><code>lib&#x2F;WebGLContext.js:32</code></a>
         
         </p>
 
@@ -610,12 +1077,8 @@ See addManagedObject and removeManagedObject.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_WebGLContext.js.html#l94"><code>lib&#x2F;WebGLContext.js:94</code></a>
         
         </p>
 
@@ -638,10 +1101,12 @@ See addManagedObject and removeManagedObject.</p>
 </div>
 
                 
-                    <div id="property_view" class="property item">
+                    <div id="property_view" class="property item deprecated">
     <h3 class="name"><code>view</code></h3>
-    <span class="type">Number</span>
+    <span class="type">HTMLCanvas</span>
 
+    
+        <span class="flag deprecated" title="use canvas instead">deprecated</span>
     
 
     
@@ -656,22 +1121,21 @@ See addManagedObject and removeManagedObject.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
         
-        <a href="../files/lib_WebGLContext.js.html#l61"><code>lib&#x2F;WebGLContext.js:61</code></a>
-        
         </p>
 
+        
+            <p>Deprecated: use canvas instead</p>
         
 
         
     </div>
 
     <div class="description">
-        <p>The canvas DOM element for this context.</p>
+        <p>Backward-compatible view getter/setter.
+Deprecated, may be removed in the future.</p>
 
     </div>
 
@@ -701,12 +1165,8 @@ See addManagedObject and removeManagedObject.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_WebGLContext.js.html#l70"><code>lib&#x2F;WebGLContext.js:70</code></a>
         
         </p>
 
@@ -756,12 +1216,8 @@ See addManagedObject and removeManagedObject.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_WebGLContext.js.html#l102"><code>lib&#x2F;WebGLContext.js:102</code></a>
         
         </p>
 
@@ -802,12 +1258,8 @@ managing the context loss.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_WebGLContext.js.html#l112"><code>lib&#x2F;WebGLContext.js:112</code></a>
         
         </p>
 

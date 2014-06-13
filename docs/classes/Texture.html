@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.5.1</em>
+            <em>API Docs for: 0.5.2</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -47,6 +47,8 @@
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
+                <li><a href="../classes/Mesh.Attrib.html">Mesh.Attrib</a></li>
+            
                 <li><a href="../classes/ShaderProgram.html">ShaderProgram</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
@@ -59,7 +61,17 @@
 
             <ul id="api-modules" class="apis modules">
             
-                <li><a href="../modules/kami.html">kami</a></li>
+                <li><a href="../modules/kami-batch.html">kami-batch</a></li>
+            
+                <li><a href="../modules/kami-context.html">kami-context</a></li>
+            
+                <li><a href="../modules/kami-fbo.html">kami-fbo</a></li>
+            
+                <li><a href="../modules/kami-mesh-buffer.html">kami-mesh-buffer</a></li>
+            
+                <li><a href="../modules/kami-shader.html">kami-shader</a></li>
+            
+                <li><a href="../modules/kami-texture.html">kami-texture</a></li>
             
             </ul>
         </div>
@@ -103,14 +115,10 @@
     
 
     
-        <div class="foundat">
-            Defined in: <a href="../files/lib_Texture.js.html#l13"><code>lib&#x2F;Texture.js:13</code></a>
-        </div>
-    
 
     
         
-            Module: <a href="../modules/kami.html">kami</a>
+            Module: <a href="../modules/kami-texture.html">kami-texture</a>
         
     
 
@@ -121,21 +129,15 @@
 
 <div class="box intro">
     <p>Creates a new texture with the optional width, height, and data.</p>
-<p>If the constructor is passed no parameters other than WebGLContext, then
+<p>If the constructor is passed no parameters other than the context, then
 it will not be initialized and will be non-renderable. You will need to manually
 uploadData or uploadImage yourself.</p>
-<p>If you pass a width and height after context, the texture will be initialized with that size
-and null data (e.g. transparent black). If you also pass the format and data, 
-it will be uploaded to the texture. </p>
-<p>If you pass a String or Data URI as the second parameter,
-this Texture will load an Image object asynchronously. The optional third
-and fourth parameters are callback functions for success and failure, respectively. 
-The optional fifrth parameter for this version of the constructor is genMipmaps, which defaults to false. </p>
-<p>The arguments are kept in memory for future context restoration events. If
-this is undesirable (e.g. huge buffers which need to be GC&#39;d), you should not
-pass the data in the constructor, but instead upload it after creating an uninitialized 
-texture. You will need to manage it yourself, either by extending the create() method, 
-or listening to restored events in WebGLContext.</p>
+<p>If the options passed includes &#39;src&#39;, it assumes an image is to be loaded, 
+and will use the width/height from that resulting image. Otherwise, it 
+will look for &#39;data&#39;, which may be a typed array or any valid &quot;image&quot; object. 
+A typed array will need its width/height passed explicitly. </p>
+<p>If the context is a kami-context, we will try to manage the Texture object by
+keeping the arguments in memory for future use. </p>
 <p>Most users will want to use the AssetManager to create and manage their textures
 with asynchronous loading and context loss.</p>
 
@@ -159,37 +161,7 @@ with asynchronous loading and context loss.</p>
             
                 <li class="arg">
                     
-                        <code>width</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>height</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>format</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>dataType</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>data</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>genMipmaps</code>
+                        <code>options</code>
                     
                 </li>
             
@@ -217,12 +189,8 @@ with asynchronous loading and context loss.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l13"><code>lib&#x2F;Texture.js:13</code></a>
         
         </p>
 
@@ -245,7 +213,7 @@ with asynchronous loading and context loss.</p>
                 <li class="param">
                     
                         <code class="param-name">context</code>
-                        <span class="type"><a href="../classes/WebGLContext.html" class="crosslink">WebGLContext</a></span>
+                        <span class="type">WebGLRenderingContext | Kami-context</span>
                     
 
                     
@@ -260,97 +228,147 @@ with asynchronous loading and context loss.</p>
             
                 <li class="param">
                     
-                        <code class="param-name">width</code>
-                        <span class="type">Number</span>
+                        <code class="param-name">options</code>
+                        <span class="type">Object</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>the width of this texture</p>
+                        <p>the options to create this texture</p>
 
                     </div>
 
                     
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">height</code>
-                        <span class="type">Number</span>
-                    
+                        <ul class="params-list">
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">src</code>
+                                    <span class="type">String</span>
+                                
 
-                    
+                                <div class="param-description">
+                                    <p>the path to the image file, if ommitted we assume data will be given</p>
 
-                    <div class="param-description">
-                        <p>the height of this texture</p>
+                                </div>
 
-                    </div>
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">onLoad</code>
+                                    <span class="type">Function</span>
+                                
 
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">format</code>
-                        <span class="type">GLenum</span>
-                    
+                                <div class="param-description">
+                                    <p>called when the image is loaded (if src is provided)</p>
 
-                    
+                                </div>
 
-                    <div class="param-description">
-                        <p>e.g. Texture.Format.RGBA</p>
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">onError</code>
+                                    <span class="type">Function</span>
+                                
 
-                    </div>
+                                <div class="param-description">
+                                    <p>called when there was an error loading the image (if src is provided)</p>
 
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">dataType</code>
-                        <span class="type">GLenum</span>
-                    
+                                </div>
 
-                    
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">data</code>
+                                    <span class="type">ArrayBuffer</span>
+                                
 
-                    <div class="param-description">
-                        <p>e.g. Texture.DataType.UNSIGNED_BYTE (Uint8Array)</p>
+                                <div class="param-description">
+                                    <p>some typed array with texture data, ignored if &#39;src&#39; is specified</p>
 
-                    </div>
+                                </div>
 
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">data</code>
-                        <span class="type">GLenum</span>
-                    
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">format</code>
+                                    <span class="type">GLenum</span>
+                                
 
-                    
+                                <div class="param-description">
+                                    <p>the texture format, default Texture.Format.RGBA (for when data is specified)</p>
 
-                    <div class="param-description">
-                        <p>the array buffer, e.g. a Uint8Array view</p>
+                                </div>
 
-                    </div>
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">type</code>
+                                    <span class="type">GLenum</span>
+                                
 
-                    
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">genMipmaps</code>
-                        <span class="type">Boolean</span>
-                    
+                                <div class="param-description">
+                                    <p>the data type, default Texture.DataType.UNSIGNED_BYTE (for when data is specified)</p>
 
-                    
+                                </div>
 
-                    <div class="param-description">
-                        <p>whether to generate mipmaps after uploading the data</p>
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">width</code>
+                                    <span class="type">Number</span>
+                                
 
-                    </div>
+                                <div class="param-description">
+                                    <p>the width of the texture (if we are not specifying an image URL)</p>
 
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">height</code>
+                                    <span class="type">Number</span>
+                                
+
+                                <div class="param-description">
+                                    <p>the height of the texture (if we are not specifying an image URL)</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">genMipmaps</code>
+                                    <span class="type">Boolean</span>
+                                
+
+                                <div class="param-description">
+                                    <p>whether to generate mipmaps after upload</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                        </ul>
                     
                 </li>
             
@@ -360,19 +378,6 @@ with asynchronous loading and context loss.</p>
 
     
 
-    
-        <div class="example">
-            <h4>Example:</h4>
-
-            <div class="example-content">
-                <pre class="code prettyprint"><code>    new Texture(context, 256, 256); //empty 256x256 texture
-    new Texture(context, 1, 1, Texture.Format.RGBA, Texture.DataType.UNSIGNED_BYTE, 
-                new Uint8Array([255,0,0,255])); //1x1 red texture
-    new Texture(context, &quot;test.png&quot;); //loads image asynchronously
-    new Texture(context, &quot;test.png&quot;, successFunc, failFunc, useMipmaps); //extra params for image laoder </code></pre>
-
-            </div>
-        </div>
     
 </div>
 
@@ -626,12 +631,8 @@ with asynchronous loading and context loss.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l393"><code>lib&#x2F;Texture.js:393</code></a>
         
         </p>
 
@@ -708,12 +709,8 @@ or NEAREST. If we don&#39;t satisfy these needs, an error is thrown.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l419"><code>lib&#x2F;Texture.js:419</code></a>
         
         </p>
 
@@ -791,12 +788,8 @@ is currently active.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l207"><code>lib&#x2F;Texture.js:207</code></a>
         
         </p>
 
@@ -848,12 +841,8 @@ textures.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l242"><code>lib&#x2F;Texture.js:242</code></a>
         
         </p>
 
@@ -922,12 +911,8 @@ setting its size to zero, and id and managed arguments to null.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l583"><code>lib&#x2F;Texture.js:583</code></a>
         
         </p>
 
@@ -1039,12 +1024,8 @@ LUMINANCE_ALPHA, RGB, or RGBA.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l295"><code>lib&#x2F;Texture.js:295</code></a>
         
         </p>
 
@@ -1156,12 +1137,8 @@ a GL reference.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l146"><code>lib&#x2F;Texture.js:146</code></a>
         
         </p>
 
@@ -1173,8 +1150,7 @@ a GL reference.</p>
 
     <div class="description">
         <p>This can be called after creating a Texture to load an Image object asynchronously,
-or upload image data directly. It takes the same parameters as the constructor, except 
-for the context which has already been established. </p>
+or upload image data directly. It takes the same options as the constructor.</p>
 <p>Users will generally not need to call this directly.</p>
 
     </div>
@@ -1236,12 +1212,8 @@ for the context which has already been established. </p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l263"><code>lib&#x2F;Texture.js:263</code></a>
         
         </p>
 
@@ -1391,12 +1363,8 @@ a GL reference.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l326"><code>lib&#x2F;Texture.js:326</code></a>
         
         </p>
 
@@ -1582,12 +1550,8 @@ texture to change.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l363"><code>lib&#x2F;Texture.js:363</code></a>
         
         </p>
 
@@ -1709,12 +1673,8 @@ HTMLVideoElement.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l88"><code>lib&#x2F;Texture.js:88</code></a>
         
         </p>
 
@@ -1754,12 +1714,8 @@ HTMLVideoElement.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l118"><code>lib&#x2F;Texture.js:118</code></a>
         
         </p>
 
@@ -1783,7 +1739,7 @@ HTMLVideoElement.</p>
                 
                     <div id="property_managedArgs" class="property item">
     <h3 class="name"><code>managedArgs</code></h3>
-    <span class="type">Array the array of arguments, shifted to exclude the WebGLContext parameter</span>
+    <span class="type">Object the options given to the Texture constructor, or undefined</span>
 
     
 
@@ -1799,12 +1755,8 @@ HTMLVideoElement.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l124"><code>lib&#x2F;Texture.js:124</code></a>
         
         </p>
 
@@ -1851,12 +1803,8 @@ the asynchronous texture upload.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l112"><code>lib&#x2F;Texture.js:112</code></a>
         
         </p>
 
@@ -1896,12 +1844,8 @@ the asynchronous texture upload.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l68"><code>lib&#x2F;Texture.js:68</code></a>
         
         </p>
 
@@ -1945,12 +1889,8 @@ usage with context restore.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l79"><code>lib&#x2F;Texture.js:79</code></a>
         
         </p>
 
@@ -1990,12 +1930,8 @@ usage with context restore.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l102"><code>lib&#x2F;Texture.js:102</code></a>
         
         </p>
 
@@ -2035,12 +1971,8 @@ usage with context restore.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l107"><code>lib&#x2F;Texture.js:107</code></a>
         
         </p>
 
@@ -2097,12 +2029,8 @@ usage with context restore.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l510"><code>lib&#x2F;Texture.js:510</code></a>
         
         </p>
 
@@ -2162,12 +2090,8 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l547"><code>lib&#x2F;Texture.js:547</code></a>
         
         </p>
 
@@ -2219,12 +2143,8 @@ provider was specified, it may choose to override this default mode.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l536"><code>lib&#x2F;Texture.js:536</code></a>
         
         </p>
 
@@ -2276,12 +2196,8 @@ provider was specified, it may choose to override this default mode.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l441"><code>lib&#x2F;Texture.js:441</code></a>
         
         </p>
 
@@ -2345,12 +2261,8 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l557"><code>lib&#x2F;Texture.js:557</code></a>
         
         </p>
 
@@ -2408,12 +2320,8 @@ textures, or in some future case where NPOT textures is added as a WebGL extensi
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l487"><code>lib&#x2F;Texture.js:487</code></a>
         
         </p>
 
@@ -2474,12 +2382,8 @@ This is for convenience, to avoid the need for a GL rendering context.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_Texture.js.html#l467"><code>lib&#x2F;Texture.js:467</code></a>
         
         </p>
 

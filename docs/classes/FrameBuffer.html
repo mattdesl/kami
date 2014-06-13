@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.5.1</em>
+            <em>API Docs for: 0.5.2</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -47,6 +47,8 @@
             
                 <li><a href="../classes/Mesh.html">Mesh</a></li>
             
+                <li><a href="../classes/Mesh.Attrib.html">Mesh.Attrib</a></li>
+            
                 <li><a href="../classes/ShaderProgram.html">ShaderProgram</a></li>
             
                 <li><a href="../classes/SpriteBatch.html">SpriteBatch</a></li>
@@ -59,7 +61,17 @@
 
             <ul id="api-modules" class="apis modules">
             
-                <li><a href="../modules/kami.html">kami</a></li>
+                <li><a href="../modules/kami-batch.html">kami-batch</a></li>
+            
+                <li><a href="../modules/kami-context.html">kami-context</a></li>
+            
+                <li><a href="../modules/kami-fbo.html">kami-fbo</a></li>
+            
+                <li><a href="../modules/kami-mesh-buffer.html">kami-mesh-buffer</a></li>
+            
+                <li><a href="../modules/kami-shader.html">kami-shader</a></li>
+            
+                <li><a href="../modules/kami-texture.html">kami-texture</a></li>
             
             </ul>
         </div>
@@ -103,14 +115,10 @@
     
 
     
-        <div class="foundat">
-            Defined in: <a href="../files/lib_glutils_FrameBuffer.js.html#l7"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:7</code></a>
-        </div>
-    
 
     
         
-            Module: <a href="../modules/kami.html">kami</a>
+            Module: <a href="../modules/kami-fbo.html">kami-fbo</a>
         
     
 
@@ -121,12 +129,11 @@
 
 <div class="box intro">
     <p>Creates a new Frame Buffer Object with the given width and height.</p>
-<p>If width and height are non-numbers, this method expects the
-first parameter to be a Texture object which should be acted upon. 
-In this case, the FrameBuffer does not &quot;own&quot; the texture, and so it
-won&#39;t dispose of it upon destruction. This is an advanced version of the
-constructor that assumes the user is giving us a valid Texture that can be bound (i.e.
-no async Image textures).</p>
+<p>It&#39;s advised to use FrameBuffer.getMaxSize(gl) as a utility to ensure
+your texture is under the hardware limits. If it exceeds this size in
+either dimension, this constructor will throw an error.</p>
+<p>If <code>texture</code> is provided to the options, we will use that as the 
+color buffer texture and grab its width/height.</p>
 
 </div>
 
@@ -142,19 +149,13 @@ no async Image textures).</p>
             
                 <li class="arg">
                     
-                        <code>width</code>
+                        <code>context</code>
                     
                 </li>
             
                 <li class="arg">
                     
-                        <code>height</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>filter</code>
+                        <code>options</code>
                     
                 </li>
             
@@ -162,10 +163,6 @@ no async Image textures).</p>
         </div>
     
 
-    
-        <span class="returns-inline">
-            <span class="type">type</span>
-        </span>
     
 
     
@@ -186,12 +183,8 @@ no async Image textures).</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l7"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:7</code></a>
         
         </p>
 
@@ -213,14 +206,14 @@ no async Image textures).</p>
             
                 <li class="param">
                     
-                        <code class="param-name">width</code>
-                        <span class="type">type</span>
+                        <code class="param-name">context</code>
+                        <span class="type">WebGLRenderingContext | Kami-context</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>[description]</p>
+                        <p>the gl/kami context</p>
 
                     </div>
 
@@ -229,33 +222,77 @@ no async Image textures).</p>
             
                 <li class="param">
                     
-                        <code class="param-name">height</code>
-                        <span class="type">type</span>
+                        <code class="param-name">options</code>
+                        <span class="type">Object</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>[description]</p>
+                        <p>the options for initialization</p>
 
                     </div>
 
                     
-                </li>
-            
-                <li class="param">
-                    
-                        <code class="param-name">filter</code>
-                        <span class="type">type</span>
-                    
+                        <ul class="params-list">
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">width</code>
+                                    <span class="type">Number</span>
+                                
 
-                    
+                                <div class="param-description">
+                                    <p>the width of the texture, must be &gt;= 1</p>
 
-                    <div class="param-description">
-                        <p>[description]</p>
+                                </div>
 
-                    </div>
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">height</code>
+                                    <span class="type">Number</span>
+                                
 
+                                <div class="param-description">
+                                    <p>the height of the texture, must be &gt;= 1</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">format</code>
+                                    <span class="type">GLenum</span>
+                                
+
+                                <div class="param-description">
+                                    <p>the format of the texture, default gl.RGBA</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                            <li class="param">
+                                
+                                    <code class="param-name">texture</code>
+                                    <span class="type"><a href="../classes/Texture.html" class="crosslink">Texture</a></span>
+                                
+
+                                <div class="param-description">
+                                    <p>a kami-texture to use instead of creating a new one</p>
+
+                                </div>
+
+                                
+                            </li>
+                            
+                        </ul>
                     
                 </li>
             
@@ -263,20 +300,6 @@ no async Image textures).</p>
         </div>
     
 
-    
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                
-                    
-                        <span class="type">type</span>:
-                    
-                    <p>[description]</p>
-
-                
-            </div>
-        </div>
     
 
     
@@ -423,12 +446,8 @@ no async Image textures).</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l147"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:147</code></a>
         
         </p>
 
@@ -478,12 +497,8 @@ no async Image textures).</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l83"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:83</code></a>
         
         </p>
 
@@ -534,12 +549,8 @@ context restore. Users will not need to call this directly.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l126"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:126</code></a>
         
         </p>
 
@@ -590,12 +601,8 @@ undefined results.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l157"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:157</code></a>
         
         </p>
 
@@ -645,12 +652,8 @@ to the size of the WebGLContext.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l36"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:36</code></a>
         
         </p>
 
@@ -690,12 +693,8 @@ to the size of the WebGLContext.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l69"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:69</code></a>
         
         </p>
 
@@ -735,12 +734,8 @@ to the size of the WebGLContext.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l29"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:29</code></a>
         
         </p>
 
@@ -780,12 +775,8 @@ to the size of the WebGLContext.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l43"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:43</code></a>
         
         </p>
 
@@ -825,12 +816,8 @@ to the size of the WebGLContext.</p>
                 
                 <p>
                 
-                Defined in
-                
             
         
-        
-        <a href="../files/lib_glutils_FrameBuffer.js.html#l56"><code>lib&#x2F;glutils&#x2F;FrameBuffer.js:56</code></a>
         
         </p>
 
