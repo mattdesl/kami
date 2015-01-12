@@ -1,8 +1,6 @@
 ## Upcoming v1.0.0 Changes
 
-Kami is now breaking into small and composable modules that will be published separately to NPM. This allows them to be used easily alongside other WebGL modules that are starting to gain traction, like modules-gl and the many ndarray features that pair well with it.
-
-See the [wiki](https://github.com/mattdesl/kami/wiki) for details and plans.
+Kami is now breaking into small and composable modules that will be published separately to NPM. Most new work is under the [stackgl](https://github.com/stackgl) ecosystem. However, some higher-level 2D game abstractions may be eventually built on top of these modules under the kami namespace.
 
 ## kami
 
